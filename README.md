@@ -19,13 +19,13 @@
 
 ## How to achieve?
 
-
+![mind.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/mind.png)
 
 
 
 ## Effect
 
-
+![Effect.gif](https://github.com/Memoyu/WeComLoad/raw/master/doc/Effect.gif)
 
 
 
