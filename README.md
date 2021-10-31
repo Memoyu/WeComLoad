@@ -19,13 +19,13 @@
 
 ## How to achieve?
 
-![mind.png (972×859) (raw.githubusercontent.com)](https://raw.githubusercontent.com/Memoyu/WeComLoad/master/doc/mind.png)
+
 
 
 
 ## Effect
 
-![Effect.gif (1888×819) (raw.githubusercontent.com)](https://raw.githubusercontent.com/Memoyu/WeComLoad/master/doc/Effect.gif)
+
 
 
 
