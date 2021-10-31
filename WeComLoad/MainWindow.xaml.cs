@@ -7,18 +7,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WeComLoad.Model;
 
 namespace WeComLoad
@@ -106,6 +99,7 @@ namespace WeComLoad
             var data = await WeWorkWebRequest.HttpWebRequestPostAsync(url, dic);
             richText_resp.Document = new FlowDocument(new Paragraph(new Run(data)));
         }
+
         private async void Button_GetExtContactAndUserSecret_Click(object sender, RoutedEventArgs e)
         {
             // 1、获取应用列表
