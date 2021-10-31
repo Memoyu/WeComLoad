@@ -19,7 +19,9 @@
 
 ## How to achieve?
 
-![mind.png (972×859) (raw.githubusercontent.com)](https://github.com/Memoyu/WeComLoad/raw/master/doc/mind.png)
+![mbill_wechat_app/doc at main · Memoyu/mbill_wechat_app (github.com)](https://github.com/Memoyu/mbill_wechat_app/blob/main/doc/效果图.png)
+
+![mind.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/mind.png)
 
 
 
