@@ -14,9 +14,11 @@
         </Grid.RowDefinitions>
 
         <DockPanel LastChildFill="False">
-            <Button Margin="5, 0"  Click="Button_GetQrCode_Click">1、获取登录二维码</Button>
+            <Button Margin="5, 0"  Click="Button_GetQrCode_Click">*获取登录二维码*</Button>
             <Button Margin="5, 0" Click="Button_GetCorpDepts_Click">获取企业部门列表</Button>
+            <Button Margin="5, 0" Click="Button_GetAgents_Click">获取应用列表</Button>
             <Button Margin="5, 0" Click="Button_GetExtContactAndUserSecret_Click">查看客户联系、通讯录Secret</Button>
+            <Button Margin="5, 0" Click="Button_CreateAgent_Click">创建应用</Button>
         </DockPanel>
 
         <Grid Grid.Row="1">
