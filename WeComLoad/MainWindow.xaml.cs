@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media.Imaging;
-using WeComLoad.Model;
+using WeComLoad.Automation;
 
 namespace WeComLoad
 {
@@ -21,11 +21,11 @@ namespace WeComLoad
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly WeComWebRequest _weComWebReq;
+        private readonly IWeComAdmin _weComAdmin;
         public MainWindow()
         {
             InitializeComponent();
-            _weComWebReq = new WeComWebRequest();
+            _weComAdmin = new WeComAdminFunc();
         }
 
         /// <summary>
@@ -35,58 +35,28 @@ namespace WeComLoad
         /// <param name="e"></param>
         private async void Button_GetQrCode_Click(object sender, RoutedEventArgs e)
         {
-        ReGetLoginQrCode:
-            var key = await GetLoginAndShowQrCode();
-            var authCode = string.Empty;
+            var key = await GetLoginAndShowQrCodeAsync();
             var isLogin = false;
             int count = 1;
-            var authSource = string.Empty;
-            var delay = 4000;
+            var delay = 2000;
             while (!isLogin)
             {
-                var data = await GetLoginStatus(key);
-                richText_login_status.Document = new FlowDocument(new Paragraph(new Run($"{data}\r\n\r\n当前刷新次数：{count}")));
-
-                var status = JsonConvert.DeserializeObject<JObject>(data);
-                var statusStr = status["data"]["status"]?.ToString();
-                if (statusStr.Equals("QRCODE_SCAN_ING"))
+                var state = await GetLoginStatusAsync(key);
+                richText_login_status.Document = new FlowDocument(new Paragraph(new Run($"{state.Msg}\r\n\r\n当前刷新次数：{count}")));
+                if (state.Code == 4 || state.Code == 5)
                 {
-                    delay = 1000;
+                    key = await GetLoginAndShowQrCodeAsync();
+                    continue;
                 }
-                else if (statusStr.Equals("QRCODE_SCAN_SUCC"))
+                else if(state.Code == 6)
                 {
                     isLogin = true;
-                    authCode = status["data"]["auth_code"].ToString();
-                    authSource = status["data"]["auth_source"].ToString();
                 }
                 await Task.Delay(delay);
                 count++;
             }
-            if (string.IsNullOrWhiteSpace(authCode))
-            {
-                Trace.WriteLine("授权码为空");
-                return;
-            }
-
-            if (!authSource.Equals("SOURCE_FROM_WEWORK"))
-            {
-                MessageBox.Show("请使用企微扫码", "请使用企微扫码", MessageBoxButton.OK, MessageBoxImage.Warning);
-                goto ReGetLoginQrCode;
-            }
-
-            var login1 = await GetLoginCookie_1(key, authCode);
-            richText_login_cookie.Document = new FlowDocument(new Paragraph(new Run(login1)));
-            var index = login1.IndexOf('/');
-            var login2Url = login1.Substring(index + 1);
-            var login2 = await GetLoginCookie_2(login2Url);
-
-            index = login2.IndexOf('/');
-            var frameUrl = login2.Substring(index + 1);
-            var frame = await GoToFrame(frameUrl);
-
-
             var cookieSb = new StringBuilder();
-            foreach (var item in GetAllCookies(_weComWebReq.Cookies))
+            foreach (var item in GetAllCookies(_weComAdmin.GetWeCombReq().Cookies))
             {
                 cookieSb.Append($"{item.Name} : {item.Value}");
             }
@@ -100,7 +70,7 @@ namespace WeComLoad
         /// <param name="e"></param>
         private async void Button_GetCorpDepts_Click(object sender, RoutedEventArgs e)
         {
-            var model = await _weComWebReq.GetCorpDeptAsync();
+            var model = await _weComAdmin.GetCorpDeptAsync();
             richText_resp.Document = new FlowDocument(new Paragraph(new Run(JsonConvert.SerializeObject(model))));
         }
 
@@ -111,9 +81,10 @@ namespace WeComLoad
         /// <param name="e"></param>
         private async void Button_GetAgents_Click(object sender, RoutedEventArgs e)
         {
-            var model = await _weComWebReq.GetCorpAppAsync();
+            var model = await _weComAdmin.GetCorpAppAsync();
             richText_resp.Document = new FlowDocument(new Paragraph(new Run(JsonConvert.SerializeObject(model))));
         }
+
         /// <summary>
         /// 查看客户联系、通讯录Secret
         /// </summary>
@@ -122,24 +93,7 @@ namespace WeComLoad
         private async void Button_GetExtContactAndUserSecret_Click(object sender, RoutedEventArgs e)
         {
             // 1、获取应用列表
-            var model = await _weComWebReq.GetCorpAppAsync();
-            // 获取客户联系、通讯录appid (app_open_id为固定值，2000002：通讯录同步助手，2000003：外部联系人)
-            var appids = model.Data.openapi_app.Where(m => m.app_open_id == 2000002 || m.app_open_id == 2000003).Select(a => a.app_id).ToList();
-            foreach (var id in appids)
-            {
-                var dic = new Dictionary<string, string>
-                {
-                  {"appid",id },  {"business_type","1" }, {"app_type","1" }, {"_d2st", _weComWebReq.GetD2st() }
-                };
-                var url = _weComWebReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
-                {
-                    {"lang","zh_CN" }, {"f", "json"}, {"ajax", "1"}, {"timeZoneInfo%5Bzone_offset%5D", "-8"}, {"random", _weComWebReq.GetRandom()}
-                });
-                await _weComWebReq.HttpWebRequestPostAsync(url, dic);
-
-                await Task.Delay(1000);
-            }
-
+            var model = await _weComAdmin.SendExtContactAndUserSecretAsync();
             richText_resp.Document = new FlowDocument(new Paragraph(new Run("完成Secret发送，请在企微客户端查看")));
         }
 
@@ -150,97 +104,83 @@ namespace WeComLoad
         /// <param name="e"></param>
         private async void Button_CreateAgent_Click(object sender, RoutedEventArgs e)
         {
-            var name = "章鱼触手";
-
-            var appModel = await _weComWebReq.GetCorpAppAsync(true);
-            var agent = appModel.Data.openapi_app.FirstOrDefault(a => a.name.Equals(name));
-            if (agent != null)
-            {
-                richText_resp.Document = new FlowDocument(new Paragraph(new Run($"应用已存在，AgentId = {agent.app_open_id}")));
-                return;
-            }
-
-            var deptModel = await _weComWebReq.GetCorpDeptAsync();
-            var pid = deptModel.Data.party_list.list.Where(p => p.openapi_partyid.Equals("1")).FirstOrDefault();
-            if (pid == null)
-            {
-                richText_resp.Document = new FlowDocument(new Paragraph(new Run($"企业部门列表异常")));
-                return;
-            }
-            // wework_admin/apps/addOpenApiApp?lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.33112845648469147
-            var description = "这是章鱼";
-            var english_name = "";
-            var english_description = "";
+            var name = "自动化创建应用";
+            var description = "自动化创建应用-描述";
             var logoimage = "http://p.qlogo.cn/bizmail/Qiabx6eW3f7yic7dk0QOpdUW3X0ic2QONc4f95JoGcMUoIS2Pl4fqgZlQ/0";
-            var visible_pid = pid.partyid;
-            var dic = new Dictionary<string, string>
+            // 1、创建应用
+            var agent = await _weComAdmin.AddOpenApiAppAsync(new AddOpenApiAppRequest
             {
-                { "name",name },
-                { "description",description },
-                { "english_name",english_name },
-                { "english_description",english_description },
-                { "app_open","true" },
-                { "logoimage",logoimage },
-                { "visible_pid[]",visible_pid },
-                { "_d2st", _weComWebReq.GetD2st() }
-            };
-            var url = _weComWebReq.GetQueryUrl("wework_admin/apps/addOpenApiApp", new Dictionary<string, string>
-            {
-                {"lang","zh_CN" }, {"f", "json"}, {"ajax", "1"}, {"timeZoneInfo%5Bzone_offset%5D", "-8"}, {"random", _weComWebReq.GetRandom()}
+                Name = name,
+                Desc = description,
+                LogoImage = logoimage
             });
-            var res = await _weComWebReq.HttpWebRequestPostAsync(url, dic);
-            richText_resp.Document = new FlowDocument(new Paragraph(new Run($"创建成功 res:{res}")));
+            richText_resp.Document = new FlowDocument(new Paragraph(new Run($"创建成功 Agent:{JsonConvert.SerializeObject(agent)}")));
         }
 
         #region 登录操作
 
-        private async Task<string> GetLoginAndShowQrCode()
+        private async Task<string> GetLoginAndShowQrCodeAsync()
         {
-            var keyUrl = _weComWebReq.GetQueryUrl("wework_admin/wwqrlogin/mng/get_key", new Dictionary<string, string>
-            {
-                {"r","0.2222327287230379" }
-            });
-            var qrCodekey = await _weComWebReq.HttpWebRequestGetAsync(keyUrl);
-            var json = JsonConvert.DeserializeObject<JObject>(qrCodekey);
-            if (json == null || json["data"]["qrcode_key"] == null) throw new Exception("企微二维码Key为空");
-            var key = json["data"]["qrcode_key"].ToString();
-            var qrCodeUrl = _weComWebReq.GetQueryUrl($"{_weComWebReq.BaseUrl}wwqrlogin/mng/qrcode/{key}", new Dictionary<string, string>
-            {
-                {"login_type","login_admin" }
-            });
-            byte[] btyarray = GetImageFromResponse(qrCodeUrl);
+            var (url, key) = await _weComAdmin.GetLoginQrCodeUrlAsync();
+            byte[] btyarray = GetImageFromResponse(url);
             MemoryStream ms = new MemoryStream(btyarray);
             imgage_qrcode.Source = BitmapFrame.Create(ms, BitmapCreateOptions.None, BitmapCacheOption.Default);
-
             return key;
         }
 
-        private async Task<string> GetLoginStatus(string qrCodeKey)
+        /// <summary>
+        /// 1：等待扫码；2：扫码成功；3：确认登录；4：扫码后取消登录；5：登录失败；6：登录成功
+        /// </summary>
+        /// <param name="qrCodeKey"></param>
+        /// <returns></returns>
+        private async Task<(int Code, string Msg)> GetLoginStatusAsync(string qrCodeKey)
         {
-            var url = _weComWebReq.GetQueryUrl("wework_admin/wwqrlogin/check", new Dictionary<string, string>
+            try
             {
-                {"qrcode_key",qrCodeKey }, {"status", ""}
-            });
-            return await _weComWebReq.HttpWebRequestGetAsync(url);
-        }
+                // 1：等待扫码；2：扫码成功；3：确认登录；4：扫码后取消登录；5：登录失败；6：登录成功
+                var status = await _weComAdmin.GetQrCodeScanStatusAsync(qrCodeKey);
+                if (status == null) return (1, "登录失败");
+                var statusCode = 1;
+                var statusMsg = "等待扫码";
+                switch (status.Status)
+                {
+                    case "QRCODE_SCAN_ING":
+                        statusMsg = "扫码成功";
+                        statusCode = 2;
+                        break;
+                    case "QRCODE_SCAN_SUCC":
+                        if (!status.AuthSource.Equals("SOURCE_FROM_WEWORK"))
+                        {
+                            statusCode = 5;
+                            statusMsg = "请使用企业微信扫码";
+                            break;
+                        }
 
-        private async Task<string> GetLoginCookie_1(string qrCodeKey, string authCode)
-        {
-            var url = _weComWebReq.GetQueryUrl("wework_admin/loginpage_wx", new Dictionary<string, string>
+                        var flag = await _weComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
+                        if (flag == false)
+                        {
+                            statusCode = 5;
+                            statusMsg = "登录失败";
+                            break;
+                        }
+
+                        statusCode = 6;
+                        statusMsg = "登录成功";
+
+                        break;
+                    case "QRCODE_SCAN_FAIL":
+                        statusCode = 4;
+                        statusMsg = "取消登录";
+                        break;
+                }
+
+                return (statusCode, statusMsg);
+            }
+            catch (Exception ex)
             {
-               {"_r","751" }, {"code",authCode }, {"qrcode_key",qrCodeKey }, {"wwqrlogin", "1"}, {"auth_source", "SOURCE_FROM_WEWORK"}
-            });
-            return await _weComWebReq.HttpWebRequestGetAsync(url);
-        }
-
-        private async Task<string> GetLoginCookie_2(string url)
-        {
-            return await _weComWebReq.HttpWebRequestGetAsync(url);
-        }
-
-        private async Task<string> GoToFrame(string url)
-        {
-            return await _weComWebReq.HttpWebRequestGetAsync(url);
+                Trace.WriteLine($"获取企微后台登录二维码扫描状态异常 异常：{ex.Message}");
+                return (5, "登录异常");
+            }
         }
 
         #endregion
