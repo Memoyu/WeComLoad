@@ -13,14 +13,28 @@ namespace WeComLoad.Automation
     {
         private readonly string _weWorkBaseUrl = "https://work.weixin.qq.com/";
         private CookieContainer _cookies = new CookieContainer();
+        private string _cookieStr = string.Empty;
 
         public WeComAdminWebReq()
         {
         }
 
-        public CookieContainer Cookies => _cookies;
-
         public string BaseUrl => _weWorkBaseUrl;
+
+        public string CookieString
+        {
+            get
+            {
+                // _cookies.Add(response.Cookies);
+                List<string> cookieItems = new List<string>();
+                foreach (var item in GetCookies())
+                {
+                    cookieItems.Add($"{item.Name}:{item.Value}");
+                }
+                _cookieStr = string.Join(";", cookieItems);
+                return _cookieStr;
+            }
+        }
 
         public async Task<HttpWebResponse> HttpWebRequestGetAsync(string url)
         {
@@ -182,7 +196,26 @@ namespace WeComLoad.Automation
             request.Referer = $"{_weWorkBaseUrl}wework_admin/loginpage_wx?from=myhome";
             request.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
             request.CookieContainer = _cookies;
+            // request.Headers.Add("Cookie", _cookieStr);
             return request;
+        }
+
+        private List<Cookie> GetCookies()
+        {
+            List<Cookie> lstCookies = new List<Cookie>();
+            Hashtable table = (Hashtable)_cookies.GetType().InvokeMember("m_domainTable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField |
+                System.Reflection.BindingFlags.Instance, null, _cookies, new object[] { });
+
+            foreach (object pathList in table.Values)
+            {
+                SortedList lstCookieCol = (SortedList)pathList.GetType().InvokeMember("m_list",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField
+                    | System.Reflection.BindingFlags.Instance, null, pathList, new object[] { });
+                foreach (CookieCollection colCookies in lstCookieCol.Values)
+                    foreach (Cookie c in colCookies) lstCookies.Add(c);
+            }
+            return lstCookies;
         }
 
         #endregion

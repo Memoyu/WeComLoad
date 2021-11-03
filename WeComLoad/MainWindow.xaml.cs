@@ -55,12 +55,7 @@ namespace WeComLoad
                 await Task.Delay(delay);
                 count++;
             }
-            var cookieSb = new StringBuilder();
-            foreach (var item in GetAllCookies(_weComAdmin.GetWeCombReq().Cookies))
-            {
-                cookieSb.Append($"{item.Name} : {item.Value}");
-            }
-            richText_login_cookie.Document = new FlowDocument(new Paragraph(new Run(cookieSb.ToString())));
+            richText_login_cookie.Document = new FlowDocument(new Paragraph(new Run(_weComAdmin.GetWeCombReq().CookieString)));
         }
 
         /// <summary>
@@ -235,23 +230,6 @@ namespace WeComLoad
         /// </summary>
         /// <param name="cc"></param>
         /// <returns></returns>
-        private List<Cookie> GetAllCookies(CookieContainer cc)
-        {
-            List<Cookie> lstCookies = new List<Cookie>();
-            Hashtable table = (Hashtable)cc.GetType().InvokeMember("m_domainTable",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField |
-                System.Reflection.BindingFlags.Instance, null, cc, new object[] { });
-
-            foreach (object pathList in table.Values)
-            {
-                SortedList lstCookieCol = (SortedList)pathList.GetType().InvokeMember("m_list",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField
-                    | System.Reflection.BindingFlags.Instance, null, pathList, new object[] { });
-                foreach (CookieCollection colCookies in lstCookieCol.Values)
-                    foreach (Cookie c in colCookies) lstCookies.Add(c);
-            }
-            return lstCookies;
-        }
 
         #endregion
     }

@@ -61,7 +61,6 @@ namespace WeComLoad.Automation
                { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
             });
             var response = await _weCombReq.HttpWebRequestGetAsync(url);
-            _weCombReq.Cookies.Add(response.Cookies);
             if (!_weCombReq.IsResponseRedi(response)) return false;
             var rediUrlData = _weCombReq.GetResponseStr(response);
             if (string.IsNullOrWhiteSpace(rediUrlData)) return false;
@@ -69,14 +68,12 @@ namespace WeComLoad.Automation
 
             // 手动重定向到url下，获取第一部分Cookie
             response = await _weCombReq.HttpWebRequestGetAsync(url);
-            _weCombReq.Cookies.Add(response.Cookies);
             if (!_weCombReq.IsResponseRedi(response)) return false;
             rediUrlData = _weCombReq.GetResponseStr(response);
             url = _weCombReq.GetRedirectUrl(rediUrlData);
 
             // 手动重定向到url下，获取第二部分cookie，且为完整的Cookie
             response = await _weCombReq.HttpWebRequestGetAsync(url);
-            _weCombReq.Cookies.Add(response.Cookies);
             return _weCombReq.IsResponseSucc(response);
         }
 
