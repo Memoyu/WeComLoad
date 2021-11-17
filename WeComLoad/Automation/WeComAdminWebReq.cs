@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -13,7 +16,7 @@ namespace WeComLoad.Automation
     {
         private readonly string _weWorkBaseUrl = "https://work.weixin.qq.com/";
         private CookieContainer _cookies = new CookieContainer();
-        private string _cookieStr = string.Empty;
+        private string _cookiesStr = string.Empty;
 
         public WeComAdminWebReq()
         {
@@ -25,27 +28,24 @@ namespace WeComLoad.Automation
         {
             get
             {
-                // _cookies.Add(response.Cookies);
-                List<string> cookieItems = new List<string>();
-                foreach (var item in GetCookies())
-                {
-                    cookieItems.Add($"{item.Name}:{item.Value}");
-                }
-                _cookieStr = string.Join(";", cookieItems);
-                return _cookieStr;
+                return _cookiesStr;
             }
         }
 
-        public async Task<HttpWebResponse> HttpWebRequestGetAsync(string url)
+        public async Task<HttpWebResponse> HttpWebRequestGetAsync(string url, bool isSetCookie = false)
         {
             try
             {
                 HttpWebRequest request = null;
                 HttpWebResponse response = null;
-                request = (HttpWebRequest)WebRequest.Create($"{_weWorkBaseUrl}{url}");
+                url = $"{_weWorkBaseUrl}{url}";
+                request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
-                BuildRequest(request);
+                BuildRequest(request, isSetCookie);
+
                 response = (HttpWebResponse)await request.GetResponseAsync();
+                if (isSetCookie)
+                    SetCookies(request);
                 return response;
             }
             catch (WebException ex)
@@ -188,16 +188,34 @@ namespace WeComLoad.Automation
 
         #region Private
 
-        private HttpWebRequest BuildRequest(HttpWebRequest request)
+        private HttpWebRequest BuildRequest(HttpWebRequest request, bool isSetCookie = false)
         {
             // 不允许重定向路由
             request.AllowAutoRedirect = false;
             request.KeepAlive = true;
             request.Referer = $"{_weWorkBaseUrl}wework_admin/loginpage_wx?from=myhome";
             request.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
-            request.CookieContainer = _cookies;
-            // request.Headers.Add("Cookie", _cookieStr);
+            // 当需要设置保存cookie时，则使用CookieContainer，因为这样更易于获取\管理\持久化请求响应的Set-Cookie
+            if (isSetCookie)
+            {
+                request.CookieContainer = new CookieContainer();
+                request.CookieContainer = _cookies;
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(_cookiesStr))
+                {
+                    request.Headers.Add("Cookie", _cookiesStr);
+                }
+            }
             return request;
+        }
+
+        private void SetCookies(HttpWebRequest request)
+        {
+            // 获取并赋值cookies string，可将该string进行缓存，供各个服务节点使用
+            _cookiesStr = request.CookieContainer.GetCookieHeader(new Uri("http://www.work.weixin.qq.com"));
+            Trace.WriteLine(JsonSerializer.Serialize(_cookies));
         }
 
         private List<Cookie> GetCookies()
