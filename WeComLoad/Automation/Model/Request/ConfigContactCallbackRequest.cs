@@ -4,6 +4,8 @@
     {
         public string CallbackUrl { get; set; }
 
+        public string HostUrl { get; set; }
+
         public string Token { get; set; }
 
         public string AesKey { get; set; }

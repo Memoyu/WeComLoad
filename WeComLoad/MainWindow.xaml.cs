@@ -119,6 +119,11 @@ namespace WeComLoad
         /// <param name="e"></param>
         private void Button_ConfigCallback_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(_weComAdmin.GetWeCombReq().CookieString))
+            {
+                MessageBox.Show("请先扫码登录");
+                return;
+            }
             ConfigContactCallbackView view = new ConfigContactCallbackView(_weComAdmin);
             view.ShowDialog();
         }

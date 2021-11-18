@@ -255,27 +255,46 @@ namespace WeComLoad.Automation
             });
             var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
             if (!_weCombReq.IsResponseSucc(response)) return null;
-            var model = JsonConvert.DeserializeObject<WeComBase<WeComTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
+            var model = JsonConvert.DeserializeObject<WeComBase<WeComCreateTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
             return model?.Data?.Key;
         }
 
-        public async Task<string> ConfigContactCallbackAsync(ConfigContactCallbackRequest req)
+        public async Task<int> QueryTwoFactorAuthOp(string key)
+        {
+            var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/query", new Dictionary<string, string>
+            {
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "key",key },
+                { "random", _weCombReq.GetRandom() }
+            });
+            var response = await _weCombReq.HttpWebRequestGetAsync(url);
+            if (!_weCombReq.IsResponseSucc(response)) return 0;
+            var model = JsonConvert.DeserializeObject<WeComBase<WeComQueryTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
+            return model?.Data?.Status ?? 0;
+        }
+
+        public async Task<WeComConfigContactCallback> ConfigContactCallbackAsync(ConfigContactCallbackRequest req)
         {
             var dic = new List<(string, string)>
             {
-                ("appid", appId),
-                ("business_type", "3"),
-                ("app_type", "1"),
-                ("_d2st", _weCombReq.GetD2st())
+               ("callback_url", req.CallbackUrl),
+               ("url_token", req.Token),
+               ("callback_aeskey", req.AesKey),
+               ("confirm_check_key", req.CheckKey),
+               ("app_id", req.Appid),
+               ("callback_host", req.HostUrl),
+               ("report_loc_flag", "0"),
+               ("is_report_enter", "false"),
+               ("report_approval_event", "false"),
+               ("_d2st", _weCombReq.GetD2st())
             };
-            var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
+            var url = _weCombReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
             {
                 { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
             });
             var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
             if (!_weCombReq.IsResponseSucc(response)) return null;
-            var model = JsonConvert.DeserializeObject<WeComBase<WeComTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
-            return model?.Data?.Key;
+            var model = JsonConvert.DeserializeObject<WeComConfigContactCallback>(_weCombReq.GetResponseStr(response));
+            return model;
         }
 
         public async Task<bool> SetApiAccessibleApps(SetApiAccessibleAppsRequest req)

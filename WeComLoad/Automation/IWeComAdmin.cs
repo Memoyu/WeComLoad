@@ -83,6 +83,20 @@ namespace WeComLoad.Automation
         Task<string> CreateTwoFactorAuthOp(string appId);
 
         /// <summary>
+        /// 查询确认操作状态
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task<int> QueryTwoFactorAuthOp(string key);
+
+        /// <summary>
+        /// 配置通讯录回调
+        /// </summary>
+        /// <param name="req">请求参数</param>
+        /// <returns></returns>
+        Task<WeComConfigContactCallback> ConfigContactCallbackAsync(ConfigContactCallbackRequest req);
+
+        /// <summary>
         /// 获取去可信域名校验文件
         /// </summary>
         /// <returns>文件名，文件字节数组</returns>

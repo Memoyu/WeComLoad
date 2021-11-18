@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,6 +24,7 @@ namespace WeComLoad
     {
         private readonly IWeComAdmin _weComAdmin;
         private string _key = string.Empty;
+        private string _appid = string.Empty;
 
         public ConfigContactCallbackView(IWeComAdmin weComAdmin)
         {
@@ -45,14 +48,72 @@ namespace WeComLoad
                 tb_hint.Text = "发起配置失败";
                 return;
             }
+            tb_hint.Text = "请在企微客户端中进行确认操作!!!!!!!!!!!";
+            var delay = 1000;
+            var count = 1;
+            var isCheck = false;
+            while (!isCheck)
+            {
+                var state = await _weComAdmin.QueryTwoFactorAuthOp(key);
+                var hint = string.Empty;
+                if (delay * count == 60 * 1000)
+                {
+                    tb_hint.Text = "等待确认操作超时，请重新发起！！！！";
+                    return;
+                }
+
+                if (state == 0)
+                {
+                    hint = "等待确认操作中。。。。。。。";
+                }
+                else
+                {
+                    isCheck = true;
+                }
+
+                richText_resp.Document = new FlowDocument(new Paragraph(new Run($"{hint}\r\n\r\n当前刷新次数：{count}")));
+
+                await Task.Delay(delay);
+                count++;
+
+            }
+            _appid = appid;
             _key = key;
-            tb_hint.Text = "请在企微客户端中进行确认操作";
         }
 
 
-        private void Button_SaveConfig_Click(object sender, RoutedEventArgs e)
+        private async void Button_SaveConfig_Click(object sender, RoutedEventArgs e)
         {
-            
+            var url = tb_url.Text;
+            var token = tb_token.Text;
+            var aeskey = tb_aeskey.Text;
+
+            if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(token) || string.IsNullOrEmpty(aeskey))
+            {
+                MessageBox.Show("请填入相关配置信息");
+                return;
+            }
+
+            var start = url.IndexOf("://") + 3;
+            var end = url.IndexOf('/', start);
+            var host = url.Substring(start, end - start);
+            if (string.IsNullOrWhiteSpace(_key))
+            {
+                tb_hint.Text = "请重新点击发起配置！！";
+                return ;
+            }
+
+            var data = await _weComAdmin.ConfigContactCallbackAsync(new ConfigContactCallbackRequest
+            {
+                CallbackUrl = url,
+                HostUrl = host,
+                Token = token,
+                AesKey = aeskey,
+                CheckKey = _key,
+                Appid = _appid,
+            });
+
+            richText_resp.Document = new FlowDocument(new Paragraph(new Run(JsonConvert.SerializeObject(data))));
         }
     }
 }
