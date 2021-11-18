@@ -112,6 +112,18 @@ namespace WeComLoad
             richText_resp.Document = new FlowDocument(new Paragraph(new Run($"创建成功 Agent:{JsonConvert.SerializeObject(agent)}")));
         }
 
+        /// <summary>
+        /// 配置企业通讯录回调
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_ConfigCallback_Click(object sender, RoutedEventArgs e)
+        {
+            ConfigContactCallbackView view = new ConfigContactCallbackView(_weComAdmin);
+            view.ShowDialog();
+        }
+
+
         #region 登录操作
 
         private async Task<string> GetLoginAndShowQrCodeAsync()

@@ -74,6 +74,14 @@ namespace WeComLoad.Automation
         /// <returns>WeComSetApiAccessibleApps</returns>
         Task<bool> SetApiAccessibleApps(SetApiAccessibleAppsRequest req);
 
+
+        /// <summary>
+        /// 创建应用授权推送
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        Task<string> CreateTwoFactorAuthOp(string appId);
+
         /// <summary>
         /// 获取去可信域名校验文件
         /// </summary>

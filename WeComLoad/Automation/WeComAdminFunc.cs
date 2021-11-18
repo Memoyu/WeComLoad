@@ -240,6 +240,44 @@ namespace WeComLoad.Automation
             return model.Data.Auths.AppIds;
         }
 
+        public async Task<string> CreateTwoFactorAuthOp(string appId)
+        {
+            var dic = new List<(string, string)>
+            {
+                ("appid", appId),
+                ("business_type", "3"),
+                ("app_type", "1"),
+                ("_d2st", _weCombReq.GetD2st())
+            };
+            var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
+            {
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+            });
+            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
+            if (!_weCombReq.IsResponseSucc(response)) return null;
+            var model = JsonConvert.DeserializeObject<WeComBase<WeComTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
+            return model?.Data?.Key;
+        }
+
+        public async Task<string> ConfigContactCallbackAsync(ConfigContactCallbackRequest req)
+        {
+            var dic = new List<(string, string)>
+            {
+                ("appid", appId),
+                ("business_type", "3"),
+                ("app_type", "1"),
+                ("_d2st", _weCombReq.GetD2st())
+            };
+            var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
+            {
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+            });
+            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
+            if (!_weCombReq.IsResponseSucc(response)) return null;
+            var model = JsonConvert.DeserializeObject<WeComBase<WeComTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
+            return model?.Data?.Key;
+        }
+
         public async Task<bool> SetApiAccessibleApps(SetApiAccessibleAppsRequest req)
         {
             // 客户联系Id
