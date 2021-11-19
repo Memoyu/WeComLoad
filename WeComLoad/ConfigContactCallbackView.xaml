@@ -8,45 +8,31 @@
         Title="配置企业通讯录回调" Height="450" Width="600" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="120"/>
             <RowDefinition Height="40"/>
             <RowDefinition />
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <DockPanel LastChildFill="False">
-            <Button Margin="5, 0"  Click="Button_TwoFactorAuthOp_Click">发起配置请求</Button>
-            <TextBlock x:Name="tb_hint" Margin="40, 0, 0, 0" FontWeight="Bold" Foreground="Red" VerticalAlignment="Center" Text="请点击发起配置"/>
+        <StackPanel>
+            <TextBlock Text="1、输入配置信息"/>
+            <DockPanel>
+                <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="Url" Width="100"/>
+                <TextBox x:Name="tb_url" VerticalAlignment="Center"/>
+            </DockPanel>
+            <DockPanel Margin="0,15">
+                <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="Token" Width="100"/>
+                <TextBox x:Name="tb_token"  VerticalAlignment="Center"/>
+            </DockPanel>
+            <DockPanel>
+                <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="EncodingAESKey" Width="100"/>
+                <TextBox x:Name="tb_aeskey"  VerticalAlignment="Center"/>
+            </DockPanel>
+        </StackPanel>
+        <DockPanel LastChildFill="False" Grid.Row="1">
+            <Button Margin="5, 0"  Click="Button_TwoFactorAuthOp_Click">2、发起配置请求</Button>
+            <TextBlock x:Name="tb_hint" Margin="40, 0, 0, 0" FontWeight="Bold" Foreground="Red" VerticalAlignment="Center" Text="请输入配置信息后，点击发起配置"/>
         </DockPanel>
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition Height="40"/>
-            </Grid.RowDefinitions>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="100"/>
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <DockPanel>
-                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="Url" Width="100"/>
-                        <TextBox x:Name="tb_url" VerticalAlignment="Center"/>
-                    </DockPanel>
-                    <DockPanel Grid.Row="1">
-                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="Token" Width="100"/>
-                        <TextBox x:Name="tb_token"  VerticalAlignment="Center"/>
-                    </DockPanel>
-                    <DockPanel Grid.Row="2">
-                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="EncodingAESKey" Width="100"/>
-                        <TextBox x:Name="tb_aeskey"  VerticalAlignment="Center"/>
-                    </DockPanel>
-                </Grid>
-                <RichTextBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="richText_resp"></RichTextBox>
-            </Grid>
-            <Button Grid.Row="1" Margin="5, 0" Click="Button_SaveConfig_Click">保存配置</Button>
-        </Grid>
+        <RichTextBox Grid.Row="2" Grid.ColumnSpan="2" x:Name="richText_resp"></RichTextBox>
+        <Button Grid.Row="3" Margin="5, 0" Click="Button_SaveConfig_Click">3、保存配置</Button>
     </Grid>
 </Window>

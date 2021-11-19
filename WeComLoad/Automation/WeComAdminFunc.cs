@@ -240,7 +240,7 @@ namespace WeComLoad.Automation
             return model.Data.Auths.AppIds;
         }
 
-        public async Task<string> CreateTwoFactorAuthOp(string appId)
+        public async Task<string> CreateTwoFactorAuthOpAsync(string appId)
         {
             var dic = new List<(string, string)>
             {
@@ -259,7 +259,7 @@ namespace WeComLoad.Automation
             return model?.Data?.Key;
         }
 
-        public async Task<int> QueryTwoFactorAuthOp(string key)
+        public async Task<int> QueryTwoFactorAuthOpAsync(string key)
         {
             var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/query", new Dictionary<string, string>
             {
@@ -272,7 +272,7 @@ namespace WeComLoad.Automation
             return model?.Data?.Status ?? 0;
         }
 
-        public async Task<WeComConfigContactCallback> ConfigContactCallbackAsync(ConfigContactCallbackRequest req)
+        public async Task<WeComConfigCallback> ConfigContactCallbackAsync(ConfigCallbackRequest req)
         {
             var dic = new List<(string, string)>
             {
@@ -293,11 +293,32 @@ namespace WeComLoad.Automation
             });
             var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
             if (!_weCombReq.IsResponseSucc(response)) return null;
-            var model = JsonConvert.DeserializeObject<WeComConfigContactCallback>(_weCombReq.GetResponseStr(response));
+            var model = JsonConvert.DeserializeObject<WeComConfigCallback>(_weCombReq.GetResponseStr(response));
             return model;
         }
 
-        public async Task<bool> SetApiAccessibleApps(SetApiAccessibleAppsRequest req)
+        public async Task<WeComConfigCallback> ConfigExtContactCallbackAsync(ConfigCallbackRequest req)
+        {
+            var dic = new List<(string, string)>
+            {
+               ("callback_url", req.CallbackUrl),
+               ("url_token", req.Token),
+               ("callback_aeskey", req.AesKey),
+               ("app_id", req.Appid),
+               ("callback_host", req.HostUrl),
+               ("_d2st", _weCombReq.GetD2st())
+            };
+            var url = _weCombReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
+            {
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+            });
+            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
+            if (!_weCombReq.IsResponseSucc(response)) return null;
+            var model = JsonConvert.DeserializeObject<WeComConfigCallback>(_weCombReq.GetResponseStr(response));
+            return model;
+        }
+
+        public async Task<bool> SetApiAccessibleAppsAsync(SetApiAccessibleAppsRequest req)
         {
             // 客户联系Id
             var businessId = "2000003";
@@ -325,7 +346,7 @@ namespace WeComLoad.Automation
             return true;
         }
 
-        public async Task<(string Name, byte[] File)> GetDomainVerifyFile()
+        public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync()
         {
             // 获取可新域名校验文件名
             var url = _weCombReq.GetQueryUrl("wework_admin/apps/getDomainOwnershipVerifyInfo", new Dictionary<string, string>
@@ -341,7 +362,7 @@ namespace WeComLoad.Automation
             return (model.FileName, file);
         }
 
-        public async Task<bool> CheckCustomAppURL(string appid, string domian)
+        public async Task<bool> CheckCustomAppURLAsync(string appid, string domian)
         {
             // wework_admin/apps/checkCustomAppURL?
             // lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.8351865053727201&url=devscrmh5.lianou.tech&appid=5629502294442019&type=redirect_domain&_d2st=a3652781
@@ -357,7 +378,7 @@ namespace WeComLoad.Automation
             return result.Equals("PASS");
         }
 
-        public async Task<bool> CheckXcxDomainStatus(string domian)
+        public async Task<bool> CheckXcxDomainStatusAsync(string domian)
         {
             var dic = new List<(string, string)>
             {

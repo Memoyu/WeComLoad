@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WeComLoad.Automation
 {
-    public class WeComConfigContactCallback
+    public class WeComConfigCallback
     {
         public int statusCode { get; set; }
         public string method { get; set; }

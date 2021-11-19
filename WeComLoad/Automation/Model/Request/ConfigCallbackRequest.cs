@@ -1,6 +1,6 @@
 ﻿namespace WeComLoad.Automation
 {
-    public class ConfigContactCallbackRequest
+    public class ConfigCallbackRequest
     {
         public string CallbackUrl { get; set; }
 

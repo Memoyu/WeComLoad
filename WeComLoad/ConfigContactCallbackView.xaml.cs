@@ -1,18 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using WeComLoad.Automation;
 
 namespace WeComLoad
@@ -42,7 +32,7 @@ namespace WeComLoad
                 return;
             }
             var appid = apps.Data.OpenapiApps.FirstOrDefault(a => a.AppOpenId == 2000002)?.AppId;
-            var key = await _weComAdmin.CreateTwoFactorAuthOp(appid);
+            var key = await _weComAdmin.CreateTwoFactorAuthOpAsync(appid);
             if (string.IsNullOrWhiteSpace(key))
             {
                 tb_hint.Text = "发起配置失败";
@@ -54,7 +44,7 @@ namespace WeComLoad
             var isCheck = false;
             while (!isCheck)
             {
-                var state = await _weComAdmin.QueryTwoFactorAuthOp(key);
+                var state = await _weComAdmin.QueryTwoFactorAuthOpAsync(key);
                 var hint = string.Empty;
                 if (delay * count == 60 * 1000)
                 {
@@ -69,6 +59,7 @@ namespace WeComLoad
                 else
                 {
                     isCheck = true;
+                    hint = "完成确认，可点击保存配置了";
                 }
 
                 richText_resp.Document = new FlowDocument(new Paragraph(new Run($"{hint}\r\n\r\n当前刷新次数：{count}")));
@@ -103,7 +94,7 @@ namespace WeComLoad
                 return ;
             }
 
-            var data = await _weComAdmin.ConfigContactCallbackAsync(new ConfigContactCallbackRequest
+            var data = await _weComAdmin.ConfigContactCallbackAsync(new ConfigCallbackRequest
             {
                 CallbackUrl = url,
                 HostUrl = host,

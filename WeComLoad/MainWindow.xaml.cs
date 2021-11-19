@@ -117,14 +117,30 @@ namespace WeComLoad
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button_ConfigCallback_Click(object sender, RoutedEventArgs e)
+        private void Button_ConfigContactCallback_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(_weComAdmin.GetWeCombReq().CookieString))
             {
                 MessageBox.Show("请先扫码登录");
                 return;
             }
-            ConfigContactCallbackView view = new ConfigContactCallbackView(_weComAdmin);
+            var view = new ConfigContactCallbackView(_weComAdmin);
+            view.ShowDialog();
+        }
+
+        /// <summary>
+        /// 配置企业客户联系回调
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_ConfigExtContactCallback_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(_weComAdmin.GetWeCombReq().CookieString))
+            {
+                MessageBox.Show("请先扫码登录");
+                return;
+            }
+            var view = new ConfigExtContactCallbackView(_weComAdmin);
             view.ShowDialog();
         }
 

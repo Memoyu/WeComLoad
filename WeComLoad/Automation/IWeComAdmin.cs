@@ -72,7 +72,7 @@ namespace WeComLoad.Automation
         /// </summary>
         /// <param name="req">请求参数</param>
         /// <returns>WeComSetApiAccessibleApps</returns>
-        Task<bool> SetApiAccessibleApps(SetApiAccessibleAppsRequest req);
+        Task<bool> SetApiAccessibleAppsAsync(SetApiAccessibleAppsRequest req);
 
 
         /// <summary>
@@ -80,27 +80,34 @@ namespace WeComLoad.Automation
         /// </summary>
         /// <param name="appId"></param>
         /// <returns></returns>
-        Task<string> CreateTwoFactorAuthOp(string appId);
+        Task<string> CreateTwoFactorAuthOpAsync(string appId);
 
         /// <summary>
         /// 查询确认操作状态
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        Task<int> QueryTwoFactorAuthOp(string key);
+        Task<int> QueryTwoFactorAuthOpAsync(string key);
 
         /// <summary>
         /// 配置通讯录回调
         /// </summary>
         /// <param name="req">请求参数</param>
         /// <returns></returns>
-        Task<WeComConfigContactCallback> ConfigContactCallbackAsync(ConfigContactCallbackRequest req);
+        Task<WeComConfigCallback> ConfigContactCallbackAsync(ConfigCallbackRequest req);
+
+        /// <summary>
+        /// 配置客户联系回调
+        /// </summary>
+        /// <param name="req">请求参数</param>
+        /// <returns></returns>
+        Task<WeComConfigCallback> ConfigExtContactCallbackAsync(ConfigCallbackRequest req);
 
         /// <summary>
         /// 获取去可信域名校验文件
         /// </summary>
         /// <returns>文件名，文件字节数组</returns>
-        Task<(string Name, byte[] File)> GetDomainVerifyFile();
+        Task<(string Name, byte[] File)> GetDomainVerifyFileAsync();
 
         /// <summary>
         /// 校验：可作为应用OAuth2.0网页授权功能的回调域名
@@ -108,13 +115,13 @@ namespace WeComLoad.Automation
         /// <param name="appid">应用Id</param>
         /// <param name="domian">域名</param>
         /// <returns>bool</returns>
-        Task<bool> CheckCustomAppURL(string appid, string domian);
+        Task<bool> CheckCustomAppURLAsync(string appid, string domian);
 
         /// <summary>
         /// 校验：可调用JS-SDK、跳转小程序的可信域名
         /// </summary>
         /// <param name="domian">域名</param>
         /// <returns>bool</returns>
-        Task<bool> CheckXcxDomainStatus(string domian);
+        Task<bool> CheckXcxDomainStatusAsync(string domian);
     }
 }
