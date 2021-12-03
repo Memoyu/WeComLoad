@@ -184,8 +184,8 @@ namespace WeComLoad
                             break;
                         }
 
-                        var flag = await _weComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
-                        if (flag == false)
+                        var corpId = await _weComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
+                        if (string.IsNullOrWhiteSpace(corpId))
                         {
                             statusCode = 5;
                             statusMsg = "登录失败";
@@ -193,7 +193,7 @@ namespace WeComLoad
                         }
 
                         statusCode = 6;
-                        statusMsg = "登录成功";
+                        statusMsg = $"登录成功, CorpId：{corpId}";
 
                         break;
                     case "QRCODE_SCAN_FAIL":

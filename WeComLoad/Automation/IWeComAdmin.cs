@@ -23,8 +23,8 @@ namespace WeComLoad.Automation
         /// </summary>
         /// <param name="qrCodeKey">二维码Key</param>
         /// <param name="authCode">授权登录码</param>
-        /// <returns>bool</returns>
-        Task<bool> LoginAsync(string qrCodeKey, string authCode);
+        /// <returns>string</returns>
+        Task<string> LoginAsync(string qrCodeKey, string authCode);
 
         /// <summary>
         /// 获取企业应用列表

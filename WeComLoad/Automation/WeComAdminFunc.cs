@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace WeComLoad.Automation
@@ -51,7 +52,7 @@ namespace WeComLoad.Automation
             return model?.Data;
         }
 
-        public async Task<bool> LoginAsync(string qrCodeKey, string authCode)
+        public async Task<string> LoginAsync(string qrCodeKey, string authCode)
         {
             if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
 
@@ -61,20 +62,28 @@ namespace WeComLoad.Automation
                { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
             });
             var response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-            if (!_weCombReq.IsResponseRedi(response)) return false;
+            if (!_weCombReq.IsResponseRedi(response)) return null;
             var rediUrlData = _weCombReq.GetResponseStr(response);
-            if (string.IsNullOrWhiteSpace(rediUrlData)) return false;
+            if (string.IsNullOrWhiteSpace(rediUrlData)) return null;
             url = _weCombReq.GetRedirectUrl(rediUrlData);
 
             // 手动重定向到url下，获取第一部分Cookie
             response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-            if (!_weCombReq.IsResponseRedi(response)) return false;
+            if (!_weCombReq.IsResponseRedi(response)) return null;
             rediUrlData = _weCombReq.GetResponseStr(response);
             url = _weCombReq.GetRedirectUrl(rediUrlData);
 
             // 手动重定向到url下，获取第二部分cookie，且为完整的Cookie
             response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-            return _weCombReq.IsResponseSucc(response);
+            if (!_weCombReq.IsResponseSucc(response)) return null;
+
+            // 获取响应页面信息，正则获取CorpID
+            var frame = _weCombReq.GetResponseStr(response);
+            var rep = frame.Replace("\\", "");
+            string pattern = "(?<=encode_corp_id\\\":\\\").*?(?=\\\",)";
+            var match = Regex.Matches(rep, pattern);
+            var corpId = match.FirstOrDefault()?.Value;
+            return corpId;
         }
 
         public async Task<WeComBase<WeComCorpApp>> GetCorpAppAsync(bool isReLoad = false)
