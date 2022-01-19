@@ -1,0 +1,11 @@
+﻿global using Newtonsoft.Json;
+global using System.Linq;
+global using WeComLoad.Shared.Model;
+global using WeComLoad.Shared;
+global using System;
+global using System.Diagnostics;
+global using System.IO;
+global using System.Threading.Tasks;
+global using System.Windows;
+global using System.Windows.Documents;
+global using System.Windows.Media.Imaging;

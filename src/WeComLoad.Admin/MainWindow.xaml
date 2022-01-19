@@ -1,0 +1,50 @@
+﻿<Window x:Class="WeComLoad.Admin.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WeComLoad"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="WeComLoad" Height="650" Width="1000">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel LastChildFill="False" Grid.Row="1">
+            <Button Margin="5, 0"  Click="Button_GetQrCode_Click">*获取登录二维码*</Button>
+            <Button Margin="5, 0" Click="Button_GetCorpDepts_Click">获取企业部门列表</Button>
+            <Button Margin="5, 0" Click="Button_GetAgents_Click">获取应用列表</Button>
+            <Button Margin="5, 0" Click="Button_GetExtContactAndUserSecret_Click">查看客户联系、通讯录Secret</Button>
+            <Button Margin="5, 0" Click="Button_CreateAgent_Click" Width="52">创建应用</Button>
+            <Button Margin="5, 0" Click="Button_ConfigAgent_Click" Width="52">配置应用</Button>
+            <Button Margin="5, 0" Click="Button_ConfigContactCallback_Click">配置企业通讯录回调</Button>
+            <Button Margin="5, 0" Click="Button_ConfigExtContactCallback_Click">配置客户联系回调</Button>
+        </DockPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+
+            <Image Height="300" Name="imgage_qrcode" Stretch="Uniform"></Image>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <RichTextBox BorderThickness="0" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="richText_login_status"></RichTextBox>
+                <RichTextBox Grid.Row="1" x:Name="richText_login_cookie"></RichTextBox>
+            </Grid>
+            <RichTextBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="richText_resp"></RichTextBox>
+        </Grid>
+    </Grid>
+</Window>
