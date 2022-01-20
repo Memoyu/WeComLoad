@@ -8,7 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
+    <PackageReference Include="Prism.DryIoc" Version="8.1.97" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WeComLoad.Shared\WeComLoad.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\CustomAppView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

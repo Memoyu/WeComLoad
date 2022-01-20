@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="WeComLoad.Open.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WeComLoad.Open.Views" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:prismManager="clr-namespace:WeComLoad.Open.Common"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="设置" FontSize="26" FontWeight="Bold" Padding="20,10"/>
+        <Border BorderBrush="#DDDDDD" BorderThickness="0,0,0,3"/>
+
+        <Grid Grid.Row="1" Margin="50">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ListBox x:Name="menuBar" ItemContainerStyle="{StaticResource MenuBarListBoxItemStyle}" ItemsSource="{Binding MenuBars}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding NavigateCommand}" CommandParameter="{Binding ElementName=menuBar, Path=SelectedItem}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="{Binding Icon}" Margin="15,0"/>
+                            <TextBlock Text="{Binding Title}" Margin="15,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <ContentControl Grid.Column="1" prism:RegionManager.RegionName="{x:Static prismManager:PrismManager.SettingsViewRegionName}"/>
+        </Grid>
+    </Grid>
+</UserControl>

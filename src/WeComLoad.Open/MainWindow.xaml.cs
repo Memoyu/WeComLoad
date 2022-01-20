@@ -66,7 +66,8 @@ namespace WeComLoad.Open
         /// <param name="e"></param>
         private async void Button_GetCustomApps_Click(object sender, RoutedEventArgs e)
         {
-            var model = await _weComOpen.GetCustomAppsAsync();
+            var apps = await _weComOpen.GetCustomAppsAsync();
+            var model = await _weComOpen.GetCustomAppAuthsAsync(apps.Data.suite_list.suite.First().suiteid.ToString(), 0, 20);
             richText_resp.Document = new FlowDocument(new Paragraph(new Run(JsonConvert.SerializeObject(model))));
         }
 

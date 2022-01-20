@@ -1,17 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using Prism.Services.Dialogs;
 
-namespace WeComLoad.Open
+namespace WeComLoad.Open;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : PrismApplication
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    protected override Window CreateShell()
     {
+        return Container.Resolve<MainView>();
+    }
+
+    protected override void RegisterTypes(IContainerRegistry containerRegistry)
+    {
+        // 主页面
+        containerRegistry.RegisterForNavigation<IndexView, IndexViewModel>();
+        containerRegistry.RegisterForNavigation<CustomAppView, CustomAppViewModel>();
+        containerRegistry.RegisterForNavigation<SettingsView, SettingsViewModel>();
+
+        containerRegistry.RegisterSingleton<IWeComOpen, WeComOpenFunc>();
+    }
+
+    protected override void ConfigureViewModelLocator()
+    {
+
+        ViewModelLocationProvider.Register(typeof(LoginView).ToString(), typeof(LoginViewModel));
+        base.ConfigureViewModelLocator();
     }
 }

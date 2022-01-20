@@ -1,0 +1,99 @@
+﻿<UserControl x:Class="WeComLoad.Open.Views.IndexView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WeComLoad.Open.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="你好，Memoyu！今天是2021-09-11，星期六" Margin="15, 10" FontSize="20" FontWeight="Bold"/>
+
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding TaskStatBars}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="4"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="{Binding Color}" Margin="10" CornerRadius="8" Style="{StaticResource TriggerBorderShadowStyle}">
+                        <Grid>
+                            <StackPanel Margin="20,10">
+                                <materialDesign:PackIcon Kind="{Binding Icon}" Width="30" Height="30" Margin="15, 0"/>
+                                <TextBlock Text="{Binding Title}" Margin="0, 15" FontSize="15"/>
+                                <TextBlock Text="{Binding Content}" Margin="0, 15" FontSize="40" FontWeight="Bold"/>
+                            </StackPanel>
+
+                            <Canvas ClipToBounds="True">
+                                <Border CornerRadius="100" Canvas.Top="10" Canvas.Right="-50" Width="120" Height="120" Background="#FFFFFF" Opacity="0.1"/>
+                                <Border CornerRadius="100" Canvas.Top="80" Canvas.Right="-30" Width="120" Height="120" Background="#FFFFFF" Opacity="0.1"/>
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Grid Grid.Row="2" Margin="0, 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Border Margin="10, 0" CornerRadius="8" Background="#BEBEBE" Opacity="0.1"/>
+            <DockPanel Margin="10, 8">
+                <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
+                    <TextBlock Text="待办事项"  FontSize="20" FontWeight="Bold"/>
+                    <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30">
+                        <materialDesign:PackIcon Kind="Add"/>
+                    </Button>
+                </DockPanel>
+
+                <ListBox ItemsSource="{Binding ToDos}" Margin="0, 10, 0, 0"  ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel MaxHeight="80" LastChildFill="False">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding Content}" Opacity="0.5"/>
+                                </StackPanel>
+                                <ToggleButton DockPanel.Dock="Right"/>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <Border Grid.Column="1" Margin="10, 0" CornerRadius="8" Background="#BEBEBE" Opacity="0.1"/>
+            <DockPanel Margin="10, 8" Grid.Column="1">
+                <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
+                    <TextBlock Text="备忘录"  FontSize="20" FontWeight="Bold"/>
+                    <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30">
+                        <materialDesign:PackIcon Kind="Add"/>
+                    </Button>
+                </DockPanel>
+
+                <ListBox Margin="0, 10, 0, 0" ItemsSource="{Binding Memos}"  ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel MaxHeight="80">
+                                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding Content}" Opacity="0.5"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+        </Grid>
+    </Grid>
+</UserControl>

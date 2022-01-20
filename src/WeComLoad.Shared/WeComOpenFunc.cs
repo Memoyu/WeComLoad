@@ -74,4 +74,16 @@ public class WeComOpenFunc : IWeComOpen
         var model = JsonConvert.DeserializeObject<WeComBase<WeComSuiteApp>>(_weCombReq.GetResponseStr(response));
         return model;
     }
+
+    public async Task<WeComBase<WeComSuiteAppAuth>> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/app/list", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "suiteid", suitId }, { "scene", "1" }, { "offset", offset.ToString() }, { "limit", limit.ToString() }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url);
+        if (!_weCombReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComSuiteAppAuth>>(_weCombReq.GetResponseStr(response));
+        return model;
+    }
 }

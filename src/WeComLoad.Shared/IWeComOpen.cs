@@ -30,4 +30,13 @@ public interface IWeComOpen
     /// <param name="isReLoad">是否需要重新获取</param>
     /// <returns>WeComCorpApp</returns>
     Task<WeComBase<WeComSuiteApp>> GetCustomAppsAsync();
+
+    /// <summary>
+    /// 获取代开发应用模板授权的客户信息列表
+    /// </summary>
+    /// <param name="suitId">模板Id</param>
+    /// <param name="offset">第几页</param>
+    /// <param name="limit">每页大小</param>
+    /// <returns></returns>
+    Task<WeComBase<WeComSuiteAppAuth>> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10);
 }
