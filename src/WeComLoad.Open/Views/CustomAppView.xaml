@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:WeComLoad.Open.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:cv="clr-namespace:WeComLoad.Open.Common.Converters"
@@ -12,83 +11,101 @@
     <UserControl.Resources>
         <cv:ObjToVisibilityConverter x:Key="ObjToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <materialDesign:DialogHost
+                  IsOpen="{Binding DialogIsOpen}"
+                  CloseOnClickAway="True"
+                  DialogTheme="Inherit" Grid.Column="1">
+        <materialDesign:DialogHost.DialogContent>
+            <TextBox
+              materialDesign:HintAssist.Hint="输入企业Id" MinWidth="300"
+              FontSize="20"
+              Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+              VerticalAlignment="Center" />
+        </materialDesign:DialogHost.DialogContent>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-        <Grid Margin="0, 10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
+            <Grid Margin="0, 10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
 
-            <Border Margin="10, 0" CornerRadius="8" Background="#BEBEBE" Opacity="0.1"/>
-            <DockPanel Margin="10, 8">
-                <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
-                    <TextBlock Text="代开发自建应用列表"  FontSize="20" FontWeight="Bold"/>
-                    <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30" Command="{Binding RefreshCustomAppListCommand}">
-                        <materialDesign:PackIcon Kind="Refresh"/>
-                    </Button>
+                <Border Margin="10, 0" CornerRadius="8" Background="#BEBEBE" Opacity="0.1"/>
+                <DockPanel Margin="10, 8">
+                    <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
+                        <TextBlock Text="代开发自建应用列表"  FontSize="20" FontWeight="Bold"/>
+                        <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30" Command="{Binding RefreshCustomAppListCommand}">
+                            <materialDesign:PackIcon Kind="Refresh"/>
+                        </Button>
+                    </DockPanel>
+
+                    <ListBox x:Name="customAppList" ItemsSource="{Binding CustomApps}" Margin="0, 10, 0, 0"  ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding SelectedCustomAppCommand}" CommandParameter="{Binding ElementName=customAppList, Path=SelectedItem}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel MaxHeight="80" LastChildFill="False">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding logo}" Width="30" Height="30">
+                                            <Image.Clip>
+                                                <EllipseGeometry Center="15, 15" RadiusY="15" RadiusX="15" />
+                                            </Image.Clip>
+                                        </Image>
+                                        <StackPanel Margin="15,0">
+                                            <TextBlock Text="{Binding name}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding description}" Opacity="0.5" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </DockPanel>
 
-                <ListBox x:Name="customAppList" ItemsSource="{Binding CustomApps}" Margin="0, 10, 0, 0"  ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction Command="{Binding SelectedCustomAppCommand}" CommandParameter="{Binding ElementName=customAppList, Path=SelectedItem}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <DockPanel MaxHeight="80" LastChildFill="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding logo}" Width="30" Height="30">
-                                        <Image.Clip>
-                                            <EllipseGeometry Center="15, 15" RadiusY="15" RadiusX="15" />
-                                        </Image.Clip>
-                                    </Image>
-                                    <StackPanel Margin="15,0">
-                                        <TextBlock Text="{Binding name}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding description}" Opacity="0.5" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </DockPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </DockPanel>
+                <Border Grid.Column="1" Margin="10, 0" CornerRadius="8" Background="#BEBEBE" Opacity="0.1"/>
+                <DockPanel Margin="10, 8" Grid.Column="2" >
+                    <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
+                        <TextBlock Text="授权列表"  FontSize="20" FontWeight="Bold"/>
+                        <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30">
+                            <materialDesign:PackIcon Kind="Refresh"/>
+                        </Button>
+                    </DockPanel>
 
-            <Border Grid.Column="1" Margin="10, 0" CornerRadius="8" Background="#BEBEBE" Opacity="0.1"/>
-            <DockPanel Margin="10, 8" Grid.Column="1">
-                <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
-                    <TextBlock Text="授权列表"  FontSize="20" FontWeight="Bold"/>
-                    <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30">
-                        <materialDesign:PackIcon Kind="Refresh"/>
-                    </Button>
+                    <ListBox x:Name="customAppAuthList" Margin="0, 10, 0, 0" ItemsSource="{Binding CustomAppAuths}"  ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding AuditCustomAppCommand}" CommandParameter="{Binding ElementName=customAppAuthList, Path=SelectedItem}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel MaxHeight="80" LastChildFill="False">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding logo}" Width="30" Height="30">
+                                            <Image.Clip>
+                                                <EllipseGeometry Center="15, 15" RadiusY="15" RadiusX="15" />
+                                            </Image.Clip>
+                                        </Image>
+                                        <StackPanel Margin="15,0">
+                                            <TextBlock Text="{Binding authcorp_name}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding name}" Opacity="0.5" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Button Visibility="{Binding auditorder, Converter={StaticResource ObjToVisibilityConverter}}"
+                                            IsEnabled="False"
+                                            DockPanel.Dock="Right">需要审核</Button>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </DockPanel>
-
-                <ListBox Margin="0, 10, 0, 0" ItemsSource="{Binding CustomAppAuths}"  ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <DockPanel MaxHeight="80" LastChildFill="False">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding logo}" Width="30" Height="30">
-                                        <Image.Clip>
-                                            <EllipseGeometry Center="15, 15" RadiusY="15" RadiusX="15" />
-                                        </Image.Clip>
-                                    </Image>
-                                    <StackPanel Margin="15,0">
-                                        <TextBlock Text="{Binding authcorp_name}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding name}" Opacity="0.5" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                <Button Visibility="{Binding auditorder, Converter={StaticResource ObjToVisibilityConverter}}" DockPanel.Dock="Right" >审核</Button>
-                            </DockPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </DockPanel>
-
+            </Grid>
         </Grid>
-    </Grid>
+    </materialDesign:DialogHost>
 </UserControl>

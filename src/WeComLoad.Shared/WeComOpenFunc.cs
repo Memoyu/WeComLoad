@@ -19,8 +19,7 @@ public class WeComOpenFunc : IWeComOpen
                 { "r", _weCombReq.GetRandom() }
             });
         var response = await _weCombReq.HttpWebRequestGetAsync(keyUrl, false, false);
-        if (!_weCombReq.IsResponseSucc(response)) return (null, null);
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeKey>>(_weCombReq.GetResponseStr(response));
+        var model = _weCombReq.GetResponseT<WeComBase<WeComQrCodeKey>>(response);
         if (model == null || string.IsNullOrWhiteSpace(model.Data.QrCodeKey)) throw new Exception("企微二维码Key为空");
         var key = model.Data.QrCodeKey;
         var qrCodeUrl = _weCombReq.GetQueryUrl($"https://work.weixin.qq.com/wwqrlogin/mng/qrcode/{key}", new Dictionary<string, string>
@@ -70,8 +69,7 @@ public class WeComOpenFunc : IWeComOpen
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
                 });
         var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComSuiteApp>>(_weCombReq.GetResponseStr(response));
+        var model = _weCombReq.GetResponseT<WeComBase<WeComSuiteApp>>(response);
         return model;
     }
 
@@ -83,7 +81,7 @@ public class WeComOpenFunc : IWeComOpen
                 });
         var response = await _weCombReq.HttpWebRequestGetAsync(url);
         if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComSuiteAppAuth>>(_weCombReq.GetResponseStr(response));
+        var model = _weCombReq.GetResponseT<WeComBase<WeComSuiteAppAuth>>(response);
         return model;
     }
 }

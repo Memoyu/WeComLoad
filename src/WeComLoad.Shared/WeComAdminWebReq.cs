@@ -1,10 +1,13 @@
-﻿namespace WeComLoad.Shared;
+﻿using Newtonsoft.Json.Linq;
+
+namespace WeComLoad.Shared;
 
 public class WeComAdminWebReq
 {
     private readonly string _weWorkBaseUrl = "https://work.weixin.qq.com/";
     private CookieContainer _cookies = new CookieContainer();
     private string _cookiesStr = string.Empty;
+    private Action _unAuthEvent;
 
     public WeComAdminWebReq()
     {
@@ -23,6 +26,11 @@ public class WeComAdminWebReq
         {
             return _cookiesStr;
         }
+    }
+
+    public void SetUnAuthEvent(Action e)
+    {
+        _unAuthEvent = e;
     }
 
     public async Task<HttpWebResponse> HttpWebRequestGetAsync(string url, bool isSetCookie = false, bool isUseBaseUrl = true)
@@ -143,6 +151,27 @@ public class WeComAdminWebReq
         response.Close();
         responseStream.Close();
         return responseStr;
+    }
+
+    public T? GetResponseT<T>(HttpWebResponse response)
+    {
+        if (response.StatusCode != HttpStatusCode.OK) return default;
+        Stream responseStream = response.GetResponseStream();
+        StreamReader sr = new StreamReader(responseStream);
+        var responseStr = sr.ReadToEnd();
+        if (string.IsNullOrWhiteSpace(responseStr)) return default;
+        var jobj = JObject.Parse(responseStr);
+        if (jobj != null &&
+            !string.IsNullOrWhiteSpace(jobj["result"]?.ToString()) && 
+            !string.IsNullOrWhiteSpace(jobj["result"]["errCode"]?.ToString()))
+        {
+            _unAuthEvent?.Invoke();
+            return default;
+        }
+        var model = JsonConvert.DeserializeObject<T>(responseStr);
+        response.Close();
+        responseStream.Close();
+        return model;
     }
 
     public bool IsResponseSucc(HttpWebResponse response) => response.StatusCode == HttpStatusCode.OK;

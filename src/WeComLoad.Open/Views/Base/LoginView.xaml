@@ -4,14 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:local="clr-namespace:WeComLoad.Open.Views"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
-             Width="480" Height="430"
-             Background="{StaticResource MaterialDesignPaper}">
-    <materialDesign:DialogHost Identifier="Root">
+             Width="480" Height="430">
+    <materialDesign:DialogHost Identifier="Root" IsOpen="{Binding DialogIsOpen}">
         <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
             <Grid Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -20,12 +21,17 @@
                 <Image Height="auto" Name="imgage_qrcode" Source="{Binding Source}" Stretch="Uniform"/>
                 <TextBlock Grid.Row="1"
                     Margin="20,0,0,0"
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="18"
                     FontWeight="Bold"
-                    Text="欢迎使用" />
+                    Text="{Binding LoginHint}" />
 
             </Grid>
+            <materialDesign:Snackbar
+                x:Name="SnackbarThree"
+                VerticalAlignment="Bottom"
+                MessageQueue="{Binding SnackbarMessage}" />
         </Grid>
     </materialDesign:DialogHost>
 </UserControl>

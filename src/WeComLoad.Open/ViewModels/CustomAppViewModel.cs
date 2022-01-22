@@ -21,24 +21,37 @@ namespace WeComLoad.Open.ViewModels
             set { customAppAuths = value; RaisePropertyChanged(); }
         }
 
+        private bool isOpen;
+
+        /// <summary>
+        /// 浮窗是否显示
+        /// </summary>
+        public bool DialogIsOpen
+        {
+            get { return isOpen; }
+            set { isOpen = value; RaisePropertyChanged(); }
+        }
+
         public DelegateCommand RefreshCustomAppListCommand { get; private set; }
+
+        public DelegateCommand<Corpapp> AuditCustomAppCommand { get; private set; }
 
         public DelegateCommand<SuiteAppItem> SelectedCustomAppCommand { get; private set; }
 
         public CustomAppViewModel(IContainerProvider containerProvider, IWeComOpen weComOpen) : base(containerProvider)
         {
-
-            EventAggregator.GetEvent<LoginEvent>().Publish(new LoginEventModel { IsOpen = true });
             customApps = new ObservableCollection<SuiteAppItem>();
             _weComOpen = weComOpen;
             RefreshCustomAppListCommand = new DelegateCommand(GetCustomAppListHandler);
+            AuditCustomAppCommand = new DelegateCommand<Corpapp>(AuditCustomAppHandler);
             SelectedCustomAppCommand = new DelegateCommand<SuiteAppItem>(SelectedCustomAppHandler);
         }
 
         private async void SelectedCustomAppHandler(SuiteAppItem app)
         {
+            if (app == null) return;
             var authApps = await _weComOpen.GetCustomAppAuthsAsync(app.suiteid.ToString(), 0, 20);
-            if (authApps?.Data?.corpapp_list == null) 
+            if (authApps?.Data?.corpapp_list == null)
             {
                 CustomAppAuths = new ObservableCollection<Corpapp>();
                 return;
@@ -48,6 +61,7 @@ namespace WeComLoad.Open.ViewModels
 
         private async void GetCustomAppListHandler()
         {
+            CustomAppAuths?.Clear();
             var apps = await _weComOpen.GetCustomAppsAsync();
             if (apps?.Data?.suite_list == null)
             {
@@ -55,6 +69,11 @@ namespace WeComLoad.Open.ViewModels
                 return;
             }
             CustomApps = new ObservableCollection<SuiteAppItem>(apps.Data.suite_list.suite);
+        }
+
+        private async void AuditCustomAppHandler(Corpapp app)
+        {
+            DialogIsOpen = true;
         }
     }
 }

@@ -1,9 +1,39 @@
-﻿namespace WeComLoad.Open.ViewModels;
+﻿using MaterialDesignThemes.Wpf;
+using Prism.Services.Dialogs;
 
-public class LoginViewModel : BindableBase
+namespace WeComLoad.Open.ViewModels;
+
+public class LoginViewModel : BindableBase, IDialogAware
 {
     private readonly IWeComOpen _weComOpen;
     private readonly IEventAggregator _eventAggregator;
+
+
+    private SnackbarMessageQueue snackbarMessageQueue;
+
+    public SnackbarMessageQueue SnackbarMessage
+    {
+        get { return snackbarMessageQueue; }
+        set { snackbarMessageQueue = value; RaisePropertyChanged(); }
+    }
+
+    /// <summary>
+    /// 窗口是否显示
+    /// </summary>
+    private bool isOpen;
+    public bool DialogIsOpen
+    {
+        get { return isOpen; }
+        set { isOpen = value; RaisePropertyChanged(); }
+    }
+
+    private string loginHint = "请扫码登录";
+    public string LoginHint
+    {
+        get { return loginHint; }
+        set { loginHint = value; RaisePropertyChanged(); }
+    }
+
 
     private BitmapFrame source;
     public BitmapFrame Source
@@ -15,11 +45,13 @@ public class LoginViewModel : BindableBase
 
     public LoginViewModel(IWeComOpen weComOpen, IContainerProvider containerProvider)
     {
+        SnackbarMessage = new SnackbarMessageQueue();
         _weComOpen = weComOpen;
         _eventAggregator = containerProvider.Resolve<IEventAggregator>();
         GetLoginQrCode();
     }
 
+    public void SnackBar(string msg) => SnackbarMessage.Enqueue(msg);
 
     private async void GetLoginQrCode()
     {
@@ -39,11 +71,11 @@ public class LoginViewModel : BindableBase
             {
                 isLogin = true;
             }
+            LoginHint = state.Msg;
             await Task.Delay(delay);
             count++;
         }
-
-        _eventAggregator.GetEvent<LoginEvent>().Publish(new LoginEventModel { IsOpen = false });
+        RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
     }
 
 
@@ -159,6 +191,26 @@ public class LoginViewModel : BindableBase
 
 
     }
+
+    #endregion
+
+
+    #region IDialogService
+
+    public string Title => "Login";
+
+    public event Action<IDialogResult> RequestClose;
+
+    public bool CanCloseDialog()
+    {
+        return true;
+    }
+
+    public void OnDialogClosed()
+    { }
+
+    public void OnDialogOpened(IDialogParameters parameters)
+    { }
 
     #endregion
 }

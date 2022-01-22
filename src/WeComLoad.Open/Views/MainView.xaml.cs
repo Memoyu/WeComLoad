@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using Prism.Services.Dialogs;
+using System.Windows.Input;
 
 namespace WeComLoad.Open.Views;
 
@@ -7,7 +8,7 @@ namespace WeComLoad.Open.Views;
 /// </summary>
 public partial class MainView : Window
 {
-    public MainView(IEventAggregator eventAggregator)
+    public MainView(IEventAggregator eventAggregator, IDialogService dialogService)
     {
         InitializeComponent();
 
@@ -20,9 +21,17 @@ public partial class MainView : Window
 
         eventAggregator.GetEvent<LoginEvent>().Subscribe(arg =>
         {
-            LoginDialog.IsOpen = arg.IsOpen;
-            if (LoginDialog.IsOpen)
-                LoginDialog.DialogContent = new LoginView();
+            dialogService.ShowDialog("LoginView", sender =>
+            {
+                if (sender.Result != ButtonResult.OK)
+                {
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+            });
         });
 
         btnMin.Click += (s, e) =>

@@ -1,4 +1,5 @@
-﻿global using Prism.Events;
+﻿global using System.Collections.Generic;
+global using Prism.Events;
 global using Newtonsoft.Json;
 global using System.Linq;
 global using WeComLoad.Open.Views;
