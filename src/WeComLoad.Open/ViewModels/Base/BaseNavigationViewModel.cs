@@ -31,10 +31,11 @@ public class BaseNavigationViewModel : BindableBase, INavigationAware
 
     public void Loading(bool isOpen, string hint = "加载中...")
     {
-        EventAggregator.Publish(new LoadingEventModel
+        EventAggregator.Publish(new MainViewDialogEventModel
         {
             IsOpen = isOpen,
-            Hint = hint,
+            DialogType = MainViewDialogEnum.Loadding,
+            Content = hint,
         });
     }
 }

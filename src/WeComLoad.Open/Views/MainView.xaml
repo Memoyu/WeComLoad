@@ -22,7 +22,7 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         Title="MainWindow" Height="800" Width="1000">
     <materialDesign:DialogHost
-        x:Name="LoaddingDialog"
+        x:Name="MainViewDialog"
         Identifier="RootDialog"
         DialogTheme="Inherit"
         SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">

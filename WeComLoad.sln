@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeComLoad.Admin", "src\WeCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeComLoad.Shared", "src\WeComLoad.Shared\WeComLoad.Shared.csproj", "{954AA3CD-06AB-4B6A-BE62-876D34F1C7EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeComLoad.Open", "src\WeComLoad.Open\WeComLoad.Open.csproj", "{B155147C-6B54-4178-8608-FFE0F192F63D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeComLoad.Open", "src\WeComLoad.Open\WeComLoad.Open.csproj", "{B155147C-6B54-4178-8608-FFE0F192F63D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

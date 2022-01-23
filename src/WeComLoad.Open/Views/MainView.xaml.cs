@@ -12,26 +12,24 @@ public partial class MainView : Window
     {
         InitializeComponent();
 
+
         eventAggregator.Subscribe(arg =>
         {
-            LoaddingDialog.IsOpen = arg.IsOpen;
-            if (LoaddingDialog.IsOpen)
-                LoaddingDialog.DialogContent = new LoadingView(arg.Hint);
-        });
-
-        eventAggregator.GetEvent<LoginEvent>().Subscribe(arg =>
-        {
-            dialogService.ShowDialog("LoginView", sender =>
+            MainViewDialog.IsOpen = arg.IsOpen;
+            if (MainViewDialog.IsOpen)
             {
-                if (sender.Result != ButtonResult.OK)
+                switch (arg.DialogType)
                 {
-                    return;
+                    case MainViewDialogEnum.Login:
+                        MainViewDialog.DialogContent = new LoginView();
+                        break;
+                    case MainViewDialogEnum.Loadding:
+                        MainViewDialog.DialogContent = new LoadingView(arg.Content);
+                        break;
+                    default:
+                        break;
                 }
-                else
-                {
-                    return;
-                }
-            });
+            } 
         });
 
         btnMin.Click += (s, e) =>
@@ -71,5 +69,6 @@ public partial class MainView : Window
             MenuToggleButton.IsChecked = false;
         };
 
+        eventAggregator.GetEvent<MainViewDialogEvent>().Publish(new MainViewDialogEventModel { IsOpen = true, DialogType = MainViewDialogEnum.Login });
     }
 }

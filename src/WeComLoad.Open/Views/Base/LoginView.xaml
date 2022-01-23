@@ -16,16 +16,27 @@
             <Grid Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition />
-                    <RowDefinition Height="0.25*"/>
+                    <RowDefinition Height="0.15*"/>
+                    <RowDefinition Height="0.15*"/>
+                    <RowDefinition Height="0.15*"/>
                 </Grid.RowDefinitions>
                 <Image Height="auto" Name="imgage_qrcode" Source="{Binding Source}" Stretch="Uniform"/>
-                <TextBlock Grid.Row="1"
-                    Margin="20,0,0,0"
-                    HorizontalAlignment="Center"
+                <Grid Grid.Row="1">
+                    <TextBlock 
+                    
+                        HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="18"
                     FontWeight="Bold"
                     Text="{Binding LoginHint}" />
+                    <ProgressBar HorizontalAlignment="Center" Width="30" Height="30" IsIndeterminate="True" Style="{StaticResource MaterialDesignCircularProgressBar}"  />
+                </Grid>
+                <StackPanel Grid.Row="2">
+                    <Button Command="{Binding RefreshQrCodeCommand }">刷新二维码</Button>
+                </StackPanel>
+                <StackPanel Grid.Row="3">
+                    <Button Command="{Binding ExitCommand }">退出</Button>
+                </StackPanel>
 
             </Grid>
             <materialDesign:Snackbar

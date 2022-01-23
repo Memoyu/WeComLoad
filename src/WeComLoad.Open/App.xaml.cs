@@ -1,4 +1,5 @@
 ﻿using Prism.Services.Dialogs;
+using System.Windows.Navigation;
 
 namespace WeComLoad.Open;
 
@@ -28,16 +29,15 @@ public partial class App : PrismApplication
             var eventAggregator = Container.Resolve<IEventAggregator>();
             func.GetWeCombReq().SetUnAuthEvent(() =>
             {
-                eventAggregator.GetEvent<LoginEvent>().Publish(new LoginEventModel { IsOpen = true });
+                eventAggregator.GetEvent<MainViewDialogEvent>().Publish(new MainViewDialogEventModel { IsOpen = true , DialogType = MainViewDialogEnum.Login });
             });
             return func;
         });
-
-        containerRegistry.RegisterDialog<LoginView, LoginViewModel>();
     }
 
     protected override void ConfigureViewModelLocator()
     {
+        ViewModelLocationProvider.Register<LoginView, LoginViewModel>();
         base.ConfigureViewModelLocator();
     }
 }

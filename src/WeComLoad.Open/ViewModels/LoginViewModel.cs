@@ -3,11 +3,15 @@ using Prism.Services.Dialogs;
 
 namespace WeComLoad.Open.ViewModels;
 
-public class LoginViewModel : BindableBase, IDialogAware
+public class LoginViewModel : BaseNavigationViewModel
 {
     private readonly IWeComOpen _weComOpen;
-    private readonly IEventAggregator _eventAggregator;
 
+    private string _qrCodeKey = string.Empty;
+
+    public DelegateCommand RefreshQrCodeCommand { get; private set; }
+
+    public DelegateCommand ExitCommand { get; private set; }
 
     private SnackbarMessageQueue snackbarMessageQueue;
 
@@ -15,16 +19,6 @@ public class LoginViewModel : BindableBase, IDialogAware
     {
         get { return snackbarMessageQueue; }
         set { snackbarMessageQueue = value; RaisePropertyChanged(); }
-    }
-
-    /// <summary>
-    /// 窗口是否显示
-    /// </summary>
-    private bool isOpen;
-    public bool DialogIsOpen
-    {
-        get { return isOpen; }
-        set { isOpen = value; RaisePropertyChanged(); }
     }
 
     private string loginHint = "请扫码登录";
@@ -43,11 +37,28 @@ public class LoginViewModel : BindableBase, IDialogAware
     }
 
 
-    public LoginViewModel(IWeComOpen weComOpen, IContainerProvider containerProvider)
+    public LoginViewModel(IWeComOpen weComOpen, IContainerProvider containerProvider) :
+        base(containerProvider)
     {
         SnackbarMessage = new SnackbarMessageQueue();
         _weComOpen = weComOpen;
-        _eventAggregator = containerProvider.Resolve<IEventAggregator>();
+        RefreshQrCodeCommand = new DelegateCommand(RefreshQrCodeHandler);
+        ExitCommand = new DelegateCommand(ExitLoginHandler);
+        GoToLogin();
+    }
+
+
+
+    private void ExitLoginHandler()
+    {
+        EventAggregator.Publish(new MainViewDialogEventModel
+        {
+            IsOpen = false
+        });
+    }
+
+    private void RefreshQrCodeHandler()
+    {
         GetLoginQrCode();
     }
 
@@ -55,16 +66,22 @@ public class LoginViewModel : BindableBase, IDialogAware
 
     private async void GetLoginQrCode()
     {
-        var key = await GetLoginAndShowQrCodeAsync();
+        _qrCodeKey = await GetLoginAndShowQrCodeAsync();
+    }
+
+    private async void GoToLogin()
+    {
+        _qrCodeKey = await GetLoginAndShowQrCodeAsync();
         var isLogin = false;
         int count = 1;
         var delay = 2000;
         while (!isLogin)
         {
-            var state = await GetLoginStatusAsync(key);
+            if (string.IsNullOrWhiteSpace(_qrCodeKey)) continue;
+            var state = await GetLoginStatusAsync(_qrCodeKey);
             if (state.Code == 4 || state.Code == 5)
             {
-                key = await GetLoginAndShowQrCodeAsync();
+                GetLoginQrCode();
                 continue;
             }
             else if (state.Code == 6)
@@ -75,7 +92,11 @@ public class LoginViewModel : BindableBase, IDialogAware
             await Task.Delay(delay);
             count++;
         }
-        RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
+
+        EventAggregator.Publish(new MainViewDialogEventModel
+        {
+            IsOpen = false
+        });
     }
 
 
