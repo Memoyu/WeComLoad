@@ -1,4 +1,5 @@
-﻿using static WeComLoad.Shared.Model.WeComSuiteApp;
+﻿using Microsoft.Extensions.Configuration;
+using static WeComLoad.Shared.Model.WeComSuiteApp;
 using static WeComLoad.Shared.Model.WeComSuiteAppAuth;
 
 namespace WeComLoad.Open.ViewModels

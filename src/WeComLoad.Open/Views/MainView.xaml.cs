@@ -29,7 +29,7 @@ public partial class MainView : Window
                     default:
                         break;
                 }
-            } 
+            }
         });
 
         btnMin.Click += (s, e) =>
@@ -69,6 +69,15 @@ public partial class MainView : Window
             MenuToggleButton.IsChecked = false;
         };
 
-        eventAggregator.GetEvent<MainViewDialogEvent>().Publish(new MainViewDialogEventModel { IsOpen = true, DialogType = MainViewDialogEnum.Login });
+        // eventAggregator.Publish(new MainViewDialogEventModel { IsOpen = true, DialogType = MainViewDialogEnum.Login });
+
+    }
+
+    protected override void OnContentRendered(EventArgs e)
+    {
+        menuBar.SelectedIndex = 0;
+        var dataContext = DataContext as MainViewModel;
+        dataContext.NavigateCommand.Execute(dataContext.MenuBars.First());
+        base.OnContentRendered(e);
     }
 }

@@ -1,16 +1,14 @@
 ﻿namespace WeComLoad.Open.ViewModels.Base;
 
-public class BaseNavigationViewModel : BindableBase, INavigationAware
+public class BaseNavigationViewModel : BaseViewModel, INavigationAware
 {
-    private readonly IContainerProvider _containerProvider;
     public readonly IEventAggregator EventAggregator;
     public static readonly IWeComOpen WeComOpen = new WeComOpenFunc();
 
 
 
-    public BaseNavigationViewModel(IContainerProvider containerProvider)
+    public BaseNavigationViewModel(IContainerProvider containerProvider): base(containerProvider)
     {
-        _containerProvider = containerProvider;
         EventAggregator = containerProvider.Resolve<IEventAggregator>();
     }
 

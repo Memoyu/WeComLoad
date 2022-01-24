@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:WeComLoad.Open.Views" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
@@ -33,7 +32,7 @@
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <materialDesign:PackIcon Kind="{Binding Icon}" Margin="15,0"/>
-                            <TextBlock Text="{Binding Title}" Margin="15,0"/>
+                            <TextBlock Text="{Binding Title}"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

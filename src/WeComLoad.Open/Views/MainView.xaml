@@ -24,25 +24,28 @@
     <materialDesign:DialogHost
         x:Name="MainViewDialog"
         Identifier="RootDialog"
-        DialogTheme="Inherit"
-        SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
+        DialogTheme="Inherit">
 
         <materialDesign:DrawerHost
             IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
             <materialDesign:DrawerHost.LeftDrawerContent>
                 <DockPanel MinWidth="220">
                     <StackPanel DockPanel.Dock="Top" Margin="0, 25">
-                        <ListBox x:Name="menuBar" ItemContainerStyle="{StaticResource MenuBarListBoxItemStyle}" ItemsSource="{Binding MenuBars}">
+                        <ListBox x:Name="menuBar"
+                                 HorizontalContentAlignment="Stretch"
+                                 ItemContainerStyle="{StaticResource MenuBarListBoxItemStyle}" 
+                                 ItemsSource="{Binding MenuBars}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
-                                    <i:InvokeCommandAction Command="{Binding NavigateCommand}" CommandParameter="{Binding ElementName=menuBar, Path=SelectedItem}"/>
+                                    <i:InvokeCommandAction Command="{Binding NavigateCommand}"
+                                                           CommandParameter="{Binding ElementName=menuBar, Path=SelectedItem}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <materialDesign:PackIcon Kind="{Binding Icon}" Margin="15,0"/>
-                                        <TextBlock Text="{Binding Title}" Margin="15,0"/>
+                                        <TextBlock Text="{Binding Title}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -108,6 +111,12 @@
                 </materialDesign:ColorZone>
 
                 <ContentControl prism:RegionManager.RegionName="{x:Static prismManager:PrismManager.MainViewRegionName}"/>
+
+                <materialDesign:Snackbar
+                x:Name="Snackbar"
+                VerticalAlignment="Top"
+                Panel.ZIndex="1"
+                MessageQueue="{materialDesign:MessageQueue}" />
             </DockPanel>
         </materialDesign:DrawerHost>
     </materialDesign:DialogHost>

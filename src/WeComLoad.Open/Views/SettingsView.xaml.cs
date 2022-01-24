@@ -7,9 +7,16 @@ namespace WeComLoad.Open.Views
     /// </summary>
     public partial class SettingsView : UserControl
     {
-        public SettingsView()
+        public SettingsView(IRegionManager regionManager)
         {
             InitializeComponent();
-        }
+
+            Loaded += (s, e) =>
+            {
+                menuBar.SelectedIndex = 0;
+                var dataContext = DataContext as SettingsViewModel;
+                dataContext.NavigateCommand.Execute(dataContext.MenuBars.First());
+            };
+        }  
     }
 }

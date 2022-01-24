@@ -38,12 +38,12 @@ public class MainViewModel : BindableBase
     void CreateMenuBar()
     {
         MenuBars = new ObservableCollection<MenuBar>();
-        MenuBars.Add(new MenuBar
-        {
-            Icon = "Home",
-            Title = "首页",
-            NameSpace = "IndexView",
-        });
+        //MenuBars.Add(new MenuBar
+        //{
+        //    Icon = "Home",
+        //    Title = "首页",
+        //    NameSpace = "IndexView",
+        //});
         MenuBars.Add(new MenuBar
         {
             Icon = "Home",

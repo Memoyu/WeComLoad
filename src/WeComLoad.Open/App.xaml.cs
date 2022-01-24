@@ -1,5 +1,6 @@
 ﻿using Prism.Services.Dialogs;
-using System.Windows.Navigation;
+using WeComLoad.Open.Common.Utils;
+using WeComLoad.Open.Views.Settings;
 
 namespace WeComLoad.Open;
 
@@ -23,15 +24,25 @@ public partial class App : PrismApplication
         containerRegistry.RegisterForNavigation<CustomAppView, CustomAppViewModel>();
         containerRegistry.RegisterForNavigation<SettingsView, SettingsViewModel>();
 
+        // 设置子页面
+        containerRegistry.RegisterForNavigation<SkinView, SkinViewModel>();
+        containerRegistry.RegisterForNavigation<CustomAppSettingView, CustomAppSettingViewModel>();
+
         containerRegistry.RegisterSingleton<IWeComOpen>(f =>
         {
             var func = new WeComOpenFunc();
             var eventAggregator = Container.Resolve<IEventAggregator>();
             func.GetWeCombReq().SetUnAuthEvent(() =>
             {
-                eventAggregator.GetEvent<MainViewDialogEvent>().Publish(new MainViewDialogEventModel { IsOpen = true , DialogType = MainViewDialogEnum.Login });
+                eventAggregator.Publish(new MainViewDialogEventModel { IsOpen = true, DialogType = MainViewDialogEnum.Login });
             });
             return func;
+        });
+
+        containerRegistry.RegisterSingleton<AppSettings>(f =>
+        {
+            var config = JsonFileHelper.ReadJson<AppSettings>(JsonFileHelper.configPath);
+            return config;
         });
     }
 

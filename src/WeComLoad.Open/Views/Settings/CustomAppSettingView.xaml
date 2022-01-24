@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="WeComLoad.Open.Views.Settings.CustomAppSettingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="0.3*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Label Margin="20, 0" Grid.Column="0" Grid.Row="0" Content="应用主页" VerticalContentAlignment="Center"/>
+        <Label Margin="20, 0" Grid.Column="0" Grid.Row="1" Content="可信域名" VerticalContentAlignment="Center"/>
+        <Label Margin="20, 0" Grid.Column="0" Grid.Row="2" Content="IP白名单" VerticalContentAlignment="Center"/>
+        <Label Margin="20, 0" Grid.Column="0" Grid.Row="3" Content="回调地址" VerticalContentAlignment="Center"/>
+
+        <StackPanel  Grid.Column="1"  Grid.Row="0" VerticalAlignment="Center">
+            <TextBox Text="{Binding Config.DevHomePage}"  materialDesign:HintAssist.Hint="开发-应用主页" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.TestHomePage}" materialDesign:HintAssist.Hint="测试-应用主页" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.ProdHomePage}" materialDesign:HintAssist.Hint="生产-应用主页" materialDesign:HintAssist.IsFloating="True" />
+        </StackPanel>
+        <StackPanel  Grid.Column="1"  Grid.Row="1" VerticalAlignment="Center">
+            <TextBox Text="{Binding Config.DevDomain}" materialDesign:HintAssist.Hint="开发-可信域名" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.TestDomain}" materialDesign:HintAssist.Hint="测试-可信域名" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.ProdDomain}" materialDesign:HintAssist.Hint="生产-可信域名" materialDesign:HintAssist.IsFloating="True" />
+        </StackPanel>
+
+        <StackPanel  Grid.Column="1"  Grid.Row="2" VerticalAlignment="Center">
+            <TextBox Text="{Binding Config.DevIp}"  materialDesign:HintAssist.Hint="开发-IP白名单" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.TestIp}" materialDesign:HintAssist.Hint="测试-IP白名单" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.ProdIp}" materialDesign:HintAssist.Hint="生产-IP白名单" materialDesign:HintAssist.IsFloating="True" />
+        </StackPanel>
+
+        <StackPanel  Grid.Column="1"  Grid.Row="3" VerticalAlignment="Center">
+            <TextBox Text="{Binding Config.DevCallback}"  materialDesign:HintAssist.Hint="开发-回调地址" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.TestCallback}" materialDesign:HintAssist.Hint="测试-回调地址" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding Config.ProdCallback}" materialDesign:HintAssist.Hint="生产-回调地址" materialDesign:HintAssist.IsFloating="True" />
+        </StackPanel>
+
+        <DockPanel Grid.Column="0" Grid.ColumnSpan="2"  Grid.Row="4" LastChildFill="False" HorizontalAlignment="Center">
+            <Button Command="{Binding SaveConfigCommand }">保存</Button>
+        </DockPanel>
+    </Grid>
+</UserControl>

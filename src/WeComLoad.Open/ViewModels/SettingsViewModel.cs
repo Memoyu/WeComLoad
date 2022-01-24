@@ -1,6 +1,8 @@
-﻿namespace WeComLoad.Open.ViewModels;
+﻿using MaterialDesignThemes.Wpf;
 
-public class SettingsViewModel : BindableBase
+namespace WeComLoad.Open.ViewModels;
+
+public class SettingsViewModel : BaseNavigationViewModel
 {
     private readonly IRegionManager _regionManager;
 
@@ -11,10 +13,19 @@ public class SettingsViewModel : BindableBase
         set { menuBars = value; RaisePropertyChanged(); }
     }
 
+    private SnackbarMessageQueue snackbarMessageQueue;
+
+    public SnackbarMessageQueue SnackbarMessage
+    {
+        get { return snackbarMessageQueue; }
+        set { snackbarMessageQueue = value; RaisePropertyChanged(); }
+    }
+
     public DelegateCommand<MenuBar> NavigateCommand { get; private set; }
 
-    public SettingsViewModel(IRegionManager regionManager)
+    public SettingsViewModel(IRegionManager regionManager, IContainerProvider containerProvider): base(containerProvider)
     {
+        SnackbarMessage = new SnackbarMessageQueue();
         _regionManager = regionManager;
         NavigateCommand = new DelegateCommand<MenuBar>(Navigate);
         CreateMenuBar();
@@ -27,7 +38,7 @@ public class SettingsViewModel : BindableBase
         {
             Icon = "Cog",
             Title = "代开发自建应用配置",
-            NameSpace = "SystemSettingView",
+            NameSpace = "CustomAppSettingView",
         });
 
         MenuBars.Add(new MenuBar
