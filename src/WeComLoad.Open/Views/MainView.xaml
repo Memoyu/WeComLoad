@@ -54,22 +54,23 @@
                 </DockPanel>
             </materialDesign:DrawerHost.LeftDrawerContent>
 
-            <DockPanel>
-                <materialDesign:ColorZone
+            <Grid>
+                <DockPanel>
+                    <materialDesign:ColorZone
                     x:Name="ColorZone"
                     Padding="5"
                     materialDesign:ShadowAssist.ShadowDepth="Depth2"
                     Mode="PrimaryMid"
                     DockPanel.Dock="Top">
-                    <DockPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ToggleButton
+                        <DockPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <ToggleButton
                                 x:Name="MenuToggleButton"
                                 Style="{StaticResource MaterialDesignHamburgerToggleButton}"
                                 IsChecked="False"
                                 AutomationProperties.Name="HamburgerToggleButton"/>
 
-                            <Button
+                                <Button
                                 Margin="24,0,0,0"
                                 ToolTip="Previous Item"
                                 Command="{Binding GoForwardCommand}"
@@ -78,7 +79,7 @@
                                 Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
                                 materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"/>
 
-                            <Button 
+                                <Button 
                                 Margin="16,0,0,0"
                                 ToolTip="Next Item"
                                 Command="{Binding GoBackCommand}"
@@ -86,38 +87,33 @@
                                 Style="{DynamicResource MaterialDesignToolButton}"
                                 Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
                                 materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"/>
-                        </StackPanel>
-
-                        <DockPanel DockPanel.Dock="Right">
-                            <StackPanel Orientation ="Horizontal">
-                                <Image Source="/Resources/Images/user.png" Width="25" Height="25 ">
-                                    <Image.Clip>
-                                        <EllipseGeometry Center="12.5, 12.5" RadiusY="12.5" RadiusX="12.5" />
-                                    </Image.Clip>
-                                </Image>
-
-                                <Button x:Name="btnMin" Content="—" Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
-                                <Button x:Name="btnMax" Content="☐" Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
-                                <Button x:Name="btnClose" Content="✕" Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
                             </StackPanel>
-                        </DockPanel>
 
-                        <TextBlock
+                            <DockPanel DockPanel.Dock="Right">
+                                <StackPanel Orientation ="Horizontal">
+                                    <Button x:Name="btnMin" Content="—" Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
+                                    <Button x:Name="btnMax" Content="☐" Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
+                                    <Button x:Name="btnClose" Content="✕" Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
+                                </StackPanel>
+                            </DockPanel>
+
+                            <TextBlock
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             FontSize="17"
                             Text="{Binding Title}"/>
-                    </DockPanel>
-                </materialDesign:ColorZone>
+                        </DockPanel>
+                    </materialDesign:ColorZone>
 
-                <ContentControl prism:RegionManager.RegionName="{x:Static prismManager:PrismManager.MainViewRegionName}"/>
-
+                    <ContentControl prism:RegionManager.RegionName="{x:Static prismManager:PrismManager.MainViewRegionName}"/>
+                </DockPanel>
                 <materialDesign:Snackbar
                 x:Name="Snackbar"
                 VerticalAlignment="Top"
                 Panel.ZIndex="1"
-                MessageQueue="{materialDesign:MessageQueue}" />
-            </DockPanel>
+                MessageQueue="{Binding SnackbarMessage}" />
+            </Grid>
         </materialDesign:DrawerHost>
+
     </materialDesign:DialogHost>
 </Window>

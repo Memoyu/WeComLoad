@@ -34,7 +34,7 @@ public partial class App : PrismApplication
             var eventAggregator = Container.Resolve<IEventAggregator>();
             func.GetWeCombReq().SetUnAuthEvent(() =>
             {
-                eventAggregator.Publish(new MainViewDialogEventModel { IsOpen = true, DialogType = MainViewDialogEnum.Login });
+                eventAggregator.PubMainDialog(new MainDialogEventModel { IsOpen = true, DialogType = MainDialogEnum.Login });
             });
             return func;
         });

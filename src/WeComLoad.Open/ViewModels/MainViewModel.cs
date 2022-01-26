@@ -1,6 +1,8 @@
-﻿namespace WeComLoad.Open.ViewModels;
+﻿using MaterialDesignThemes.Wpf;
 
-public class MainViewModel : BindableBase
+namespace WeComLoad.Open.ViewModels;
+
+public class MainViewModel : BaseViewModel
 {
     private readonly IRegionManager _regionManager;
     private IRegionNavigationJournal _regionNavigationJournal;
@@ -20,30 +22,40 @@ public class MainViewModel : BindableBase
     }
 
 
+    private SnackbarMessageQueue snackbarMessageQueue;
+
+    public SnackbarMessageQueue SnackbarMessage
+    {
+        get { return snackbarMessageQueue; }
+        set { snackbarMessageQueue = value; RaisePropertyChanged(); }
+    }
+
+
     public DelegateCommand<MenuBar> NavigateCommand { get; private set; }
 
     public DelegateCommand GoBackCommand { get; private set; }
     public DelegateCommand GoForwardCommand { get; private set; }
 
-    public MainViewModel(IRegionManager regionManager, IRegionNavigationJournal regionNavigationJournal)
+    public MainViewModel(IRegionManager regionManager, IRegionNavigationJournal regionNavigationJournal, IContainerProvider containerProvider)
+        : base(containerProvider)
     {
+        SnackbarMessage = new SnackbarMessageQueue();
         _regionManager = regionManager;
         _regionNavigationJournal = regionNavigationJournal;
         CreateMenuBar();
         NavigateCommand = new DelegateCommand<MenuBar>(Navigate);
         GoBackCommand = new DelegateCommand(GoBack);
         GoForwardCommand = new DelegateCommand(GoForward);
+        EventAggregator.SubMainSnackbar(arg =>
+        {
+            SnackbarMessage.Enqueue(arg.Msg);
+        });
+
     }
 
     void CreateMenuBar()
     {
         MenuBars = new ObservableCollection<MenuBar>();
-        //MenuBars.Add(new MenuBar
-        //{
-        //    Icon = "Home",
-        //    Title = "首页",
-        //    NameSpace = "IndexView",
-        //});
         MenuBars.Add(new MenuBar
         {
             Icon = "Home",
@@ -63,8 +75,8 @@ public class MainViewModel : BindableBase
         if (menuBar == null || string.IsNullOrWhiteSpace(menuBar.NameSpace)) return;
         _regionManager.Regions[PrismManager.MainViewRegionName].RequestNavigate(menuBar.NameSpace, back =>
         {
-                // 添加到导航日志中
-                _regionNavigationJournal = back.Context.NavigationService.Journal;
+            // 添加到导航日志中
+            _regionNavigationJournal = back.Context.NavigationService.Journal;
         });
         Title = menuBar.Title;
     }

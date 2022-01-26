@@ -38,6 +38,7 @@ public class WeComSuiteAppAuth
         public Auditorder auditorder { get; set; }
         public bool b_can_not_edit_showinfo { get; set; }
         public Sdk_Auth sdk_auth { get; set; }
+        public int customized_app_status { get; set; }
     }
 
     public class White_Ip_List

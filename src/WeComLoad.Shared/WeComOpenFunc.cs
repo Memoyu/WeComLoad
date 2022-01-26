@@ -1,4 +1,6 @@
-﻿namespace WeComLoad.Shared;
+﻿using static WeComLoad.Shared.Model.WeComSuiteAppAuth;
+
+namespace WeComLoad.Shared;
 
 public class WeComOpenFunc : IWeComOpen
 {
@@ -83,5 +85,27 @@ public class WeComOpenFunc : IWeComOpen
         if (!_weCombReq.IsResponseSucc(response)) return null;
         var model = _weCombReq.GetResponseT<WeComBase<WeComSuiteAppAuth>>(response);
         return model;
+    }
+
+    public async Task<WeComBase<WeComSuiteAppAuthDetail>> GetCustomAppAuthDetailAsync(string suitId)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/detail", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }, { "suiteid", suitId }, { "oper_table", "eSuiteOpTableNormal" }
+                });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url);
+        var model = _weCombReq.GetResponseT<WeComBase<WeComSuiteAppAuthDetail>>(response);
+        return model;
+    }
+
+    public async Task<bool> AuthCorpAppAsync(AuthCorpAppRequest req)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/corpApp", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
+        var model = _weCombReq.GetResponseT<WeComBase<Corpapp>>(response);
+        return !string.IsNullOrWhiteSpace(model?.Data?.app_id);
     }
 }

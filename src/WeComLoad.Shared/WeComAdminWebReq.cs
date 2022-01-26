@@ -112,6 +112,43 @@ public class WeComAdminWebReq
         }
     }
 
+    public async Task<HttpWebResponse> HttpWebRequestPostJsonAsync(string url,string content, bool isUseBaseUrl = true)
+    {
+        try
+        {
+            Hashtable h = new Hashtable();
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+            if (isUseBaseUrl)
+                url = $"{_weWorkBaseUrl}{url}";
+            request = (HttpWebRequest)WebRequest.Create(url);
+            BuildRequest(request);
+            request.Method = "POST";
+
+            if (!string.IsNullOrWhiteSpace(content))
+            {
+                byte[] postdatabyte = Encoding.ASCII.GetBytes(content);
+                Stream stream = await request.GetRequestStreamAsync();
+                stream.Write(postdatabyte, 0, postdatabyte.Length);
+                stream.Close();
+
+                request.ContentType = "application/json";
+                request.ContentLength = postdatabyte.Length;
+            }
+
+            response = (HttpWebResponse)await request.GetResponseAsync();
+            return response;
+        }
+        catch (WebException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
     public async Task<byte[]> HttpWebRequestDownloadsync(string url)
     {
         try

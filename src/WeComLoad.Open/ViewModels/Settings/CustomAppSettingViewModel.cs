@@ -26,18 +26,18 @@ public class CustomAppSettingViewModel : BaseViewModel
         var domains = appSettings.AuditApp.Domain.Split(';');
         Config = new CustomAppConfigDto
         {
-            DevHomePage = GetRangStr(homePages, 0),
-            TestHomePage = GetRangStr(homePages, 1),
-            ProdHomePage = GetRangStr(homePages, 2),
-            DevIp = GetRangStr(ips, 0),
-            TestIp = GetRangStr(ips, 1),
-            ProdIp = GetRangStr(ips, 2),
-            DevDomain = GetRangStr(domains, 0),
-            TestDomain = GetRangStr(domains, 1),
-            ProdDomain = GetRangStr(domains, 2),
-            DevCallback = GetRangStr(callbacks, 0),
-            TestCallback = GetRangStr(callbacks, 1),
-            ProdCallback = GetRangStr(callbacks, 2),
+            DevHomePage = homePages.GetRangStr(0),
+            TestHomePage = homePages.GetRangStr(1),
+            ProdHomePage = homePages.GetRangStr(2),
+            DevIp = ips.GetRangStr(0),
+            TestIp = ips.GetRangStr(1),
+            ProdIp = ips.GetRangStr(2),
+            DevDomain = domains.GetRangStr(0),
+            TestDomain = domains.GetRangStr(1),
+            ProdDomain = domains.GetRangStr(2),
+            DevCallback = callbacks.GetRangStr(0),
+            TestCallback = callbacks.GetRangStr(1),
+            ProdCallback = callbacks.GetRangStr(2),
         };
 
         SaveConfigCommand = new DelegateCommand(SaveConfigHandler);
@@ -52,17 +52,9 @@ public class CustomAppSettingViewModel : BaseViewModel
         _appSettings.AuditApp.Callback = $"{config.DevCallback};{config.TestCallback};{config.ProdCallback}";
 
         JsonFileHelper.WriteJson(JsonFileHelper.configPath, _appSettings);
-    }
-
-    public string GetRangStr(string[] inputs, int index)
-    {
-        try
+        EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
         {
-            return inputs[index];
-        }
-        catch (Exception ex)
-        {
-            return string.Empty;
-        }
+            Msg = "保存成功"
+        });
     }
 }

@@ -2,12 +2,12 @@
 
 public class BaseViewModel : BindableBase
 {
-    protected IEventAggregator aggregator;
-    private readonly IContainerProvider containerProvider;
+    public readonly IEventAggregator EventAggregator;
+    public readonly IContainerProvider ContainerProvider;
 
     public BaseViewModel(IContainerProvider containerProvider)
     {
-        aggregator = containerProvider.Resolve<IEventAggregator>();
-        this.containerProvider = containerProvider;
+        EventAggregator = containerProvider.Resolve<IEventAggregator>();
+        this.ContainerProvider = containerProvider;
     }
 }

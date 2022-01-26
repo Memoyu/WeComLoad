@@ -3,24 +3,24 @@
 public class AuthCorpAppRequest
 {
     public string suiteid { get; set; }
-    public Corpapp corpapp { get; set; }
+    public CorpappReq corpapp { get; set; }
 
-    public class Corpapp
+    public class CorpappReq
     {
         public string logo { get; set; }
         public string name { get; set; }
         public string description { get; set; }
         public string redirect_domain { get; set; }
         public int domain_belong_to { get; set; }
-        public Jssdkdomain_List jssdkdomain_list { get; set; }
-        public White_Ip_List white_ip_list { get; set; }
+        public Jssdkdomain_List jssdkdomain_list { get; set; } = new Jssdkdomain_List();
+        public White_Ip_List white_ip_list { get; set; } = new White_Ip_List();
         public string callbackurl { get; set; }
         public string token { get; set; }
         public string aeskey { get; set; }
         public bool enter_homeurl_in_wx { get; set; }
         public bool is_homeurl_miniprogram { get; set; }
         public string miniprogram_enter_path { get; set; }
-        public Miniprograminfo miniprogramInfo { get; set; }
+        public Miniprograminfo miniprogramInfo { get; set; } = new Miniprograminfo();
         public string page_type { get; set; }
         public int suiteid { get; set; }
         public string name_pinyin { get; set; }
@@ -45,7 +45,7 @@ public class AuthCorpAppRequest
         public bool islock { get; set; }
         public int service_tag_type { get; set; }
         public int industry_level1_id { get; set; }
-        public Extended_Info extended_info { get; set; }
+        public Extended_Info extended_info { get; set; } = new Extended_Info();
         public string kitsecret { get; set; }
         public object[] thirdapp_dotlist { get; set; }
         public string app_id { get; set; }
@@ -58,7 +58,7 @@ public class AuthCorpAppRequest
 
     public class White_Ip_List
     {
-        public object[] ip { get; set; }
+        public string[] ip { get; set; }
     }
 
     public class Miniprograminfo

@@ -2,14 +2,10 @@
 
 public class BaseNavigationViewModel : BaseViewModel, INavigationAware
 {
-    public readonly IEventAggregator EventAggregator;
     public static readonly IWeComOpen WeComOpen = new WeComOpenFunc();
-
-
 
     public BaseNavigationViewModel(IContainerProvider containerProvider): base(containerProvider)
     {
-        EventAggregator = containerProvider.Resolve<IEventAggregator>();
     }
 
     public virtual bool IsNavigationTarget(NavigationContext navigationContext)
@@ -29,10 +25,10 @@ public class BaseNavigationViewModel : BaseViewModel, INavigationAware
 
     public void Loading(bool isOpen, string hint = "加载中...")
     {
-        EventAggregator.Publish(new MainViewDialogEventModel
+        EventAggregator.PubMainDialog(new MainDialogEventModel
         {
             IsOpen = isOpen,
-            DialogType = MainViewDialogEnum.Loadding,
+            DialogType = MainDialogEnum.Loadding,
             Content = hint,
         });
     }

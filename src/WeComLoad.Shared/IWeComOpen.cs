@@ -39,4 +39,18 @@ public interface IWeComOpen
     /// <param name="limit">每页大小</param>
     /// <returns></returns>
     Task<WeComBase<WeComSuiteAppAuth>> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10);
+
+    /// <summary>
+    /// 获取授权企业代开发自建应用详情
+    /// </summary>
+    /// <param name="suitId"></param>
+    /// <returns></returns>
+    Task<WeComBase<WeComSuiteAppAuthDetail>> GetCustomAppAuthDetailAsync(string suitId);
+
+    /// <summary>
+    ///审核授权应用
+    /// </summary>
+    /// <param name="req">请参</param>
+    /// <returns></returns>
+    Task<bool> AuthCorpAppAsync(AuthCorpAppRequest req);
 }

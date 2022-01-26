@@ -13,17 +13,17 @@ public partial class MainView : Window
         InitializeComponent();
 
 
-        eventAggregator.Subscribe(arg =>
+        eventAggregator.SubMainDialog(arg =>
         {
             MainViewDialog.IsOpen = arg.IsOpen;
             if (MainViewDialog.IsOpen)
             {
                 switch (arg.DialogType)
                 {
-                    case MainViewDialogEnum.Login:
+                    case MainDialogEnum.Login:
                         MainViewDialog.DialogContent = new LoginView();
                         break;
-                    case MainViewDialogEnum.Loadding:
+                    case MainDialogEnum.Loadding:
                         MainViewDialog.DialogContent = new LoadingView(arg.Content);
                         break;
                     default:

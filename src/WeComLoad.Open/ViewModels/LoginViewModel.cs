@@ -51,7 +51,7 @@ public class LoginViewModel : BaseNavigationViewModel
 
     private void ExitLoginHandler()
     {
-        EventAggregator.Publish(new MainViewDialogEventModel
+        EventAggregator.PubMainDialog(new MainDialogEventModel
         {
             IsOpen = false
         });
@@ -93,9 +93,14 @@ public class LoginViewModel : BaseNavigationViewModel
             count++;
         }
 
-        EventAggregator.Publish(new MainViewDialogEventModel
+        EventAggregator.PubMainDialog(new MainDialogEventModel
         {
             IsOpen = false
+        });
+
+        EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
+        {
+            Msg = "登录成功"
         });
     }
 
