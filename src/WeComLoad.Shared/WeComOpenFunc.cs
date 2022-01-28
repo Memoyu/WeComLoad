@@ -98,14 +98,53 @@ public class WeComOpenFunc : IWeComOpen
         return model;
     }
 
-    public async Task<bool> AuthCorpAppAsync(AuthCorpAppRequest req)
+    public async Task<WeComAuthAppResult?> AuthCorpAppAsync(AuthCorpAppRequest req)
     {
         var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/corpApp", new Dictionary<string, string>
                 {
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
                 });
         var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
-        var model = _weCombReq.GetResponseT<WeComBase<Corpapp>>(response);
-        return !string.IsNullOrWhiteSpace(model?.Data?.app_id);
+        var model = _weCombReq.GetResponseT<WeComBase<WeComAuthAppResult>>(response);
+        return model?.Data;
     }
+
+    public async Task<(string Name, byte[] File)> GetDomainVerifyFile(string corpAppId, string suiteId)
+    {
+        // 获取可新域名校验文件名，domain_belong_to=0（代开发服务商）；domain_belong_to=1（企业客户）
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/app/getDomainOwnershipVerifyInfo", new Dictionary<string, string>
+            {
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" },  { "random", _weCombReq.GetRandom() }, { "domain_belong_to", "0" }, { "corpappid", corpAppId }, { "suiteid", suiteId }
+            });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url);
+        if (!_weCombReq.IsResponseSucc(response)) return (null, null);
+        var model = JsonConvert.DeserializeObject<WeComDomainVerifyFileName>(_weCombReq.GetResponseStr(response));
+
+        // 地址写死： https://open.work.weixin.qq.com/wwopen/developer/app/getDomainOwnershipVerifyInfo?action=download&corpappid=5629500845550908&suiteid=1009718&domain_belong_to=0
+        var file = await _weCombReq.HttpWebRequestDownloadsync($"wwopen/developer/app/getDomainOwnershipVerifyInfo?action=download&corpappid={corpAppId}&suiteid={suiteId}&domain_belong_to=0");
+        return (model.FileName, file);
+    }
+
+    public async Task<SubmitAuditCorpAppResult?> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/order/add", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
+        var model = _weCombReq.GetResponseT<WeComBase<SubmitAuditCorpAppResult>>(response);
+        return model?.Data;
+    }
+
+    public async Task<OnlineCorpAppResult?> OnlineAuditCorpAppAsync(OnlineCorpAppRequest req)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/order/set", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
+        var model = _weCombReq.GetResponseT<WeComBase<OnlineCorpAppResult>>(response);
+        return model?.Data;
+    }
+
 }

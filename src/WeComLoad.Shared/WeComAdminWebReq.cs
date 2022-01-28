@@ -127,7 +127,7 @@ public class WeComAdminWebReq
 
             if (!string.IsNullOrWhiteSpace(content))
             {
-                byte[] postdatabyte = Encoding.ASCII.GetBytes(content);
+                byte[] postdatabyte = Encoding.UTF8.GetBytes(content);
                 Stream stream = await request.GetRequestStreamAsync();
                 stream.Write(postdatabyte, 0, postdatabyte.Length);
                 stream.Close();

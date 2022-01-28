@@ -32,7 +32,7 @@
         <materialDesign:DialogHost.DialogContent>
             <Grid MinWidth="600">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="1*"/>
                     <RowDefinition Height="0.5*"/>
                     <RowDefinition/>
                     <RowDefinition Height="0.5*"/>
@@ -42,18 +42,22 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox Grid.ColumnSpan="2"
+                <StackPanel Grid.ColumnSpan="2" Orientation="Vertical">
+                    <Label Margin="0, 20" HorizontalAlignment="Center" FontSize="18" Content="{Binding CorpName}"></Label>
+                    <TextBox 
                   materialDesign:HintAssist.Hint="输入企业Id" TextAlignment="Center"
                   Text="{Binding CorpId, UpdateSourceTrigger=PropertyChanged}"
                   MinWidth="300"
                   Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                   VerticalAlignment="Center">
-                    <t:Interaction.Triggers>
-                        <t:EventTrigger EventName="TextChanged">
-                            <t:InvokeCommandAction Command="{Binding InputCorpIdCommand}"/>
-                        </t:EventTrigger>
-                    </t:Interaction.Triggers>
-                </TextBox>
+                        <t:Interaction.Triggers>
+                            <t:EventTrigger EventName="TextChanged">
+                                <t:InvokeCommandAction Command="{Binding InputCorpIdCommand}"/>
+                            </t:EventTrigger>
+                        </t:Interaction.Triggers>
+                    </TextBox>
+                </StackPanel>
+                
                 <Grid Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" Margin="0,10">
                     <ListBox  x:Name="EnvList" Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineListBox}">
                         <i:Interaction.Triggers>

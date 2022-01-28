@@ -48,9 +48,31 @@ public interface IWeComOpen
     Task<WeComBase<WeComSuiteAppAuthDetail>> GetCustomAppAuthDetailAsync(string suitId);
 
     /// <summary>
-    ///审核授权应用
+    /// 审核授权代开发自建应用
     /// </summary>
     /// <param name="req">请参</param>
     /// <returns></returns>
-    Task<bool> AuthCorpAppAsync(AuthCorpAppRequest req);
+    Task<WeComAuthAppResult?> AuthCorpAppAsync(AuthCorpAppRequest req);
+
+    /// <summary>
+    /// 获取可信域名校验文件
+    /// </summary>
+    /// <param name="corpAppId">企业AppOd</param>
+    /// <param name="suiteId">代开发应用ID</param>
+    /// <returns></returns>
+    Task<(string Name, byte[] File)> GetDomainVerifyFile(string corpAppId, string suiteId);
+
+    /// <summary>
+    /// 提交审核代开发自建应用
+    /// </summary>
+    /// <param name="req">请参</param>
+    /// <returns></returns>
+    Task<SubmitAuditCorpAppResult?> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req);
+
+    /// <summary>
+    /// 上线代开发自建应用
+    /// </summary>
+    /// <param name="req"></param>
+    /// <returns></returns>
+    Task<OnlineCorpAppResult?> OnlineAuditCorpAppAsync(OnlineCorpAppRequest req);
 }
