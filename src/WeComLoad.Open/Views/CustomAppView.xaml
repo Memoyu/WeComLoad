@@ -10,10 +10,10 @@
              mc:Ignorable="d" x:Name="CustomApp"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <cv:ObjToVisibilityConverter x:Key="ObjToVisibilityConverter"/>
+        <cv:StatusToContentConverter x:Key="StatusToContentConverter"/>
         <Style TargetType="Label">
-            <Setter Property="Foreground" Value="#FFFFFF"></Setter>
-
+            <Setter Property="Foreground" Value="#FFFFFF">
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Label">
@@ -164,10 +164,11 @@
                                             <TextBlock Text="{Binding name}" Opacity="0.5" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </StackPanel>
-                                    <Button DockPanel.Dock="Right" 
+                                    <Button Content="{Binding Converter={StaticResource StatusToContentConverter}}"
+                                        DockPanel.Dock="Right"
                                             Command="{Binding ElementName=CustomApp, Path=DataContext.AuditCustomAppCommand}" 
                                             CommandParameter="{Binding}"
-                                            >审核</Button>
+                                            ></Button>
                                 </DockPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

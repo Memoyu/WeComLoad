@@ -109,7 +109,7 @@ public class WeComOpenFunc : IWeComOpen
         return model?.Data;
     }
 
-    public async Task<(string Name, byte[] File)> GetDomainVerifyFile(string corpAppId, string suiteId)
+    public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId)
     {
         // 获取可新域名校验文件名，domain_belong_to=0（代开发服务商）；domain_belong_to=1（企业客户）
         var url = _weCombReq.GetQueryUrl("wwopen/developer/app/getDomainOwnershipVerifyInfo", new Dictionary<string, string>
@@ -136,7 +136,7 @@ public class WeComOpenFunc : IWeComOpen
         return model?.Data;
     }
 
-    public async Task<OnlineCorpAppResult?> OnlineAuditCorpAppAsync(OnlineCorpAppRequest req)
+    public async Task<OnlineCorpAppResult?> OnlineCorpAppAsync(OnlineCorpAppRequest req)
     {
         var url = _weCombReq.GetQueryUrl("wwopen/developer/order/set", new Dictionary<string, string>
                 {

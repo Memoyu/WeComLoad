@@ -60,7 +60,7 @@ public interface IWeComOpen
     /// <param name="corpAppId">企业AppOd</param>
     /// <param name="suiteId">代开发应用ID</param>
     /// <returns></returns>
-    Task<(string Name, byte[] File)> GetDomainVerifyFile(string corpAppId, string suiteId);
+    Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId);
 
     /// <summary>
     /// 提交审核代开发自建应用
@@ -74,5 +74,5 @@ public interface IWeComOpen
     /// </summary>
     /// <param name="req"></param>
     /// <returns></returns>
-    Task<OnlineCorpAppResult?> OnlineAuditCorpAppAsync(OnlineCorpAppRequest req);
+    Task<OnlineCorpAppResult?> OnlineCorpAppAsync(OnlineCorpAppRequest req);
 }

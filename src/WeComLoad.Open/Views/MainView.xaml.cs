@@ -69,7 +69,7 @@ public partial class MainView : Window
             MenuToggleButton.IsChecked = false;
         };
 
-        // eventAggregator.Publish(new MainViewDialogEventModel { IsOpen = true, DialogType = MainViewDialogEnum.Login });
+        eventAggregator.PubMainDialog(new MainDialogEventModel { IsOpen = true, DialogType = MainDialogEnum.Login });
 
     }
 
