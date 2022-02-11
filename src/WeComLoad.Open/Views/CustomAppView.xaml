@@ -144,7 +144,7 @@
                 <DockPanel Margin="10, 8" Grid.Column="2" >
                     <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
                         <TextBlock Text="授权列表"  FontSize="20" FontWeight="Bold"/>
-                        <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30">
+                        <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30" Command="{Binding RefreshAuditAppListCommand}">
                             <materialDesign:PackIcon Kind="Refresh"/>
                         </Button>
                     </DockPanel>

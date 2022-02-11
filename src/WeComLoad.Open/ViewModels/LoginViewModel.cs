@@ -127,7 +127,7 @@ public class LoginViewModel : BaseNavigationViewModel
         {
             // 1：等待扫码；2：扫码成功；3：确认登录；4：扫码后取消登录；5：登录失败；6：登录成功
             var status = await _weComOpen.GetQrCodeScanStatusAsync(qrCodeKey);
-            if (status == null) return (1, "登录失败");
+            if (status == null) return (5, "登录失败");
             var statusCode = 1;
             var statusMsg = "等待扫码";
             switch (status.Status)

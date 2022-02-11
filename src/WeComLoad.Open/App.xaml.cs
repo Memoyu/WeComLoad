@@ -1,4 +1,5 @@
-﻿using Prism.Services.Dialogs;
+﻿using LianOu.FileLib;
+using Prism.Services.Dialogs;
 using WeComLoad.Open.Common.Utils;
 using WeComLoad.Open.Views.Settings;
 
@@ -43,6 +44,11 @@ public partial class App : PrismApplication
         {
             var config = JsonFileHelper.ReadJson<AppSettings>(JsonFileHelper.configPath);
             return config;
+        });
+
+        containerRegistry.RegisterSingleton<IFileClientPro>(f =>
+        {
+            return FileClientPro.Create();
         });
     }
 

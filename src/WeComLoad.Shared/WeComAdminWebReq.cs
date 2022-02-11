@@ -192,6 +192,7 @@ public class WeComAdminWebReq
 
     public T? GetResponseT<T>(HttpWebResponse response)
     {
+        
         if (response.StatusCode != HttpStatusCode.OK) return default;
         Stream responseStream = response.GetResponseStream();
         StreamReader sr = new StreamReader(responseStream);
@@ -200,7 +201,8 @@ public class WeComAdminWebReq
         var jobj = JObject.Parse(responseStr);
         if (jobj != null &&
             !string.IsNullOrWhiteSpace(jobj["result"]?.ToString()) && 
-            !string.IsNullOrWhiteSpace(jobj["result"]["errCode"]?.ToString()))
+            !string.IsNullOrWhiteSpace(jobj["result"]["errCode"]?.ToString()) &&
+            VerifyNeedLogin(int.Parse(jobj["result"]["errCode"].ToString())))
         {
             _unAuthEvent?.Invoke();
             return default;
@@ -209,6 +211,14 @@ public class WeComAdminWebReq
         response.Close();
         responseStream.Close();
         return model;
+    }
+
+    private bool VerifyNeedLogin(int errCode)
+    {
+        // "{\"result\":{\"errCode\":-3,\"message\":\"outsession\",\"etype\":\"otherLogin\"}}"
+        if (errCode == -3)
+            return true;
+        return false;
     }
 
     public bool IsResponseSucc(HttpWebResponse response) => response.StatusCode == HttpStatusCode.OK;
