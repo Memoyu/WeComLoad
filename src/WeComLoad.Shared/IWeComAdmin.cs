@@ -62,15 +62,16 @@ public interface IWeComAdmin
     /// 配置自建应用侧边栏
     /// </summary>
     /// <param name="req">请求参数</param>
+    /// <param name="agent">应用信息</param>
     /// <returns>bool</returns>
-    Task<bool> AddChatMenuAsync(AddChatMenuRequest req);
+    Task<bool> AddChatMenuAsync(List<AddChatMenuRequest> menus, WeComOpenapiApp agent);
 
     /// <summary>
     /// 保存应用信息（配置可信域名）
     /// </summary>
     /// <param name="req">SaveOpenApiAppRequest</param>
     /// <returns>WeComSaveOpenApiApp</returns>
-    Task<WeComSaveOpenApiApp> SaveOpenApiAppAsync(SaveOpenApiAppRequest req);
+    Task<WeComSaveOpenApiApp> SaveOpenApiAppAsync(List<(string Key, string Value)> req);
 
     /// <summary>
     /// 配置客户联系 可调用应用
@@ -78,7 +79,6 @@ public interface IWeComAdmin
     /// <param name="req">请求参数</param>
     /// <returns>WeComSetApiAccessibleApps</returns>
     Task<bool> SetApiAccessibleAppsAsync(SetApiAccessibleAppsRequest req);
-
 
     /// <summary>
     /// 创建应用授权推送
@@ -128,4 +128,11 @@ public interface IWeComAdmin
     /// <param name="domian">域名</param>
     /// <returns>bool</returns>
     Task<bool> CheckXcxDomainStatusAsync(string domian);
+
+    /// <summary>
+    /// 配置代开发自建应用的授权信息
+    /// </summary>
+    /// <param name="appId">代开发自建应用AppId</param>
+    /// <returns></returns>
+    Task<bool> SetCustomizedAppPrivilege(string appId);
 }

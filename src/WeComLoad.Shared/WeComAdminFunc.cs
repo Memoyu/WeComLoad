@@ -191,53 +191,49 @@ public class WeComAdminFunc : IWeComAdmin
         return model.Data;
     }
 
-    public async Task<bool> AddChatMenuAsync(AddChatMenuRequest req)
+    public async Task<bool> AddChatMenuAsync(List<AddChatMenuRequest> menus, WeComOpenapiApp agent)
     {
-        var dic = new List<(string, string)>
-            {
-                ("banner_list[0][corp_app][app_id]", req.Agent.AppId),
-                ("banner_list[0][corpAppModel][app_open]", "1"),
-                ("banner_list[0][corpAppModel][isThirdApp]", "0"),
-                ("banner_list[0][corpAppModel][isMiniApp]", "0"),
-                ("banner_list[0][corpAppModel][isBaseApp]", "false"),
-                ("banner_list[0][corpAppModel][id]", req.Agent.AppId),
-                ("banner_list[0][corpAppModel][logoimage]", req.Agent.Imgid),
-                ("banner_list[0][corpAppModel][name]", req.Agent.Name),
-                ("banner_list[0][corpAppModel][sm_imgid]", req.Agent.Imgid),
-                ("banner_list[0][item_type]", "1"),
-                ("banner_list[0][name]", req.MenuName),
-                ("banner_list[0][item_name]", req.MenuName),
-                ("banner_list[0][item_info]", req.MenuUrl),
-                ("_d2st", _weCombReq.GetD2st())
-            };
-        var url = _weCombReq.GetQueryUrl("wework_admin/customer/addChatMenu", new Dictionary<string, string>
-            {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
-            });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
-        return true;
+        var flag = true;
+        foreach (var item in menus)
+        {
+            var dic = new List<(string, string)>
+                {
+                    ("banner_list[0][corp_app][app_id]", agent.AppId),
+                    ("banner_list[0][corpAppModel][app_open]", "1"),
+                    ("banner_list[0][corpAppModel][isThirdApp]", "0"),
+                    ("banner_list[0][corpAppModel][isMiniApp]", "0"),
+                    ("banner_list[0][corpAppModel][isBaseApp]", "false"),
+                    ("banner_list[0][corpAppModel][id]", agent.AppId),
+                    ("banner_list[0][corpAppModel][logoimage]", agent.Imgid),
+                    ("banner_list[0][corpAppModel][name]", agent.Name),
+                    ("banner_list[0][corpAppModel][sm_imgid]", agent.Imgid),
+                    ("banner_list[0][item_type]", "1"),
+                    ("banner_list[0][name]", item.MenuName),
+                    ("banner_list[0][item_name]", item.MenuName),
+                    ("banner_list[0][item_info]", item.MenuUrl),
+                    ("_d2st", _weCombReq.GetD2st())
+                };
+            var url = _weCombReq.GetQueryUrl("wework_admin/customer/addChatMenu", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                });
+            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
+            if (!_weCombReq.IsResponseSucc(response)) flag = false;
+        }
+
+        return flag;
     }
 
-    public async Task<WeComSaveOpenApiApp> SaveOpenApiAppAsync(SaveOpenApiAppRequest req)
+    public async Task<WeComSaveOpenApiApp> SaveOpenApiAppAsync(List<(string Key, string Value)> req)
     {
-        // app_id=5629502294442019&redirect_domain=devscrmh5.lianou.tech&is_check_domain_ownership=true&miniprogram_domains_operate=true&_d2st=a3652781
-        var dic = new List<(string, string)>
-            {
-                ("app_id", req.AppId),
-                ("redirect_domain", req.Domain),
-                ("redirect_domain2", req.Domain2),
-                ("is_check_domain_ownership", "true"),
-                ("miniprogram_domains_operate", "true"),
-                ("_d2st", _weCombReq.GetD2st())
-            };
+        req.Add(new("_d2st", _weCombReq.GetD2st()));
 
         // wework_admin/apps/saveOpenApiApp?lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.6716191463354881
         var url = _weCombReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
             {
                 { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
+        var response = await _weCombReq.HttpWebRequestPostAsync(url, req);
         if (!_weCombReq.IsResponseSucc(response)) return null;
         var model = JsonConvert.DeserializeObject<WeComBase<WeComSaveOpenApiApp>>(_weCombReq.GetResponseStr(response));
         return model.Data;
@@ -412,5 +408,128 @@ public class WeComAdminFunc : IWeComAdmin
         var result = model.Data.Result.FirstOrDefault();
         if (result == null) return false;
         return result.Status;
+    }
+
+    public async Task<bool> SetCustomizedAppPrivilege(string appId)
+    {
+        var dic = new List<(string, string)>
+                {
+                    ("app_id", appId),
+                    ("app_privilege[0][val]", "19"),
+                    ("app_privilege[0][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][val]", "1009"),
+                    ("app_privilege[0][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][0][val]", "10006"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][1][val]", "10001"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][1][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][2][val]", "10010"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][2][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][3][val]", "10004"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][3][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][4][val]", "10011"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][4][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][5][val]", "10009"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][5][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][6][val]", "10015"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][6][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][7][val]", "10020"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][7][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][8][val]", "10021"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][8][b_check]", "true"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][9][val]", "10022"),
+                    ("app_privilege[0][sub_app_privilege][0][sub_app_privilege][9][b_check]", "true"),
+                    ("app_privilege[1][val]", "1"),
+                    ("app_privilege[1][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][0][val]", "1100"),
+                    ("app_privilege[1][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][0][sub_app_privilege][0][val]", "110005"),
+                    ("app_privilege[1][sub_app_privilege][0][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][1][val]", "1104"),
+                    ("app_privilege[1][sub_app_privilege][1][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][1][sub_app_privilege][0][val]", "110405"),
+                    ("app_privilege[1][sub_app_privilege][1][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][1][sub_app_privilege][1][val]", "110406"),
+                    ("app_privilege[1][sub_app_privilege][1][sub_app_privilege][1][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][val]", "1101"),
+                    ("app_privilege[1][sub_app_privilege][2][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][0][val]", "110100"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][1][val]", "110101"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][1][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][2][val]", "110102"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][2][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][3][val]", "110103"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][3][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][4][val]", "110105"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][4][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][5][val]", "110106"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][5][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][6][val]", "110107"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][6][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][7][val]", "110108"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][7][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][8][val]", "110109"),
+                    ("app_privilege[1][sub_app_privilege][2][sub_app_privilege][8][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][3][val]", "1102"),
+                    ("app_privilege[1][sub_app_privilege][3][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][3][sub_app_privilege][0][val]", "110200"),
+                    ("app_privilege[1][sub_app_privilege][3][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][3][sub_app_privilege][1][val]", "110202"),
+                    ("app_privilege[1][sub_app_privilege][3][sub_app_privilege][1][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][3][sub_app_privilege][2][val]", "110201"),
+                    ("app_privilege[1][sub_app_privilege][3][sub_app_privilege][2][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][4][val]", "1103"),
+                    ("app_privilege[1][sub_app_privilege][4][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][4][sub_app_privilege][0][val]", "110300"),
+                    ("app_privilege[1][sub_app_privilege][4][sub_app_privilege][0][b_check]", "true"),
+                    ("app_privilege[1][sub_app_privilege][4][sub_app_privilege][1][val]", "110301"),
+                    ("app_privilege[1][sub_app_privilege][4][sub_app_privilege][1][b_check]", "true"),
+                    ("app_privilege[2][val]", "9"),
+                    ("app_privilege[2][b_check]", "false"),
+                    ("app_privilege[2][sub_app_privilege][0][val]", "1900"),
+                    ("app_privilege[2][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[2][sub_app_privilege][0][sub_app_privilege][0][val]", "190000"),
+                    ("app_privilege[2][sub_app_privilege][0][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[3][val]", "2"),
+                    ("app_privilege[3][b_check]", "false"),
+                    ("app_privilege[3][sub_app_privilege][0][val]", "1200"),
+                    ("app_privilege[3][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[3][sub_app_privilege][0][sub_app_privilege][0][val]", "120000"),
+                    ("app_privilege[3][sub_app_privilege][0][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[4][val]", "3"),
+                    ("app_privilege[4][b_check]", "false"),
+                    ("app_privilege[4][sub_app_privilege][0][val]", "1300"),
+                    ("app_privilege[4][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[4][sub_app_privilege][0][sub_app_privilege][0][val]", "130000"),
+                    ("app_privilege[4][sub_app_privilege][0][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[5][val]", "10"),
+                    ("app_privilege[5][b_check]", "false"),
+                    ("app_privilege[5][sub_app_privilege][0][val]", "2000"),
+                    ("app_privilege[5][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[5][sub_app_privilege][0][sub_app_privilege][0][val]", "200000"),
+                    ("app_privilege[5][sub_app_privilege][0][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[6][val]", "11"),
+                    ("app_privilege[6][b_check]", "false"),
+                    ("app_privilege[6][sub_app_privilege][0][val]", "2100"),
+                    ("app_privilege[6][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[6][sub_app_privilege][0][sub_app_privilege][0][val]", "210000"),
+                    ("app_privilege[6][sub_app_privilege][0][sub_app_privilege][0][b_check]", "false"),
+                    ("app_privilege[6][sub_app_privilege][1][val]", "2101"),
+                    ("app_privilege[6][sub_app_privilege][1][b_check]", "false"),
+                    ("app_privilege[6][sub_app_privilege][1][sub_app_privilege][0][val]", "210001"),
+                    ("app_privilege[6][sub_app_privilege][1][sub_app_privilege][0][b_check]", "false"),
+                    ("_d2st", _weCombReq.GetD2st())
+                };
+        var url = _weCombReq.GetQueryUrl("wework_admin/apps/custom/perm/setCustomizedAppPrivilege", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
+        if (!_weCombReq.IsResponseSucc(response)) return false;
+
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComOpenapiApp>>(_weCombReq.GetResponseStr(response));
+        if (model == null) return false;
+        return true;
     }
 }

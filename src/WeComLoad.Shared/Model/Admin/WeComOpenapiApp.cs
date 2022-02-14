@@ -15,6 +15,8 @@ public class WeComOpenapiApp
 
     public string Imgid { get; set; }
 
+    public string Description { get; set; }
+
     [JsonProperty("app_perm")]
     public AppPermObj AppPerm { get; set; }
 

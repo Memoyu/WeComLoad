@@ -5,21 +5,66 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WeComLoad.Admin.Dialogs"
         mc:Ignorable="d"
-        Title="获取AppInfo" Height="450" Width="600" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
+        Title="获取AppInfo" Height="750" Width="800" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition />
+            <RowDefinition Height="0.4*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="0.1*"/>
         </Grid.ColumnDefinitions>
         <DockPanel>
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="AppOpenId" Width="100"/>
             <TextBox x:Name="tb_appOpenId" VerticalContentAlignment="Center"/>
         </DockPanel>
         <Button Grid.Column="1" Margin="5, 0" Click="Button_GetAgentInfo_Click">获取</Button>
-        <RichTextBox Margin="0,10,0,0" Grid.Row="1" Grid.ColumnSpan="2" x:Name="richText_resp"></RichTextBox>
+
+        <Grid Grid.Row="1" Grid.ColumnSpan="2"  Margin="0,10,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="设置可见范围">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Foreground="Red" Text="（企微可以配置多个，接口也支持，此处默认配置为企业根部门）" HorizontalAlignment="Center"/>
+                    <Button Margin="0,10" Click="Button_ConfigAgentVisible_Click">配置</Button>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="设置侧边栏" Grid.Column="1">
+                <StackPanel VerticalAlignment="Center">
+                    <DockPanel Margin="0,10">
+                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="页面名称："/>
+                        <TextBox x:Name="tb_name" VerticalContentAlignment="Center" Text="测试页面"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" Text="页面内容："/>
+                        <TextBox x:Name="tb_address" VerticalContentAlignment="Center" Text="http://www.baidu.com"/>
+                    </DockPanel>
+                    <Button Margin="0,10" Click="Button_ConfigAgentMenu_Click">添加侧边栏</Button>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="设置授权信息(仅支持代开发自建应用，且已上线)" Grid.Row="1" x:Name="SetCustomizedAppPrivilege" IsEnabled="False">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Foreground="Red" Text="（内部写死授权成员、企业客户权限）" HorizontalAlignment="Center"/>
+                    <Button Margin="0,10" Click="Button_ConfigAgentPrivilege_Click">配置</Button>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="More"  Grid.Row="1" Grid.Column="1" IsEnabled="False">
+
+            </GroupBox>
+
+        </Grid>
+
+        <RichTextBox Grid.Row="2" Grid.ColumnSpan="2" x:Name="richText_resp"></RichTextBox>
     </Grid>
 </Window>

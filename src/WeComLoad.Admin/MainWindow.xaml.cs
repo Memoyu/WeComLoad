@@ -115,25 +115,6 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// 创建应用
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private async void Button_ConfigAgent_Click(object sender, RoutedEventArgs e)
-    {
-        var name = "自动化创建应用";
-        var description = "自动化创建应用-描述";
-        var logoimage = "http://p.qlogo.cn/bizmail/Qiabx6eW3f7yic7dk0QOpdUW3X0ic2QONc4f95JoGcMUoIS2Pl4fqgZlQ/0";
-        // 1、创建应用
-        var agent = await _weComAdmin.AddOpenApiAppAsync(new AddOpenApiAppRequest
-        {
-            Name = name,
-            Desc = description,
-            LogoImage = logoimage
-        });
-        richText_resp.Document = new FlowDocument(new Paragraph(new Run($"创建成功 Agent:{JsonConvert.SerializeObject(agent)}")));
-    }
-    /// <summary>
     /// 配置企业通讯录回调
     /// </summary>
     /// <param name="sender"></param>
