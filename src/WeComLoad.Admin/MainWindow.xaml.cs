@@ -1,4 +1,6 @@
-﻿namespace WeComLoad.Admin;
+﻿using WeComLoad.Admin.Dialogs;
+
+namespace WeComLoad.Admin;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -62,6 +64,22 @@ public partial class MainWindow : Window
     {
         var model = await _weComAdmin.GetCorpAppAsync();
         richText_resp.Document = new FlowDocument(new Paragraph(new Run(JsonConvert.SerializeObject(model))));
+    }
+
+    /// <summary>
+    /// 获取应用详情
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void Button_GetAgentInfo_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_weComAdmin.GetWeCombReq().CookieString))
+        {
+            MessageBox.Show("请先扫码登录");
+            return;
+        }
+        var view = new GetOpenAppInfoView(_weComAdmin);
+        view.ShowDialog();
     }
 
     /// <summary>

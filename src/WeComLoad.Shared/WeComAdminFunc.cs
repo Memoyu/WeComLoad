@@ -100,6 +100,20 @@ public class WeComAdminFunc : IWeComAdmin
         return _weComCorpApps;
     }
 
+    public async Task<WeComBase<WeComOpenapiApp>> GetCorpOpenAppAsync(string appOpenId)
+    {
+
+        var url = _weCombReq.GetQueryUrl("wework_admin/apps/getOpenApiApp", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() },
+                    { "app_open_id", appOpenId }, { "notperm", "true" }, { "_d2st", _weCombReq.GetD2st() }
+                });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url);
+        if (!_weCombReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComOpenapiApp>>(_weCombReq.GetResponseStr(response));
+        return model;
+    }
+
     public async Task<WeComBase<WeComCorpDept>> GetCorpDeptAsync(bool isReLoad = false)
     {
         if (_weComCorpDepts == null || isReLoad)

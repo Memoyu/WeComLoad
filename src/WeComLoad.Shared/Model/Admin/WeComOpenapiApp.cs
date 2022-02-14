@@ -58,6 +58,9 @@ public class WeComOpenapiApp
     [JsonProperty("custom_info_open")]
     public int CustomInfoOpen { get; set; }
 
+    [JsonProperty("customized_app_info")]
+    public CustomizedAppInfo CustAppCorpAuthInfo { get; set; }
+
     public class AppPermObj
     {
         public List<object> Vids { get; set; }
@@ -71,6 +74,39 @@ public class WeComOpenapiApp
 
         [JsonProperty("app_perm_flag")]
         public int AppPermFlag { get; set; }
+    }
+
+    public class CustomizedAppInfo
+    {
+        public int Status { get; set; }
+
+        public string Name { get; set; }
+
+        public string Imgid { get; set; }
+
+        public string Description { get; set; }
+
+        [JsonProperty("callback_url")]
+        public string CallbackUrl { get; set; }
+
+        [JsonProperty("url_token")]
+        public string UrlToken { get; set; }
+
+        [JsonProperty("callback_aeskey")]
+        public string CallbackAeskey { get; set; }
+
+        [JsonProperty("redirect_domain")]
+        public string RedirectDomain { get; set; }
+
+        [JsonProperty("white_ip_list")]
+        public WhiteIpList WhiteIpList { get; set; }
+
+        public bool Islock { get; set; }
+    }
+
+    public class WhiteIpList
+    {
+        public string[] Ip { get; set; }
     }
 }
 

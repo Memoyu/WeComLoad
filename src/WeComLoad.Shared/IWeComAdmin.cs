@@ -32,6 +32,13 @@ public interface IWeComAdmin
     Task<WeComBase<WeComCorpApp>> GetCorpAppAsync(bool isReLoad = false);
 
     /// <summary>
+    /// 获取企业应用信息
+    /// </summary>
+    /// <param name="appOpenId">应用Id</param>
+    /// <returns>WeComOpenapiApp</returns>
+    Task<WeComBase<WeComOpenapiApp>> GetCorpOpenAppAsync(string appOpenId);
+
+    /// <summary>
     /// 获取企业部门列表
     /// </summary>
     /// <param name="isReLoad">是否需要重新获取</param>
