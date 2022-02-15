@@ -528,7 +528,7 @@ public class WeComAdminFunc : IWeComAdmin
         var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
         if (!_weCombReq.IsResponseSucc(response)) return false;
 
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComOpenapiApp>>(_weCombReq.GetResponseStr(response));
+        var model = JsonConvert.DeserializeObject<WeComBase<object>>(_weCombReq.GetResponseStr(response));
         if (model == null) return false;
         return true;
     }

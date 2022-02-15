@@ -1,0 +1,41 @@
+﻿@namespace WeComLoad.Open.Blazor
+@inherits LayoutComponentBase
+
+<AntDesign.ProLayout.BasicLayout 
+    Logo="@("https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg")"
+    MenuData="_menuData">
+    <RightContentRender>
+        <WeComLoad.Open.Blazor.Components.RightContent />
+    </RightContentRender>
+    <ChildContent>
+        @Body
+    </ChildContent>
+</AntDesign.ProLayout.BasicLayout>
+
+@code
+{
+    private readonly MenuDataItem[] _menuData =
+    {
+        new MenuDataItem
+        {
+            Path = "/",
+            Name = "首页",
+            Key = "welcome",
+            Icon = "smile",
+        },
+        new MenuDataItem
+        {
+            Path = "/",
+            Name = "代开发自建应用管理",
+            Key = "customize-app",
+            Icon = "apartment",
+        },
+        new MenuDataItem
+        {
+            Path = "/",
+            Name = "设置",
+            Key = "setting",
+            Icon = "setting",
+        }
+    };
+}

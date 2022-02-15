@@ -45,13 +45,20 @@ namespace WeComLoad.Admin.Dialogs
                 SetCustomizedAppPrivilege.IsEnabled = false;
         }
 
-        private async void Button_ConfigAgentVisible_Click(object sender, RoutedEventArgs e)
+        private bool VerifyAppInfo()
         {
             if (_appInfo == null)
             {
-                MessageBox.Show("请获取应用详情");
-                return;
+                MessageBox.Show("请先获取企业应用信息");
+                return false;
             }
+
+            return true;
+        }
+
+        private async void Button_ConfigAgentVisible_Click(object sender, RoutedEventArgs e)
+        {
+            if (!VerifyAppInfo()) return;
             var deptModel = await _weComAdmin.GetCorpDeptAsync();
             var dept = deptModel.Data.Partys.List.Where(p => p.OpenapiPartyid.Equals("1")).FirstOrDefault();
             if (dept == null) throw new Exception("获取根部门异常");
@@ -60,19 +67,21 @@ namespace WeComLoad.Admin.Dialogs
             var res = await _weComAdmin.SaveOpenApiAppAsync(new List<(string Key, string Value)>
                     {
                         ("app_id", _appInfo.AppId),
-                        ("name", _appInfo.Name),
-                        ("description", _appInfo.Description),
-                        ("english_name", ""),
-                        ("english_description", ""),
-                        ("app_open", "1"),
-                        ("logoimage", _appInfo.Imgid),
+                        //("name", _appInfo.Name),
+                        //("description", _appInfo.Description),
+                        //("english_name", ""),
+                        //("english_description", ""),
+                        //("app_open", "1"),
+                        //("logoimage", _appInfo.Imgid),
                         ("visible_pid[]", visible_pid),
                     });
 
             richText_resp.Document = new FlowDocument(new Paragraph(new Run(JsonConvert.SerializeObject(res))));
         }
+
         private async void Button_ConfigAgentMenu_Click(object sender, RoutedEventArgs e)
         {
+            if (!VerifyAppInfo()) return;
             var name = tb_name.Text;
             var address = tb_address.Text;
 
@@ -97,6 +106,7 @@ namespace WeComLoad.Admin.Dialogs
 
         private async void Button_ConfigAgentPrivilege_Click(object sender, RoutedEventArgs e)
         {
+            if (!VerifyAppInfo()) return;
             var flag = await _weComAdmin.SetCustomizedAppPrivilege(_appInfo.AppId);
             var msg = $"设置 {_appInfo.Name} 授权信息成功";
             if (!flag)
