@@ -1,0 +1,132 @@
+﻿@page "/setting/custapp"
+
+<PageContainer Title="代开发自建应用配置">
+	<Content>
+		<span>代开发自建应用审核、上线配置参数</span>
+	</Content>
+	<ChildContent>
+		<Card>
+			<Form Model="@Settings"
+				  Style="margin-top: 8px;"
+				  OnFinish="HandleSubmit">
+				<Card Title="@("可信域名")" Class="CARD" Style="margin: 0 0 10px 0;">
+					<Row Gutter="16">
+						<AntDesign.Col Lg="6" Md="12" Sm="24">
+							<FormItem Label="开发">
+								<Input Placeholder="开发" @bind-Value="@context.Domain.Dev" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="测试">
+								<Input Placeholder="测试" @bind-Value="@context.Domain.Test" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="正式">
+								<Input Placeholder="正式" @bind-Value="@context.Domain.Prod" />
+							</FormItem>
+						</AntDesign.Col>
+					</Row>
+				</Card>
+
+				<Card Title="@("回调地址")" Class="CARD" Style="margin: 0 0 10px 0;">
+					<Row Gutter="16">
+						<AntDesign.Col Lg="6" Md="12" Sm="24">
+							<FormItem Label="开发">
+								<Input Placeholder="开发" @bind-Value="@context.Callback.Dev" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="测试">
+								<Input Placeholder="测试" @bind-Value="@context.Callback.Test" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="正式">
+								<Input Placeholder="正式" @bind-Value="@context.Callback.Prod" />
+							</FormItem>
+						</AntDesign.Col>
+					</Row>
+				</Card>
+
+				<Card Title="@("应用首页")" Class="CARD" Style="margin: 0 0 10px 0;">
+					<Row Gutter="16">
+						<AntDesign.Col Lg="6" Md="12" Sm="24">
+							<FormItem Label="开发">
+								<Input Placeholder="开发" @bind-Value="@context.HomePage.Dev" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="测试">
+								<Input Placeholder="测试" @bind-Value="@context.HomePage.Test" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="正式">
+								<Input Placeholder="正式" @bind-Value="@context.HomePage.Prod" />
+							</FormItem>
+						</AntDesign.Col>
+					</Row>
+				</Card>
+
+				<Card Title="@("IP白名单")" Class="CARD" Style="margin: 0 0 10px 0;">
+					<Row Gutter="16">
+						<AntDesign.Col Lg="6" Md="12" Sm="24">
+							<FormItem Label="开发">
+								<Input Placeholder="开发" @bind-Value="@context.WhiteIp.Dev" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="测试">
+								<Input Placeholder="测试" @bind-Value="@context.WhiteIp.Test" />
+							</FormItem>
+						</AntDesign.Col>
+
+						<AntDesign.Col Xl="new EmbeddedProperty{Span = 6, Offset = 2}"
+									   Lg="new EmbeddedProperty{Span = 8}"
+									   Md="new EmbeddedProperty{Span = 12}"
+									   Sm="24">
+							<FormItem Label="正式">
+								<Input Placeholder="正式" @bind-Value="@context.WhiteIp.Prod" />
+							</FormItem>
+						</AntDesign.Col>
+					</Row>
+				</Card>	
+
+				<FormItem Style="margin-top:32px; text-align:center;" >
+					<Button Type="primary" HtmlType="submit">
+						保存
+					</Button>
+				</FormItem>
+			</Form>
+		</Card>
+	</ChildContent>
+</PageContainer>

@@ -1,0 +1,37 @@
+﻿@import '~antd/es/style/themes/default.less';
+
+.main__b__0 {
+    width: 368px;
+    margin: 0 auto;
+
+    @media screen and (max-width: @screen-sm) {
+        width: 95%;
+    }
+
+    .login {
+        text-align: center;
+
+        .top {
+            text-align: center;
+
+            .desc {
+                margin-top: 12px;
+                margin-bottom: 40px;
+                color: @text-color-secondary;
+                font-size: 17px;
+                font-weight: bold;
+            }
+        }
+
+        .qrcode {
+            margin-bottom: 12px;
+            overflow: hidden;
+
+            img {
+                object-fit: cover;
+                width: 240px; //*必需
+                height: 240px; //*必需
+            }
+        }
+    }
+}

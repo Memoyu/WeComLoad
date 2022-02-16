@@ -1,0 +1,53 @@
+﻿@page "/custapp"
+
+<PageContainer Title="代开发自建应用管理">
+	<Content>
+		<span>代开发自建应用审核、上线</span>
+	</Content>
+	<ChildContent>
+		<Card>
+			<Row Gutter="24">
+				<AntDesign.Col Sm="8" Xs="24">
+					@Info("My to do", "8 tasks", true)
+				</AntDesign.Col>
+				<AntDesign.Col Sm="8" Xs="24">
+					@Info("Average task processing time this week", "32 minutes", true)
+				</AntDesign.Col>
+				<AntDesign.Col Sm="8" Xs="24">
+					@Info("Number of tasks completed this week", "24 tasks")
+				</AntDesign.Col>
+				<Button Type="@ButtonType.Primary" Size="large" Block OnClick="GetCustAppTplAsync">刷新</Button>
+			</Row>
+		</Card>
+
+		<Card Class="listCard"
+			  Title="授权列表"
+			  Style="margin-top: 24px;"
+			  BodyStyle="padding: 0 32px 40px 32px">
+			<ChildContent>
+				<AntList TItem="CorpApp"
+						 DataSource="customAppAuths"
+						 ItemLayout="ListItemLayout.Horizontal">
+					<ListItem>
+						<ListItemMeta Avatar="@context.logo" Description="@context.description">
+						</ListItemMeta>
+					</ListItem>
+				</AntList>
+			</ChildContent>
+		</Card>
+	</ChildContent>
+</PageContainer>
+
+@code{
+		private RenderFragment Info(string title, string value, bool bordered = false)
+		{
+			return @<div class="headerInfo">
+			<span>@title</span>
+			<p>@value</p>
+			@if (bordered)
+				{
+					<em />
+				}
+			</div>;
+		}
+}

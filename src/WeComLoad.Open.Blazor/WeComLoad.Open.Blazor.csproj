@@ -5,14 +5,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\resources\custapp.settings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AntDesign.Charts" Version="0.2.1" />
     <PackageReference Include="AntDesign.ProLayout" Version="0.1.0-nightly-210513142421" />
+    <PackageReference Include="LianOu.FileLib" Version="1.1.4" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\CustomizeApps\" />
-    <Folder Include="Pages\Settings\" />
+    <None Include="wwwroot\resources\custapp.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\css\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WeComLoad.Shared\WeComLoad.Shared.csproj" />
   </ItemGroup>
   
   <PropertyGroup Condition=" '$(SolutionDir)'==''">

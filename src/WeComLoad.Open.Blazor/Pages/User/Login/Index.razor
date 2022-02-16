@@ -1,0 +1,17 @@
+﻿@layout UserLayout
+@page "/login"
+
+<div class="main__b__0">
+	<div class="login">
+		<div class="top">
+			<div class="desc">请使用企业微信扫码</div>
+		</div>
+
+		<div class="qrcode">
+			<img src="@qrCode" alt="qrcode" />
+		</div>
+		<Button Type="@ButtonType.Link" Size="large" Block OnClick="GetLoginAndShowQrCodeAsync">刷新</Button>
+
+		<div class="desc">@loginHint</div>
+	</div>
+</div>
