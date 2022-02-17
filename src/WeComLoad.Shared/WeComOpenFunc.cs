@@ -64,51 +64,6 @@ public class WeComOpenFunc : IWeComOpen
         return _weCombReq.IsResponseSucc(response);
     }
 
-    public async Task<WeComBase<WeComSuiteApp>> GetCustomAppsAsync()
-    {
-        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/list", new Dictionary<string, string>
-                {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
-                });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        var model = _weCombReq.GetResponseT<WeComBase<WeComSuiteApp>>(response);
-        return model;
-    }
-
-    public async Task<WeComBase<WeComSuiteAppAuth>> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10)
-    {
-        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/app/list", new Dictionary<string, string>
-                {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "suiteid", suitId }, { "scene", "1" }, { "offset", offset.ToString() }, { "limit", limit.ToString() }, { "random", _weCombReq.GetRandom() }
-                });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = _weCombReq.GetResponseT<WeComBase<WeComSuiteAppAuth>>(response);
-        return model;
-    }
-
-    public async Task<WeComBase<WeComSuiteAppAuthDetail>> GetCustomAppAuthDetailAsync(string suitId)
-    {
-        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/detail", new Dictionary<string, string>
-                {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }, { "suiteid", suitId }, { "oper_table", "eSuiteOpTableNormal" }
-                });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        var model = _weCombReq.GetResponseT<WeComBase<WeComSuiteAppAuthDetail>>(response);
-        return model;
-    }
-
-    public async Task<WeComAuthAppResult?> AuthCorpAppAsync(AuthCorpAppRequest req)
-    {
-        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/corpApp", new Dictionary<string, string>
-                {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
-                });
-        var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
-        var model = _weCombReq.GetResponseT<WeComBase<WeComAuthAppResult>>(response);
-        return model?.Data;
-    }
-
     public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId)
     {
         // 获取可新域名校验文件名，domain_belong_to=0（代开发服务商）；domain_belong_to=1（企业客户）
@@ -125,26 +80,75 @@ public class WeComOpenFunc : IWeComOpen
         return (model.FileName, file);
     }
 
-    public async Task<SubmitAuditCorpAppResult?> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req)
+    public async Task<string> GetCustomAppTplsAsync()
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/list", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url);
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/app/list", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "suiteid", suitId }, { "scene", "1" }, { "offset", offset.ToString() }, { "limit", limit.ToString() }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url);      
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> GetCustomAppAuthDetailAsync(string suitId)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/detail", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }, { "suiteid", suitId }, { "oper_table", "eSuiteOpTableNormal" }
+                });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url);
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> AuthCorpAppAsync(AuthCorpAppRequest req)
+    {
+        var url = _weCombReq.GetQueryUrl("wwopen/developer/customApp/tpl/corpApp", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
+                });
+        var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req)
     {
         var url = _weCombReq.GetQueryUrl("wwopen/developer/order/add", new Dictionary<string, string>
                 {
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
                 });
         var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
-        var model = _weCombReq.GetResponseT<WeComBase<SubmitAuditCorpAppResult>>(response);
-        return model?.Data;
+        return GetResponseStr(response);
     }
 
-    public async Task<OnlineCorpAppResult?> OnlineCorpAppAsync(OnlineCorpAppRequest req)
+    public async Task<string> OnlineCorpAppAsync(OnlineCorpAppRequest req)
     {
         var url = _weCombReq.GetQueryUrl("wwopen/developer/order/set", new Dictionary<string, string>
                 {
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weCombReq.GetRandom() }
                 });
         var response = await _weCombReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(req));
-        var model = _weCombReq.GetResponseT<WeComBase<OnlineCorpAppResult>>(response);
-        return model?.Data;
+        return GetResponseStr(response);
     }
 
+
+    private string GetResponseStr(HttpWebResponse response)
+    {
+        if (!_weCombReq.IsResponseSucc(response)) return string.Empty;
+        Stream responseStream = response.GetResponseStream();
+        StreamReader sr = new StreamReader(responseStream);
+        var responseStr = sr.ReadToEnd();
+        response.Close();
+        responseStream.Close();
+        return responseStr;
+    }
 }

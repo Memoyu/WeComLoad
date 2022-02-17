@@ -15,27 +15,9 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.Configure<ProSettings>(Configuration.GetSection("ProSettings"));
 
 // 注册全局企微操作
-builder.Services.AddSingleton<IWeComOpen>(sp =>
-{
-    var func = new WeComOpenFunc();
-    //func.GetWeCombReq().SetUnAuthEvent(() =>
-    //{
-    //    using (var serviceScope = sp.CreateScope())
-    //    {
-    //        var navigationManager = serviceScope.ServiceProvider.GetService<NavigationManager>();
-    //        navigationManager.NavigateTo("/login");
-    //    }
-    //});
+builder.Services.AddSingleton<IWeComOpen, WeComOpenFunc>();
+builder.Services.AddScoped<IWeComOpenSvc, WeComOpenSvc>();
 
-    func.GetWeCombReq().SetUnAuthEvent(async () =>
-    {
-        var serviceScope = sp.CreateScope();
-        var js = serviceScope.ServiceProvider.GetService<IJSRuntime>();
-        await js.InvokeAsync<object>("Blazor._internal.navigationManager.navigateTo", "/login", true);
-    });
-
-    return func;
-});
 builder.Services.AddSingleton<IFileClientPro>(f => FileClientPro.Create());
 
 var app = builder.Build();

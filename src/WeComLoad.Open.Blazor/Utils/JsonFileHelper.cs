@@ -13,7 +13,7 @@ public class JsonFileHelper
             try
             {
                 string json = file.ReadToEnd();
-                var dtos = JsonSerializer.Deserialize<T>(json);
+                var dtos = JsonConvert.DeserializeObject<T>(json);
                 return dtos;
             }
             catch (Exception ex)
@@ -33,7 +33,7 @@ public class JsonFileHelper
             {
                 File.Create(path);
             }
-            var json = JsonSerializer.Serialize(data);
+            var json = JsonConvert.SerializeObject(data);
             File.WriteAllText(path, json);
         }
         catch (Exception ex)

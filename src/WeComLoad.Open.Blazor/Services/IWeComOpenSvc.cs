@@ -1,9 +1,7 @@
-﻿namespace WeComLoad.Shared;
+﻿namespace WeComLoad.Open.Blazor.Services;
 
-public interface IWeComOpen
+public interface IWeComOpenSvc
 {
-    WeComAdminWebReq GetWeCombReq();
-
     /// <summary>
     /// 获取企微后台登录二维码
     /// </summary>
@@ -34,45 +32,45 @@ public interface IWeComOpen
     Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId);
 
     /// <summary>
-    /// 获取企业应用模板列表 WeComBase<WeComSuiteApp>
+    /// 获取企业应用模板列表
     /// </summary>
     /// <returns>string<returns>
-    Task<string> GetCustomAppTplsAsync();
+    Task<WeComSuiteApp> GetCustomAppTplsAsync();
 
     /// <summary>
-    /// 获取代开发应用模板授权的客户信息列表 WeComBase<WeComSuiteAppAuth>
+    /// 获取代开发应用模板授权的客户信息列表
     /// </summary>
     /// <param name="suitId">模板Id</param>
     /// <param name="offset">第几页</param>
     /// <param name="limit">每页大小</param>
     /// <returns></returns>
-    Task<string> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10);
+    Task<WeComSuiteAppAuth> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10);
 
     /// <summary>
-    /// 获取授权企业代开发自建应用详情 WeComBase<WeComSuiteAppAuthDetail>
+    /// 获取授权企业代开发自建应用详情
     /// </summary>
     /// <param name="suitId"></param>
     /// <returns></returns>
-    Task<string> GetCustomAppAuthDetailAsync(string suitId);
+    Task<WeComSuiteAppAuthDetail> GetCustomAppAuthDetailAsync(string suitId);
 
     /// <summary>
-    /// 审核授权代开发自建应用 WeComAuthAppResult
+    /// 审核授权代开发自建应用
     /// </summary>
     /// <param name="req">请参</param>
     /// <returns></returns>
-    Task<string > AuthCorpAppAsync(AuthCorpAppRequest req);
+    Task<WeComAuthAppResult> AuthCorpAppAsync(AuthCorpAppRequest req);
 
     /// <summary>
-    /// 提交审核代开发自建应用 SubmitAuditCorpAppResult
+    /// 提交审核代开发自建应用
     /// </summary>
     /// <param name="req">请参</param>
     /// <returns></returns>
-    Task<string> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req);
+    Task<SubmitAuditCorpAppResult> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req);
 
     /// <summary>
-    /// 上线代开发自建应用 OnlineCorpAppResult
+    /// 上线代开发自建应用
     /// </summary>
     /// <param name="req"></param>
     /// <returns></returns>
-    Task<string> OnlineCorpAppAsync(OnlineCorpAppRequest req);
+    Task<OnlineCorpAppResult> OnlineCorpAppAsync(OnlineCorpAppRequest req);
 }

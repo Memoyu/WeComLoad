@@ -249,7 +249,7 @@ namespace WeComLoad.Open.ViewModels
         private async void GetCustomAppListHandler()
         {
             CustomAppAuths?.Clear();
-            var apps = await _weComOpen.GetCustomAppsAsync();
+            var apps = await _weComOpen.GetCustomAppTplsAsync();
             if (apps?.Data?.suite_list == null)
             {
                 CustomApps = new ObservableCollection<SuiteAppItem>();

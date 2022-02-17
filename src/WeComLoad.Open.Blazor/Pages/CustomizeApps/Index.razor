@@ -5,49 +5,130 @@
 		<span>代开发自建应用审核、上线</span>
 	</Content>
 	<ChildContent>
-		<Card>
-			<Row Gutter="24">
-				<AntDesign.Col Sm="8" Xs="24">
-					@Info("My to do", "8 tasks", true)
-				</AntDesign.Col>
-				<AntDesign.Col Sm="8" Xs="24">
-					@Info("Average task processing time this week", "32 minutes", true)
-				</AntDesign.Col>
-				<AntDesign.Col Sm="8" Xs="24">
-					@Info("Number of tasks completed this week", "24 tasks")
-				</AntDesign.Col>
-				<Button Type="@ButtonType.Primary" Size="large" Block OnClick="GetCustAppTplAsync">刷新</Button>
-			</Row>
-		</Card>
+		<div class="custapp-manager">
 
-		<Card Class="listCard"
-			  Title="授权列表"
-			  Style="margin-top: 24px;"
-			  BodyStyle="padding: 0 32px 40px 32px">
-			<ChildContent>
-				<AntList TItem="CorpApp"
-						 DataSource="customAppAuths"
-						 ItemLayout="ListItemLayout.Horizontal">
-					<ListItem>
-						<ListItemMeta Avatar="@context.logo" Description="@context.description">
-						</ListItemMeta>
-					</ListItem>
-				</AntList>
-			</ChildContent>
-		</Card>
+			<Card Class="tplList"
+				  Style="margin-bottom: 24px;"
+				  Title="应用模板"
+				  BodyStyle="padding: 0px;">
+				<Extra>
+					<Button Type="@ButtonType.Link" OnClick="GetCustAppTplAsync">刷新</Button>
+				</Extra>
+				<ChildContent>
+					@foreach (var tpl in customAppTpls)
+					{
+						<div class="ant-card-grid ant-card-hoverable" @onclick="()=>SelectCustAppTplHandler(tpl)">
+							<div class="tplTitle">
+								<Avatar Size="large" Src="@tpl.logo"></Avatar>
+								<span class="tplTitle-title">@tpl.name</span>
+							</div>
+
+							<div class="ant-card-meta-description">
+								@tpl.description
+							</div>
+						</div>
+					}
+				</ChildContent>
+			</Card>
+
+			<Card Class="listCard"
+				  Title="@("授权列表：" + currTpl?.name)"
+				  Style="margin-top: 24px;"
+				  BodyStyle="padding: 0 32px 40px 32px">
+				<Extra>
+					<Button Type="@ButtonType.Link" OnClick="RefreshCustAppAuthsAsync">刷新</Button>
+				</Extra>
+				<ChildContent>
+					<AntList TItem="CorpApp"
+							 DataSource="customAppAuths"
+							 ItemLayout="ListItemLayout.Horizontal">
+						<ChildContent>
+							<ListItem Actions="@GetRenderActions(context)">
+								<ListItemMeta Class="" Avatar="@(string.IsNullOrWhiteSpace(context.logo) ? defaultLogo : context.logo)" Description="@(string.IsNullOrWhiteSpace(context.description) ? "未审核" : context.description)">
+									<TitleTemplate>
+										<span>@context.authcorp_name</span>
+									</TitleTemplate>
+								</ListItemMeta>
+							</ListItem>
+						</ChildContent>
+						<LoadMore>
+							@if (!initLoading && !loading)
+							{
+								<div class="authapp-loadmore-btn-content">
+									<Button Type="@ButtonType.Link" OnClick="LoadMoreAuthAppAsync">加载更多......</Button>
+								</div>
+							}
+						</LoadMore>
+					</AntList>
+				</ChildContent>
+			</Card>
+		</div>
+
+		<Modal Title="@("审核配置：" + modalTitle)"
+			   Visible="@modalVisible"
+			   OnOk="@HandleOk"
+			   OnCancel="@HandleCancel">
+
+			<Form Model="auditConfig">
+				<FormItem>
+					<Input Placeholder="企业Id" @bind-Value="@context.CorpId" TValue="string" OnChange="@InputCorpId"/>
+				</FormItem>
+				<FormItem Label="环境">
+					<RadioGroup @bind-Value="@context.EnvType" TValue="int" OnChange="@SelectEnv">
+						<Radio Value="1">开发</Radio>
+						<Radio Value="2">测试</Radio>
+						<Radio Value="3">正式</Radio>
+					</RadioGroup>
+				</FormItem>
+				<FormItem Label="应用主页">
+					<Input Placeholder="应用主页" @bind-Value="@context.HomePage" />
+				</FormItem>
+				<FormItem Label="可信域名">
+					<Input Placeholder="可信域名" @bind-Value="@context.Domain" />
+				</FormItem>
+				<FormItem Label="IP白名单">
+					<Input Placeholder="IP白名单" @bind-Value="@context.WhiteIp" />
+				</FormItem>
+				<FormItem Label="回调地址">
+					<Input Placeholder="回调地址" @bind-Value="@context.CallbackUrlComplete" />
+				</FormItem>
+			</Form>
+
+		</Modal>
 	</ChildContent>
 </PageContainer>
 
-@code{
-		private RenderFragment Info(string title, string value, bool bordered = false)
+@code
+{
+	private RenderFragment[] GetRenderActions(CorpApp app)
+	{
+		var actions = new RenderFragment[] { };
+		RenderFragment action = @<em />;
+		if (app.customized_app_status == 0)
 		{
-			return @<div class="headerInfo">
-			<span>@title</span>
-			<p>@value</p>
-			@if (bordered)
-				{
-					<em />
-				}
-			</div>;
+			action =
+	@<Button Type="@ButtonType.Link" OnClick="() => AuditCustAppAndOnlineAsync(app)">
+		开发并上线
+	</Button>;
 		}
+		else if (app.customized_app_status == 1)
+		{
+			action =
+	@<Button Type="@ButtonType.Link" OnClick="()=>SelectCustAppTplHandler(currTpl)">
+		审核并上线
+	</Button>;
+
+			if (app.auditorder != null && (app.auditorder.status == 2 || app.auditorder.status == 4))
+			{
+				action =
+	@<Button Type="@ButtonType.Link" OnClick="()=>SelectCustAppTplHandler(currTpl)">
+		提交上线
+	</Button>;
+			}
+		}
+
+		actions = new RenderFragment[] { action };
+
+		return actions;
+	}
 }

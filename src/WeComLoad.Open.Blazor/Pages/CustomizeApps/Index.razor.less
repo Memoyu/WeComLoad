@@ -1,1 +1,32 @@
 ﻿@import '~antd/es/style/themes/default.less';
+
+.custapp-manager {
+    .tplList {
+
+        .ant-card-meta-description {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: @text-color-secondary;
+            line-height: 22px;
+        }
+
+        .tplTitle {
+            font-size: 0;
+
+            &-title {
+                display: inline-block;
+                margin-left: 14px;
+                font-size: 16px;
+                line-height: 22px;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .authapp-loadmore-btn-content {
+        text-align: center;
+        margin-top: 12px;
+        height: 32px;
+        line-height: 32px;
+    }
+}
