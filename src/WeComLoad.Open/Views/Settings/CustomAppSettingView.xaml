@@ -24,26 +24,26 @@
         <Label Margin="20, 0" Grid.Column="0" Grid.Row="3" Content="回调地址" VerticalContentAlignment="Center"/>
 
         <StackPanel  Grid.Column="1"  Grid.Row="0" VerticalAlignment="Center">
-            <TextBox Text="{Binding Config.DevHomePage}"  materialDesign:HintAssist.Hint="开发-应用主页" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.TestHomePage}" materialDesign:HintAssist.Hint="测试-应用主页" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.ProdHomePage}" materialDesign:HintAssist.Hint="生产-应用主页" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.HomePage.Dev}"  materialDesign:HintAssist.Hint="开发-应用主页" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.HomePage.Test}" materialDesign:HintAssist.Hint="测试-应用主页" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.HomePage.Prod}" materialDesign:HintAssist.Hint="生产-应用主页" materialDesign:HintAssist.IsFloating="True" />
         </StackPanel>
         <StackPanel  Grid.Column="1"  Grid.Row="1" VerticalAlignment="Center">
-            <TextBox Text="{Binding Config.DevDomain}" materialDesign:HintAssist.Hint="开发-可信域名" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.TestDomain}" materialDesign:HintAssist.Hint="测试-可信域名" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.ProdDomain}" materialDesign:HintAssist.Hint="生产-可信域名" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.Domain.Dev}" materialDesign:HintAssist.Hint="开发-可信域名" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.Domain.Test}" materialDesign:HintAssist.Hint="测试-可信域名" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.Domain.Prod}" materialDesign:HintAssist.Hint="生产-可信域名" materialDesign:HintAssist.IsFloating="True" />
         </StackPanel>
 
         <StackPanel  Grid.Column="1"  Grid.Row="2" VerticalAlignment="Center">
-            <TextBox Text="{Binding Config.DevIp}"  materialDesign:HintAssist.Hint="开发-IP白名单" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.TestIp}" materialDesign:HintAssist.Hint="测试-IP白名单" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.ProdIp}" materialDesign:HintAssist.Hint="生产-IP白名单" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.WhiteIp.Dev}"  materialDesign:HintAssist.Hint="开发-IP白名单" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.WhiteIp.Test}" materialDesign:HintAssist.Hint="测试-IP白名单" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.WhiteIp.Prod}" materialDesign:HintAssist.Hint="生产-IP白名单" materialDesign:HintAssist.IsFloating="True" />
         </StackPanel>
 
         <StackPanel  Grid.Column="1"  Grid.Row="3" VerticalAlignment="Center">
-            <TextBox Text="{Binding Config.DevCallback}"  materialDesign:HintAssist.Hint="开发-回调地址" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.TestCallback}" materialDesign:HintAssist.Hint="测试-回调地址" materialDesign:HintAssist.IsFloating="True" />
-            <TextBox Text="{Binding Config.ProdCallback}" materialDesign:HintAssist.Hint="生产-回调地址" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.Callback.Dev}"  materialDesign:HintAssist.Hint="开发-回调地址" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.Callback.Test}" materialDesign:HintAssist.Hint="测试-回调地址" materialDesign:HintAssist.IsFloating="True" />
+            <TextBox Text="{Binding CustAppSettings.Callback.Prod}" materialDesign:HintAssist.Hint="生产-回调地址" materialDesign:HintAssist.IsFloating="True" />
         </StackPanel>
 
         <DockPanel Grid.Column="0" Grid.ColumnSpan="2"  Grid.Row="4" LastChildFill="False" HorizontalAlignment="Center">

@@ -89,7 +89,7 @@
                     </DockPanel>
                 </StackPanel>
                 <DockPanel Grid.ColumnSpan="2"  Grid.Row="3" LastChildFill="False" HorizontalAlignment="Center"  Margin="0, 10">
-                    <Button Command="{Binding AuditPublishAppCommand }">审核上线应用</Button>
+                    <Button Command="{Binding AuthOnlineAppCommand }">开发上线应用</Button>
                 </DockPanel>
 
             </Grid>
@@ -109,15 +109,15 @@
                 <DockPanel Margin="10, 8">
                     <DockPanel Margin="10, 0" DockPanel.Dock="Top" LastChildFill="False">
                         <TextBlock Text="代开发自建应用列表"  FontSize="20" FontWeight="Bold"/>
-                        <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30" Command="{Binding RefreshCustomAppListCommand}">
+                        <Button DockPanel.Dock="Right" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Width="30" Height="30" Command="{Binding RefreshCustomTplsCommand}">
                             <materialDesign:PackIcon Kind="Refresh"/>
                         </Button>
                     </DockPanel>
 
-                    <ListBox x:Name="customAppList" ItemsSource="{Binding CustomApps}" Margin="0, 10, 0, 0"  ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
+                    <ListBox x:Name="customAppTplList" ItemsSource="{Binding CustomAppTpls}" Margin="0, 10, 0, 0"  ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding SelectedCustomAppCommand}" CommandParameter="{Binding ElementName=customAppList, Path=SelectedItem}"/>
+                                <i:InvokeCommandAction Command="{Binding SelectedCustomAppTplCommand}" CommandParameter="{Binding ElementName=customAppTplList, Path=SelectedItem}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                         <ListBox.ItemTemplate>
@@ -166,7 +166,7 @@
                                     </StackPanel>
                                     <Button Content="{Binding Converter={StaticResource StatusToContentConverter}}"
                                         DockPanel.Dock="Right"
-                                            Command="{Binding ElementName=CustomApp, Path=DataContext.AuditCustomAppCommand}" 
+                                            Command="{Binding ElementName=CustomApp, Path=DataContext.AuthCustomAppCommand}" 
                                             CommandParameter="{Binding}"
                                             ></Button>
                                 </DockPanel>

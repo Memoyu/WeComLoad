@@ -1,7 +1,5 @@
-﻿using LianOu.FileLib;
-using System.Windows.Controls;
-using WeComLoad.Open.Common.Dto;
-using static WeComLoad.Shared.Model.AuthCorpAppRequest;
+﻿using System.Windows.Controls;
+using WeComLoad.Open.Services;
 using static WeComLoad.Shared.Model.WeComSuiteAppAuthDetail;
 
 namespace WeComLoad.Open.ViewModels
@@ -12,13 +10,13 @@ namespace WeComLoad.Open.ViewModels
 
         private Suite currTpl;
 
-        private readonly IWeComOpen _weComOpen;
+        private readonly IWeComOpenSvc _weComOpenSvc;
 
-        private ObservableCollection<Suite> customApps;
-        public ObservableCollection<Suite> CustomApps
+        private ObservableCollection<Suite> customAppTpls;
+        public ObservableCollection<Suite> CustomAppTpls
         {
-            get { return customApps; }
-            set { customApps = value; RaisePropertyChanged(); }
+            get { return customAppTpls; }
+            set { customAppTpls = value; RaisePropertyChanged(); }
         }
 
 
@@ -64,46 +62,92 @@ namespace WeComLoad.Open.ViewModels
             set { authConfig = value; RaisePropertyChanged(); }
         }
 
-        private string _currentSuiteId;
-        private string[] buckets = { "loweb-dev-scrmh5", "loweb-test-scrmh5", "loweb-prod-scrmh5" };
+        private string[] _buckets = { "loweb-dev-scrmh5", "loweb-test-scrmh5", "loweb-prod-scrmh5" };
+        private int _currOffset = 0;
+        private int size = 10;
         private ListBoxItem _env;
-        private CustomAppConfigDto _configDto;
-        private readonly IFileClientPro _fileClientPro;
 
-        public DelegateCommand RefreshCustomAppListCommand { get; private set; }
+        public DelegateCommand RefreshCustomTplsCommand { get; private set; }
 
         public DelegateCommand RefreshAuditAppListCommand { get; private set; }
 
-        public DelegateCommand<CorpApp> AuditCustomAppCommand { get; private set; }
+        public DelegateCommand<CorpApp> AuthCustomAppCommand { get; private set; }
 
-        public DelegateCommand<Suite> SelectedCustomAppCommand { get; private set; }
+        public DelegateCommand<Suite> SelectedCustomAppTplCommand { get; private set; }
 
         public DelegateCommand<ListBoxItem> SelectedEnvCommand { get; private set; }
 
         public DelegateCommand InputCorpIdCommand { get; private set; }
 
-        public DelegateCommand AuditPublishAppCommand { get; private set; }
+        public DelegateCommand AuthOnlineAppCommand { get; private set; }
 
         public CustomAppViewModel(
             CustAppSetting custAppSetting,
             IContainerProvider containerProvider,
-            IWeComOpen weComOpen,
-            IFileClientPro fileClientPro) : base(containerProvider)
+            IWeComOpenSvc weComOpenSvc) : base(containerProvider)
         {
             _custAppSettings = custAppSetting;
-            customApps = new ObservableCollection<Suite>();
-            _weComOpen = weComOpen;
-            _fileClientPro = fileClientPro;
-            RefreshCustomAppListCommand = new DelegateCommand(GetCustomAppListHandler);
+            _weComOpenSvc = weComOpenSvc;
+            RefreshCustomTplsCommand = new DelegateCommand(GetCustAppTplAsync);
             RefreshAuditAppListCommand = new DelegateCommand(RefreshAuditAppListHandler);
-            AuditCustomAppCommand = new DelegateCommand<CorpApp>(AuditCustomAppHandler);
-            SelectedCustomAppCommand = new DelegateCommand<Suite>(SelectedCustAppTplHandler);
+            AuthCustomAppCommand = new DelegateCommand<CorpApp>(AuthCustomAppHandler);
+            SelectedCustomAppTplCommand = new DelegateCommand<Suite>(SelectedCustAppTplHandler);
             SelectedEnvCommand = new DelegateCommand<ListBoxItem>(SelectedEnvHandler);
             InputCorpIdCommand = new DelegateCommand(InputCorpIdHandler);
-            AuditPublishAppCommand = new DelegateCommand(AuditPublishAppHandler);
+            AuthOnlineAppCommand = new DelegateCommand(AuthAndOnlineAppHandler);
+
+            // 获取模板列表
+            GetCustAppTplAsync();
         }
 
-        private async void AuditPublishAppHandler()
+        private async void GetCustAppTplAsync()
+        {
+            var data = await _weComOpenSvc.GetCustomAppTplsAsync();
+            if (data?.suite_list == null)
+            {
+                CustomAppTpls = new ObservableCollection<Suite>();
+                return;
+            }
+            CustomAppTpls = new ObservableCollection<Suite>(data.suite_list.suite);
+        }
+
+        private async void SelectedCustAppTplHandler(Suite tpl)
+        {
+            if (tpl == null) return;
+            currTpl = tpl;
+            CustomAppAuths = new ObservableCollection<CorpApp>();
+            await GetCustAppAuthsAsync(tpl?.suiteid.ToString(), _currOffset);
+        }
+
+        private async Task GetCustAppAuthsAsync(string suiteid, int currOffset)
+        {
+            if (string.IsNullOrWhiteSpace(suiteid)) return;
+            var authApps = await _weComOpenSvc.GetCustomAppAuthsAsync(suiteid, currOffset, size);
+            var apps = new List<CorpApp>();
+
+            if (authApps?.corpapp_list == null)
+            {
+                apps = new List<CorpApp>();
+            }
+            else
+            {
+                apps = authApps.corpapp_list.corpapp;
+            }
+
+            CustomAppAuths.AddRange(apps);
+
+            //if (!authApps.has_next_page)
+            //    initLoading = true;
+            //else
+            //    initLoading = false;
+        }
+
+        private void RefreshAuditAppListHandler()
+        {
+            SelectedCustAppTplHandler(currTpl);
+        }
+
+        private async void AuthAndOnlineAppHandler()
         {
             var hint = string.Empty;
             if (string.IsNullOrWhiteSpace(CorpId))
@@ -137,56 +181,36 @@ namespace WeComLoad.Open.ViewModels
             authAppReq.corpapp.enter_homeurl_in_wx = true;
             authAppReq.corpapp.page_type = "CREATE";
 
-            // 审核应用
-            var resAudit = await _weComOpen.AuthCorpAppAsync(authAppSet);
-            var appId = resAudit?.corpapp?.app_id;
-            var suiteId = authAppSet.suiteid;
-            if (string.IsNullOrWhiteSpace(appId))
+            try
+            {
+                var authRes = await _weComOpenSvc.AuthCustAppAndOnlineAsync(authAppReq, authConfig.VerifyBucket);
+                if (!authRes)
+                {
+                    EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
+                    {
+                        Msg = $"开发上线应用失败"
+                    });
+                    return;
+                }
+
+                EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
+                {
+                    Msg = $"开发上线应用成功"
+                });
+
+                // 刷新企业应用列表
+                RefreshAuditAppListHandler();
+                // 关闭浮窗
+                DialogIsOpen = false;
+            }
+            catch (Exception ex)
             {
                 EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
                 {
-                    Msg = "审核自建应用异常！"
+                    Msg = $"开发上线应用异常，异常信息：{ex.Message}"
                 });
                 return;
             }
-
-            // 下载可信域名校验文件
-            var resFile = await UploadDomainVerify(suiteId, appId);
-            if (!resFile)
-            {
-                EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
-                {
-                    Msg = "上传应用可信域名校验文件异常！"
-                });
-                return;
-            }
-
-            var msg = "开发并上线成功";
-
-            // 提交审核
-            var auditOrderId = await SubmitAuditAppAsync(appId, suiteId);
-            if (string.IsNullOrWhiteSpace(auditOrderId))
-            {
-                msg = "审核应用失败";
-            }
-            else
-            {
-                // 上线应用
-                if (!await OnlineAppAsync(auditOrderId))
-                    msg = "上线应用失败";
-            }
-
-            // 刷新企业应用列表
-            RefreshAuditAppListHandler();
-
-            // 关闭浮窗
-            DialogIsOpen = false;
-
-            EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
-            {
-                Msg = msg
-            });
-
         }
 
         private void InputCorpIdHandler()
@@ -202,241 +226,150 @@ namespace WeComLoad.Open.ViewModels
             switch (env.Content)
             {
                 case "开发":
-                    authConfig.CallbackUrl = Settings.Callback.Dev;
+                    authConfig.CallbackUrl = _custAppSettings.Callback.Dev;
                     authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
-                    authConfig.WhiteIp = Settings.WhiteIp.Dev;
-                    authConfig.Domain = Settings.Domain.Dev;
-                    authConfig.HomePage = Settings.HomePage.Dev;
-                    authConfig.VerifyBucket = buckets[0];
+                    authConfig.WhiteIp = _custAppSettings.WhiteIp.Dev;
+                    authConfig.Domain = _custAppSettings.Domain.Dev;
+                    authConfig.HomePage = _custAppSettings.HomePage.Dev;
+                    authConfig.VerifyBucket = _buckets[0];
                     break;
                 case "测试":
-                    authConfig.CallbackUrl = Settings.Callback.Test;
+                    authConfig.CallbackUrl = _custAppSettings.Callback.Test;
                     authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
-                    authConfig.WhiteIp = Settings.WhiteIp.Test;
-                    authConfig.Domain = Settings.Domain.Test;
-                    authConfig.HomePage = Settings.HomePage.Test;
-                    authConfig.VerifyBucket = buckets[1];
+                    authConfig.WhiteIp = _custAppSettings.WhiteIp.Test;
+                    authConfig.Domain = _custAppSettings.Domain.Test;
+                    authConfig.HomePage = _custAppSettings.HomePage.Test;
+                    authConfig.VerifyBucket = _buckets[1];
                     break;
                 case "正式":
-                    authConfig.CallbackUrl = Settings.Callback.Prod;
+                    authConfig.CallbackUrl = _custAppSettings.Callback.Prod;
                     authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
-                    authConfig.WhiteIp = Settings.WhiteIp.Prod;
-                    authConfig.Domain = Settings.Domain.Prod;
-                    authConfig.HomePage = Settings.HomePage.Prod;
-                    authConfig.VerifyBucket = buckets[2];
+                    authConfig.WhiteIp = _custAppSettings.WhiteIp.Prod;
+                    authConfig.Domain = _custAppSettings.Domain.Prod;
+                    authConfig.HomePage = _custAppSettings.HomePage.Prod;
+                    authConfig.VerifyBucket = _buckets[2];
                     break;
             }
             _env = env;
         }
 
-        private async void SelectedCustAppTplHandler(Suite tpl)
-        {
-            if (tpl == null) return;
-            currTpl = tpl;
-            _currentSuiteId = tpl.suiteid.ToString();
-            var authApps = await _weComOpen.GetCustomAppAuthsAsync(_currentSuiteId, 0, 20);
-            if (authApps?.Data?.corpapp_list == null)
-            {
-                CustomAppAuths = new ObservableCollection<CorpApp>();
-                return;
-            }
-            CustomAppAuths = new ObservableCollection<CorpApp>(authApps.Data.corpapp_list.corpapp.Where(a => a.customized_app_status != 2 || (a.auditorder != null && a.auditorder.status != 5)));
-        }
-
-        private async void GetCustomAppListHandler()
-        {
-            CustomAppAuths?.Clear();
-            var apps = await _weComOpen.GetCustomAppTplsAsync();
-            if (apps?.Data?.suite_list == null)
-            {
-                CustomApps = new ObservableCollection<Suite>();
-                return;
-            }
-            CustomApps = new ObservableCollection<Suite>(apps.Data.suite_list.suite);
-        }
-
-        private void RefreshAuditAppListHandler()
-        {
-            SelectedCustomAppHandler(new SuiteAppItem { suiteid = int.Parse(_currentSuiteId) });
-        }
-
-        private async void AuditCustomAppHandler(CorpApp app)
+        private async void AuthCustomAppHandler(CorpApp app)
         {
             if (app.customized_app_status == 0)
             {
-                // 获取配置
-                var homePages = _custAppSettings.AuditApp.HomePage.Split(';');
-                var ips = _custAppSettings.AuditApp.Ip.Split(';');
-                var callbacks = _custAppSettings.AuditApp.Callback.Split(';');
-                var domains = _custAppSettings.AuditApp.Domain.Split(';');
-                _configDto = new CustomAppConfigDto
+                authConfig = new AuditConfig
                 {
-                    DevHomePage = homePages.GetRangStr(0),
-                    TestHomePage = homePages.GetRangStr(1),
-                    ProdHomePage = homePages.GetRangStr(2),
-                    DevIp = ips.GetRangStr(0),
-                    TestIp = ips.GetRangStr(1),
-                    ProdIp = ips.GetRangStr(2),
-                    DevDomain = domains.GetRangStr(0),
-                    TestDomain = domains.GetRangStr(1),
-                    ProdDomain = domains.GetRangStr(2),
-                    DevCallback = callbacks.GetRangStr(0),
-                    TestCallback = callbacks.GetRangStr(1),
-                    ProdCallback = callbacks.GetRangStr(2),
+                    CorpId = string.Empty,
+                    CallbackUrl = _custAppSettings.Callback.Dev,
+                    CallbackUrlComplete = _custAppSettings.Callback.Dev,
+                    Domain = _custAppSettings.Domain.Dev,
+                    HomePage = _custAppSettings.HomePage.Dev,
+                    WhiteIp = _custAppSettings.WhiteIp.Dev,
+                    VerifyBucket = _buckets[0],
                 };
+
+                CorpName = app.authcorp_name;
 
                 // 展开浮窗
                 DialogIsOpen = true;
-                SelectedEnvHandler(_env);
-                var detail = await _weComOpen.GetCustomAppAuthDetailAsync(_currentSuiteId);
-                if (detail?.Data?.suite == null)
-                {
-                    EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
-                    {
-                        Msg = "获取模板详情失败"
-                    });
-                    DialogIsOpen = false;
-                    return;
-                }
-                authAppSet = new AuthCorpAppRequest();
-                authAppSet.suiteid = _currentSuiteId;
-                authAppSet.corpapp = new CorpappReq().MapFrom(detail.Data.suite);
-                authAppSet.corpapp.app_id = app.app_id;
-                CorpName = app.authcorp_name;
-                CorpId = string.Empty;
             }
             else if (app.customized_app_status == 1)
             {
 
                 if (app.auditorder == null)
                 {
-                    var msg = "审核并上线成功";
-
-                    // 提交审核
-                    var auditOrderId = await SubmitAuditAppAsync(app.app_id, _currentSuiteId);
-                    if (string.IsNullOrWhiteSpace(auditOrderId))
-                    {
-                        msg = "审核应用失败";
-                    }
-                    else
-                    {
-                        // 上线应用
-                        if (!await OnlineAppAsync(auditOrderId))
-                            msg = "上线应用失败";
-                    }
-
-                    // 刷新企业应用列表
-                    RefreshAuditAppListHandler();
-
-                    EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
-                    {
-                        Msg = msg
-                    });
+                    await SubmitAuditAndOnlineAsync(app);
                 }
                 else if (app.auditorder.status == 2 || app.auditorder.status == 4)
                 {
-                    var msg = "上线应用成功";
-
-                    // 上线应用
-                    if (!await OnlineAppAsync(app.auditorder.auditorderid))
-                        msg = "上线应用失败";
-
-                    // 刷新企业应用列表
-                    RefreshAuditAppListHandler();
-
-                    EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
-                    {
-                        Msg = msg
-                    });
+                    await OnlineAppAsync(app);
                 }
-
             }
         }
 
         /// <summary>
-        /// 提交审核自建应用
+        /// 提交审核上线自建应用
         /// </summary>
-        /// <param name="corpAppId">企业AppId</param>
-        /// <param name="suiteId">自建应用Id</param>
+        /// <param name="app">审核应用</param>
         /// <returns></returns>
-        private async Task<string> SubmitAuditAppAsync(string corpAppId, string suiteId)
+        private async Task SubmitAuditAndOnlineAsync(CorpApp app)
         {
-            var resSubmit = await _weComOpen.SubmitAuditCorpAppAsync(new SubmitAuditCorpAppRequest(corpAppId, suiteId));
-            if (string.IsNullOrWhiteSpace(resSubmit?.auditorder?.auditorderid))
+            try
+            {
+                // 提交审核
+                var resSubmitAudit = await _weComOpenSvc.SubmitAuditCorpAppAsync(new SubmitAuditCorpAppRequest(app.app_id, currTpl.suiteid.ToString()));
+                if (resSubmitAudit.Flag)
+                {
+                    EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
+                    {
+                        Msg = "审核应用失败！"
+                    });
+                    return;
+                }
+
+                var auditOrderId = resSubmitAudit.Result?.auditorder?.auditorderid;
+
+                // 上线应用
+                var resOnline = await _weComOpenSvc.OnlineCorpAppAsync(new OnlineCorpAppRequest(auditOrderId));
+                if (resOnline.Flag)
+                {
+                    EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
+                    {
+                        Msg = "上线应用失败！"
+                    });
+                    return;
+                }
+
+                RefreshAuditAppListHandler();
+                EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
+                {
+                    Msg = "审核上线应用成功！"
+                });
+            }
+            catch (Exception ex)
             {
                 EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
                 {
-                    Msg = "提交审核自建应用异常！"
+                    Msg = $"审核上线应用异常，异常信息：{ex.Message}"
                 });
-                return string.Empty;
+                return;
             }
-            return resSubmit.auditorder.auditorderid;
         }
 
 
         /// <summary>
         /// 上线自建应用
         /// </summary>
-        /// <param name="auditorderId">审核Id</param>
+        /// <param name="app">审核应用</param>
         /// <returns></returns>
-        private async Task<bool> OnlineAppAsync(string auditorderId)
-        {
-            var resOnline = await _weComOpen.OnlineCorpAppAsync(new OnlineCorpAppRequest(auditorderId));
-            if (string.IsNullOrWhiteSpace(resOnline?.auditorder?.auditorderid) || resOnline.auditorder.status != 5)
-            {
-                EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
-                {
-                    Msg = "上线自建应用异常！"
-                });
-                return false;
-            }
-            return true;
-        }
-
-        private async Task<bool> UploadDomainVerify(string suiteId, string appId)
+        private async Task OnlineAppAsync(CorpApp app)
         {
             try
             {
-                int downFileCount = 0;
-                int upFileCount = 0;
-
-            DownloadBegin:
-                var (fileName, file) = await _weComOpen.GetDomainVerifyFileAsync(suiteId, appId);
-                if (file.Length <= 0)
+                // 上线应用
+                var resOnline = await _weComOpenSvc.OnlineCorpAppAsync(new OnlineCorpAppRequest(app.auditorder.auditorderid));
+                if (resOnline.Flag)
                 {
-                    if (downFileCount < 3)
+                    EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
                     {
-                        downFileCount++;
-                        await Task.Delay(1000);
-                        goto DownloadBegin;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                        Msg = "上线应用失败！"
+                    });
+                    return;
                 }
 
-            UploadBegin:
-                var (uploadFlag, uploadMsg) = await _fileClientPro.UploadToRootPathAsync(file, _verifyBucket, fileName, OSSType.Aliyun);
-                if (!uploadFlag)
+                RefreshAuditAppListHandler();
+                EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
                 {
-                    if (upFileCount < 3)
-                    {
-                        upFileCount++;
-                        await Task.Delay(1000);
-                        goto UploadBegin;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                    Msg = "上线应用成功！"
+                });
             }
             catch (Exception ex)
             {
-                return false;
+                EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
+                {
+                    Msg = $"上线应用异常，异常信息：{ex.Message}"
+                });
+                return;
             }
         }
     }

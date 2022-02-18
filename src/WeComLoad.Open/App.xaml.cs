@@ -1,6 +1,6 @@
-﻿using LianOu.FileLib;
-using Prism.Services.Dialogs;
+﻿using Prism.Services.Dialogs;
 using WeComLoad.Open.Common.Utils;
+using WeComLoad.Open.Services;
 using WeComLoad.Open.Views.Settings;
 
 namespace WeComLoad.Open;
@@ -29,18 +29,11 @@ public partial class App : PrismApplication
         containerRegistry.RegisterForNavigation<SkinView, SkinViewModel>();
         containerRegistry.RegisterForNavigation<CustomAppSettingView, CustomAppSettingViewModel>();
 
-        containerRegistry.RegisterSingleton<IWeComOpen>(f =>
-        {
-            var func = new WeComOpenFunc();
-            var eventAggregator = Container.Resolve<IEventAggregator>();
-            func.GetWeCombReq().SetUnAuthEvent(() =>
-            {
-                eventAggregator.PubMainDialog(new MainDialogEventModel { IsOpen = true, DialogType = MainDialogEnum.Login });
-            });
-            return func;
-        });
+        containerRegistry.RegisterSingleton<IWeComOpen, WeComOpenFunc>();
 
-        containerRegistry.RegisterSingleton<CustAppSetting>(f =>
+        containerRegistry.RegisterScoped<IWeComOpenSvc, WeComOpenSvc>();
+
+        containerRegistry.RegisterScoped<CustAppSetting>(f =>
         {
             var config = JsonFileHelper.ReadJson<CustAppSetting>(JsonFileHelper.configPath);
             return config;

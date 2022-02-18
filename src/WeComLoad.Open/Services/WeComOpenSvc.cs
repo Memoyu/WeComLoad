@@ -3,16 +3,13 @@
 public class WeComOpenSvc : IWeComOpenSvc
 {
     private readonly IWeComOpen _weComOpen;
-    private readonly IRegionManager _regionManager;
     private readonly IEventAggregator _eventAggregator;
 
     public WeComOpenSvc(
         IWeComOpen weComOpen,
-        IRegionManager regionManager,
         IEventAggregator eventAggregator)
     {
         _weComOpen = weComOpen;
-        _regionManager = regionManager;
         _eventAggregator = eventAggregator;
     }
 
@@ -195,7 +192,7 @@ public class WeComOpenSvc : IWeComOpenSvc
 
     private void GoToLogin()
     {
-        _regionManager.Regions[PrismManager.MainViewRegionName].RequestNavigate("Login");
+        _eventAggregator.PubMainDialog(new MainDialogEventModel { IsOpen = true, DialogType = MainDialogEnum.Login });
     }
 
     private bool NeedLogin(int? errCode)
