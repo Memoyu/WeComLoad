@@ -31,7 +31,7 @@
 				</ChildContent>
 			</Card>
 
-			<Card Class="listCard"
+			<Card Class="authappList"
 				  Title="@("授权列表：" + currTpl?.name)"
 				  Style="margin-top: 24px;"
 				  BodyStyle="padding: 0 32px 40px 32px">
@@ -69,7 +69,7 @@
 			   OnOk="@HandleOk"
 			   OnCancel="@HandleCancel">
 
-			<Form Model="auditConfig">
+			<Form Model="authConfig">
 				<FormItem>
 					<Input Placeholder="企业Id" @bind-Value="@context.CorpId" TValue="string" OnChange="@InputCorpId"/>
 				</FormItem>
@@ -107,21 +107,23 @@
 		if (app.customized_app_status == 0)
 		{
 			action =
-	@<Button Type="@ButtonType.Link" OnClick="() => AuditCustAppAndOnlineAsync(app)">
+	@<Button Type="@ButtonType.Link" OnClick="() => AuthCustAppAndOnlineAsync(app)">
 		开发并上线
 	</Button>;
 		}
 		else if (app.customized_app_status == 1)
 		{
 			action =
-	@<Button Type="@ButtonType.Link" OnClick="()=>SelectCustAppTplHandler(currTpl)">
+	@<Button Type="@ButtonType.Link" OnClick="()=>SubmitAuditAndOnlineAsync(app)">
 		审核并上线
 	</Button>;
-
+		}
+		else if (app.customized_app_status == 2)
+		{
 			if (app.auditorder != null && (app.auditorder.status == 2 || app.auditorder.status == 4))
 			{
 				action =
-	@<Button Type="@ButtonType.Link" OnClick="()=>SelectCustAppTplHandler(currTpl)">
+	@<Button Type="@ButtonType.Link" OnClick="()=>OnlineAsync(app)">
 		提交上线
 	</Button>;
 			}

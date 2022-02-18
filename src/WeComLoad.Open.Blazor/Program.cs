@@ -18,8 +18,6 @@ builder.Services.Configure<ProSettings>(Configuration.GetSection("ProSettings"))
 builder.Services.AddSingleton<IWeComOpen, WeComOpenFunc>();
 builder.Services.AddScoped<IWeComOpenSvc, WeComOpenSvc>();
 
-builder.Services.AddSingleton<IFileClientPro>(f => FileClientPro.Create());
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

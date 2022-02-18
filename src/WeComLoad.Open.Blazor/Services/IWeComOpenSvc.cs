@@ -47,6 +47,14 @@ public interface IWeComOpenSvc
     Task<WeComSuiteAppAuth> GetCustomAppAuthsAsync(string suitId, int offset = 0, int limit = 10);
 
     /// <summary>
+    /// 审核上线应用
+    /// </summary>
+    /// <param name="req">审核入参</param>
+    /// <param name="verifyBucket">校验文件上传bucket</param>
+    /// <returns></returns>
+    Task<bool> AuthCustAppAndOnlineAsync(AuthCorpAppRequest req, string verifyBucket);
+
+    /// <summary>
     /// 获取授权企业代开发自建应用详情
     /// </summary>
     /// <param name="suitId"></param>
@@ -58,19 +66,19 @@ public interface IWeComOpenSvc
     /// </summary>
     /// <param name="req">请参</param>
     /// <returns></returns>
-    Task<WeComAuthAppResult> AuthCorpAppAsync(AuthCorpAppRequest req);
+    Task<(bool Flag, WeComAuthAppResult Result)> AuthCorpAppAsync(AuthCorpAppRequest req);
 
     /// <summary>
     /// 提交审核代开发自建应用
     /// </summary>
     /// <param name="req">请参</param>
     /// <returns></returns>
-    Task<SubmitAuditCorpAppResult> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req);
+    Task<(bool Flag, SubmitAuditCorpAppResult Result)> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req);
 
     /// <summary>
     /// 上线代开发自建应用
     /// </summary>
     /// <param name="req"></param>
     /// <returns></returns>
-    Task<OnlineCorpAppResult> OnlineCorpAppAsync(OnlineCorpAppRequest req);
+    Task<(bool Flag, OnlineCorpAppResult Result)> OnlineCorpAppAsync(OnlineCorpAppRequest req);
 }

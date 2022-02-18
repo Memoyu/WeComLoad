@@ -5,8 +5,10 @@ public class WeComOpenSvc : IWeComOpenSvc
     private readonly IWeComOpen _weComOpen;
     private readonly NavigationManager _navigationManager;
     private readonly MessageService _messageService;
-
-    public WeComOpenSvc(IWeComOpen weComOpen, NavigationManager navigationManager, MessageService messageService)
+    public WeComOpenSvc(
+        IWeComOpen weComOpen,
+        NavigationManager navigationManager,
+        MessageService messageService)
     {
         _weComOpen = weComOpen;
         _navigationManager = navigationManager;
@@ -48,24 +50,122 @@ public class WeComOpenSvc : IWeComOpenSvc
         return parse.Data;
     }
 
+    public async Task<bool> AuthCustAppAndOnlineAsync(AuthCorpAppRequest req, string verifyBucket)
+    {
+        // 开发应用
+        var restAuth = await AuthCorpAppAsync(req);
+        if (restAuth.Flag)
+        {
+            await _messageService.Error("授权开发自建应用异常！");
+            return false;
+        }
+
+        var appId = restAuth.Result?.corpapp?.app_id;
+        var suiteId = req.suiteid;
+
+        // 下载可信域名校验文件
+        var resFile = await UploadDomainVerify(suiteId, appId, verifyBucket);
+        if (!resFile)
+        {
+            await _messageService.Error("上传应用可信域名校验文件异常！");
+            return false;
+        }
+
+        // 提交审核
+        var resSubmitAudit = await SubmitAuditCorpAppAsync(new SubmitAuditCorpAppRequest(appId, suiteId));
+        if (resSubmitAudit.Flag)
+        {
+            await _messageService.Error("审核应用失败！");
+            return false;
+        }
+
+        var auditOrderId = resSubmitAudit.Result?.auditorder?.auditorderid;
+
+        // 上线应用
+        var resOnline = await OnlineCorpAppAsync(new OnlineCorpAppRequest(auditOrderId));
+        if (resOnline.Flag)
+        {
+            await _messageService.Error("上线应用异常！");
+            return false;
+        }
+
+
+
+        return true;
+    }
+
     public Task<WeComSuiteAppAuthDetail> GetCustomAppAuthDetailAsync(string suitId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<WeComAuthAppResult> AuthCorpAppAsync(AuthCorpAppRequest req)
+    public async Task<(bool Flag, WeComAuthAppResult Result)> AuthCorpAppAsync(AuthCorpAppRequest req)
     {
-        throw new NotImplementedException();
+        var result = await _weComOpen.AuthCorpAppAsync(req);
+        var parse = IsSuccessT<WeComAuthAppResult>(result);
+        return (string.IsNullOrWhiteSpace(parse.Data?.corpapp?.app_id), parse.Data);
     }
 
-    public Task<SubmitAuditCorpAppResult> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req)
+    public async Task<(bool Flag, SubmitAuditCorpAppResult Result)> SubmitAuditCorpAppAsync(SubmitAuditCorpAppRequest req)
     {
-        throw new NotImplementedException();
+        var result = await _weComOpen.SubmitAuditCorpAppAsync(req);
+        var parse = IsSuccessT<SubmitAuditCorpAppResult>(result);
+        return (string.IsNullOrWhiteSpace(parse.Data?.auditorder?.auditorderid), parse.Data);
     }
 
-    public Task<OnlineCorpAppResult> OnlineCorpAppAsync(OnlineCorpAppRequest req)
+    public async Task<(bool Flag, OnlineCorpAppResult Result)> OnlineCorpAppAsync(OnlineCorpAppRequest req)
     {
-        throw new NotImplementedException();
+        var result = await _weComOpen.OnlineCorpAppAsync(req);
+        var parse = IsSuccessT<OnlineCorpAppResult>(result);
+        return (string.IsNullOrWhiteSpace(parse.Data?.auditorder?.auditorderid), parse.Data);
+    }
+
+    private async Task<bool> UploadDomainVerify(string suiteId, string appId, string verifyBucket)
+    {
+        try
+        {
+            int downFileCount = 0;
+            int upFileCount = 0;
+
+        DownloadBegin:
+            var (fileName, file) = await _weComOpen.GetDomainVerifyFileAsync(suiteId, appId);
+            if (file.Length <= 0)
+            {
+                if (downFileCount < 3)
+                {
+                    downFileCount++;
+                    await Task.Delay(1000);
+                    goto DownloadBegin;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+        UploadBegin:
+            /* 上传可信域名校验文件到域名的根目录下操作
+            var (uploadFlag, uploadMsg) = await _fileClientPro.UploadToRootPathAsync(file, verifyBucket, fileName, OSSType.Aliyun);
+            if (!uploadFlag)
+            {
+                if (upFileCount < 3)
+                {
+                    upFileCount++;
+                    await Task.Delay(1000);
+                    goto UploadBegin;
+                }
+                else
+                {
+                    return false;
+                }
+            }*/
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 
     private bool IsSuccess(string result)

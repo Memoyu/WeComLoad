@@ -9,11 +9,11 @@
 			<Form Model="@Settings"
 				  Style="margin-top: 8px;"
 				  OnFinish="HandleSubmit">
-				<Card Title="@("可信域名")" Class="CARD" Style="margin: 0 0 10px 0;">
+				<Card Title="@("可信域名")" Class="set-item-card" Style="margin: 0 0 10px 0;">
 					<Row Gutter="16">
 						<AntDesign.Col Lg="6" Md="12" Sm="24">
 							<FormItem Label="开发">
-								<Input Placeholder="开发" @bind-Value="@context.Domain.Dev" />
+								<Input Placeholder="可信域名-开发" @bind-Value="@context.Domain.Dev" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -22,7 +22,7 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="测试">
-								<Input Placeholder="测试" @bind-Value="@context.Domain.Test" />
+								<Input Placeholder="可信域名-测试" @bind-Value="@context.Domain.Test" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -31,17 +31,17 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="正式">
-								<Input Placeholder="正式" @bind-Value="@context.Domain.Prod" />
+								<Input Placeholder="可信域名-正式" @bind-Value="@context.Domain.Prod" />
 							</FormItem>
 						</AntDesign.Col>
 					</Row>
 				</Card>
 
-				<Card Title="@("回调地址")" Class="CARD" Style="margin: 0 0 10px 0;">
+				<Card Title="@("回调地址")" Class="set-item-card" Style="margin: 0 0 10px 0;">
 					<Row Gutter="16">
 						<AntDesign.Col Lg="6" Md="12" Sm="24">
 							<FormItem Label="开发">
-								<Input Placeholder="开发" @bind-Value="@context.Callback.Dev" />
+								<Input Placeholder="回调地址-开发" @bind-Value="@context.Callback.Dev" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -50,7 +50,7 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="测试">
-								<Input Placeholder="测试" @bind-Value="@context.Callback.Test" />
+								<Input Placeholder="回调地址-测试" @bind-Value="@context.Callback.Test" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -59,17 +59,17 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="正式">
-								<Input Placeholder="正式" @bind-Value="@context.Callback.Prod" />
+								<Input Placeholder="回调地址-正式" @bind-Value="@context.Callback.Prod" />
 							</FormItem>
 						</AntDesign.Col>
 					</Row>
 				</Card>
 
-				<Card Title="@("应用首页")" Class="CARD" Style="margin: 0 0 10px 0;">
+				<Card Title="@("应用首页")" Class="set-item-card" Style="margin: 0 0 10px 0;">
 					<Row Gutter="16">
 						<AntDesign.Col Lg="6" Md="12" Sm="24">
 							<FormItem Label="开发">
-								<Input Placeholder="开发" @bind-Value="@context.HomePage.Dev" />
+								<Input Placeholder="应用首页-开发" @bind-Value="@context.HomePage.Dev" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -78,7 +78,7 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="测试">
-								<Input Placeholder="测试" @bind-Value="@context.HomePage.Test" />
+								<Input Placeholder="应用首页-测试" @bind-Value="@context.HomePage.Test" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -87,17 +87,17 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="正式">
-								<Input Placeholder="正式" @bind-Value="@context.HomePage.Prod" />
+								<Input Placeholder="应用首页-正式" @bind-Value="@context.HomePage.Prod" />
 							</FormItem>
 						</AntDesign.Col>
 					</Row>
 				</Card>
 
-				<Card Title="@("IP白名单")" Class="CARD" Style="margin: 0 0 10px 0;">
+				<Card Title="@("IP白名单")" Class="set-item-card" Style="margin: 0 0 10px 0;">
 					<Row Gutter="16">
 						<AntDesign.Col Lg="6" Md="12" Sm="24">
 							<FormItem Label="开发">
-								<Input Placeholder="开发" @bind-Value="@context.WhiteIp.Dev" />
+								<Input Placeholder="IP白名单-开发" @bind-Value="@context.WhiteIp.Dev" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -106,7 +106,7 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="测试">
-								<Input Placeholder="测试" @bind-Value="@context.WhiteIp.Test" />
+								<Input Placeholder="IP白名单-测试" @bind-Value="@context.WhiteIp.Test" />
 							</FormItem>
 						</AntDesign.Col>
 
@@ -115,7 +115,7 @@
 									   Md="new EmbeddedProperty{Span = 12}"
 									   Sm="24">
 							<FormItem Label="正式">
-								<Input Placeholder="正式" @bind-Value="@context.WhiteIp.Prod" />
+								<Input Placeholder="IP白名单-正式" @bind-Value="@context.WhiteIp.Prod" />
 							</FormItem>
 						</AntDesign.Col>
 					</Row>

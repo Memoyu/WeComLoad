@@ -6,7 +6,10 @@ public partial class Index
 
     private string loginHint { get; set; } = "请扫码登陆";
 
+
     private string qrCodeKey = string.Empty;
+
+    private bool canRefresh { get; set; } = false;
 
     [Inject]
     public IWeComOpen WeComOpen { get; set; }
@@ -53,6 +56,7 @@ public partial class Index
                 else if (state.Code == 6)
                 {
                     isLogin = true;
+                    canRefresh = true;
                 }
                 loginHint = state.Msg;
                 await InvokeAsync(() => StateHasChanged());
@@ -61,7 +65,6 @@ public partial class Index
             }
 
             await Message.Success("登录成功");
-
             NavigationManager.NavigateTo("/");
         });
     }

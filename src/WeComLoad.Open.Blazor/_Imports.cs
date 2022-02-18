@@ -15,8 +15,10 @@ global using WeComLoad.Open.Blazor.Utils;
 global using Microsoft.AspNetCore.Hosting;
 global using System.IO;
 global using WeComLoad.Shared;
-global using LianOu.FileLib;
 global using System.Linq;
-global using static WeComLoad.Shared.Model.WeComSuiteApp;
+global using static WeComLoad.Shared.Model.WeComSuiteAppAuthDetail;
 global using WeComLoad.Shared.Model;
 global using WeComLoad.Open.Blazor.Services;
+global using Microsoft.AspNetCore.Components.Web;
+global using WeComLoad.Open.Blazor.Extensions;
+

@@ -10,7 +10,7 @@
 		<div class="qrcode">
 			<img src="@qrCode" alt="qrcode" />
 		</div>
-		<Button Type="@ButtonType.Link" Size="large" Block OnClick="GetLoginAndShowQrCodeAsync">刷新</Button>
+		<Button Type="@ButtonType.Link" Size="large" Block OnClick="GetLoginAndShowQrCodeAsync" Disabled="@canRefresh">刷新</Button>
 
 		<div class="desc">@loginHint</div>
 	</div>
