@@ -2,7 +2,7 @@
 
 public class JsonFileHelper
 {
-    public static string configPath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\appsettings.json";
+    public static string configPath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\custapp.settings.json";
 
     public static T? ReadJson<T>(string path)
     {

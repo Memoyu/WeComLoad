@@ -1,21 +1,21 @@
 ﻿using LianOu.FileLib;
-using Microsoft.Extensions.Configuration;
 using System.Windows.Controls;
 using WeComLoad.Open.Common.Dto;
 using static WeComLoad.Shared.Model.AuthCorpAppRequest;
-using static WeComLoad.Shared.Model.WeComSuiteApp;
-using static WeComLoad.Shared.Model.WeComSuiteAppAuth;
+using static WeComLoad.Shared.Model.WeComSuiteAppAuthDetail;
 
 namespace WeComLoad.Open.ViewModels
 {
     public class CustomAppViewModel : BaseNavigationViewModel
     {
-        private AppSettings _appSettings;
+        private CustAppSetting _custAppSettings;
+
+        private Suite currTpl;
 
         private readonly IWeComOpen _weComOpen;
 
-        private ObservableCollection<SuiteAppItem> customApps;
-        public ObservableCollection<SuiteAppItem> CustomApps
+        private ObservableCollection<Suite> customApps;
+        public ObservableCollection<Suite> CustomApps
         {
             get { return customApps; }
             set { customApps = value; RaisePropertyChanged(); }
@@ -57,37 +57,15 @@ namespace WeComLoad.Open.ViewModels
             set { corpId = value; RaisePropertyChanged(); }
         }
 
-        private string callbackUrl = string.Empty;
-        public string CallbackUrl
+        private AuditConfig authConfig;
+        public AuditConfig AuthConfig
         {
-            get { return callbackUrl; }
-            set { callbackUrl = value; RaisePropertyChanged(); }
-        }
-
-        private string ip = string.Empty;
-        public string Ip
-        {
-            get { return ip; }
-            set { ip = value; RaisePropertyChanged(); }
-        }
-
-
-        private string domain = string.Empty;
-        public string Domain
-        {
-            get { return domain; }
-            set { domain = value; RaisePropertyChanged(); }
-        }
-
-        private string homePage = string.Empty;
-        public string HomePage
-        {
-            get { return homePage; }
-            set { homePage = value; RaisePropertyChanged(); }
+            get { return authConfig; }
+            set { authConfig = value; RaisePropertyChanged(); }
         }
 
         private string _currentSuiteId;
-        private string _verifyBucket;
+        private string[] buckets = { "loweb-dev-scrmh5", "loweb-test-scrmh5", "loweb-prod-scrmh5" };
         private ListBoxItem _env;
         private CustomAppConfigDto _configDto;
         private readonly IFileClientPro _fileClientPro;
@@ -98,7 +76,7 @@ namespace WeComLoad.Open.ViewModels
 
         public DelegateCommand<CorpApp> AuditCustomAppCommand { get; private set; }
 
-        public DelegateCommand<SuiteAppItem> SelectedCustomAppCommand { get; private set; }
+        public DelegateCommand<Suite> SelectedCustomAppCommand { get; private set; }
 
         public DelegateCommand<ListBoxItem> SelectedEnvCommand { get; private set; }
 
@@ -107,19 +85,19 @@ namespace WeComLoad.Open.ViewModels
         public DelegateCommand AuditPublishAppCommand { get; private set; }
 
         public CustomAppViewModel(
-            AppSettings appSettings, 
-            IContainerProvider containerProvider, 
-            IWeComOpen weComOpen, 
+            CustAppSetting custAppSetting,
+            IContainerProvider containerProvider,
+            IWeComOpen weComOpen,
             IFileClientPro fileClientPro) : base(containerProvider)
         {
-            _appSettings = appSettings;
-            customApps = new ObservableCollection<SuiteAppItem>();
+            _custAppSettings = custAppSetting;
+            customApps = new ObservableCollection<Suite>();
             _weComOpen = weComOpen;
             _fileClientPro = fileClientPro;
             RefreshCustomAppListCommand = new DelegateCommand(GetCustomAppListHandler);
             RefreshAuditAppListCommand = new DelegateCommand(RefreshAuditAppListHandler);
             AuditCustomAppCommand = new DelegateCommand<CorpApp>(AuditCustomAppHandler);
-            SelectedCustomAppCommand = new DelegateCommand<SuiteAppItem>(SelectedCustomAppHandler);
+            SelectedCustomAppCommand = new DelegateCommand<Suite>(SelectedCustAppTplHandler);
             SelectedEnvCommand = new DelegateCommand<ListBoxItem>(SelectedEnvHandler);
             InputCorpIdCommand = new DelegateCommand(InputCorpIdHandler);
             AuditPublishAppCommand = new DelegateCommand(AuditPublishAppHandler);
@@ -127,22 +105,37 @@ namespace WeComLoad.Open.ViewModels
 
         private async void AuditPublishAppHandler()
         {
+            var hint = string.Empty;
             if (string.IsNullOrWhiteSpace(CorpId))
+                hint = "请输入企业ID";
+
+            if (string.IsNullOrWhiteSpace(authConfig.Domain))
+                hint = "请输入可信域名";
+
+            if (string.IsNullOrWhiteSpace(authConfig.CallbackUrlComplete))
+                hint = "请输入回调地址";
+
+            if (!string.IsNullOrWhiteSpace(hint))
             {
                 EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
                 {
-                    Msg = "请输入企业ID"
+                    Msg = hint
                 });
+                return;
             }
-           
 
-            authAppSet.corpapp.callbackurl = CallbackUrl;
-            authAppSet.corpapp.redirect_domain = Domain;
-            if (!string.IsNullOrWhiteSpace(ip))
-                authAppSet.corpapp.white_ip_list.ip = new string[1] { Ip };
-            authAppSet.corpapp.homepage = HomePage;
-            authAppSet.corpapp.enter_homeurl_in_wx = true;
-            authAppSet.corpapp.page_type = "CREATE";
+
+            var authAppReq = new AuthCorpAppRequest();
+            authAppReq.suiteid = currTpl.suiteid.ToString();
+            authAppReq.corpapp = new AuthCorpAppRequest.CorpappReq().MapFrom(currTpl);
+            authAppReq.corpapp.app_id = authConfig.AppId;
+            authAppReq.corpapp.callbackurl = authConfig.CallbackUrlComplete;
+            authAppReq.corpapp.redirect_domain = authConfig.Domain;
+            if (!string.IsNullOrWhiteSpace(authConfig.WhiteIp))
+                authAppReq.corpapp.white_ip_list.ip = new string[1] { authConfig.WhiteIp };
+            authAppReq.corpapp.homepage = authConfig.HomePage;
+            authAppReq.corpapp.enter_homeurl_in_wx = true;
+            authAppReq.corpapp.page_type = "CREATE";
 
             // 审核应用
             var resAudit = await _weComOpen.AuthCorpAppAsync(authAppSet);
@@ -209,34 +202,38 @@ namespace WeComLoad.Open.ViewModels
             switch (env.Content)
             {
                 case "开发":
-                    CallbackUrl = string.Format(_configDto.DevCallback, CorpId);
-                    Ip = _configDto.DevIp;
-                    Domain = _configDto.DevDomain;
-                    HomePage = _configDto.DevHomePage;
-                    _verifyBucket = "loweb-dev-scrmh5";
+                    authConfig.CallbackUrl = Settings.Callback.Dev;
+                    authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
+                    authConfig.WhiteIp = Settings.WhiteIp.Dev;
+                    authConfig.Domain = Settings.Domain.Dev;
+                    authConfig.HomePage = Settings.HomePage.Dev;
+                    authConfig.VerifyBucket = buckets[0];
                     break;
                 case "测试":
-                    CallbackUrl = string.Format(_configDto.TestCallback, CorpId);
-                    Ip = _configDto.TestIp;
-                    Domain = _configDto.TestDomain;
-                    HomePage = _configDto.TestHomePage;
-                    _verifyBucket = "loweb-test-scrmh5";
+                    authConfig.CallbackUrl = Settings.Callback.Test;
+                    authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
+                    authConfig.WhiteIp = Settings.WhiteIp.Test;
+                    authConfig.Domain = Settings.Domain.Test;
+                    authConfig.HomePage = Settings.HomePage.Test;
+                    authConfig.VerifyBucket = buckets[1];
                     break;
                 case "正式":
-                    CallbackUrl = string.Format(_configDto.ProdCallback, CorpId);
-                    Ip = _configDto.ProdIp;
-                    Domain = _configDto.ProdDomain;
-                    HomePage = _configDto.ProdHomePage;
-                    _verifyBucket = "loweb-prod-scrmh5";
+                    authConfig.CallbackUrl = Settings.Callback.Prod;
+                    authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
+                    authConfig.WhiteIp = Settings.WhiteIp.Prod;
+                    authConfig.Domain = Settings.Domain.Prod;
+                    authConfig.HomePage = Settings.HomePage.Prod;
+                    authConfig.VerifyBucket = buckets[2];
                     break;
             }
             _env = env;
         }
 
-        private async void SelectedCustomAppHandler(SuiteAppItem app)
+        private async void SelectedCustAppTplHandler(Suite tpl)
         {
-            if (app == null) return;
-            _currentSuiteId = app.suiteid.ToString();
+            if (tpl == null) return;
+            currTpl = tpl;
+            _currentSuiteId = tpl.suiteid.ToString();
             var authApps = await _weComOpen.GetCustomAppAuthsAsync(_currentSuiteId, 0, 20);
             if (authApps?.Data?.corpapp_list == null)
             {
@@ -252,10 +249,10 @@ namespace WeComLoad.Open.ViewModels
             var apps = await _weComOpen.GetCustomAppTplsAsync();
             if (apps?.Data?.suite_list == null)
             {
-                CustomApps = new ObservableCollection<SuiteAppItem>();
+                CustomApps = new ObservableCollection<Suite>();
                 return;
             }
-            CustomApps = new ObservableCollection<SuiteAppItem>(apps.Data.suite_list.suite);
+            CustomApps = new ObservableCollection<Suite>(apps.Data.suite_list.suite);
         }
 
         private void RefreshAuditAppListHandler()
@@ -268,10 +265,10 @@ namespace WeComLoad.Open.ViewModels
             if (app.customized_app_status == 0)
             {
                 // 获取配置
-                var homePages = _appSettings.AuditApp.HomePage.Split(';');
-                var ips = _appSettings.AuditApp.Ip.Split(';');
-                var callbacks = _appSettings.AuditApp.Callback.Split(';');
-                var domains = _appSettings.AuditApp.Domain.Split(';');
+                var homePages = _custAppSettings.AuditApp.HomePage.Split(';');
+                var ips = _custAppSettings.AuditApp.Ip.Split(';');
+                var callbacks = _custAppSettings.AuditApp.Callback.Split(';');
+                var domains = _custAppSettings.AuditApp.Domain.Split(';');
                 _configDto = new CustomAppConfigDto
                 {
                     DevHomePage = homePages.GetRangStr(0),
@@ -316,7 +313,7 @@ namespace WeComLoad.Open.ViewModels
                     var msg = "审核并上线成功";
 
                     // 提交审核
-                    var auditOrderId = await SubmitAuditAppAsync(app.app_id , _currentSuiteId);
+                    var auditOrderId = await SubmitAuditAppAsync(app.app_id, _currentSuiteId);
                     if (string.IsNullOrWhiteSpace(auditOrderId))
                     {
                         msg = "审核应用失败";

@@ -40,15 +40,10 @@ public partial class App : PrismApplication
             return func;
         });
 
-        containerRegistry.RegisterSingleton<AppSettings>(f =>
+        containerRegistry.RegisterSingleton<CustAppSetting>(f =>
         {
-            var config = JsonFileHelper.ReadJson<AppSettings>(JsonFileHelper.configPath);
+            var config = JsonFileHelper.ReadJson<CustAppSetting>(JsonFileHelper.configPath);
             return config;
-        });
-
-        containerRegistry.RegisterSingleton<IFileClientPro>(f =>
-        {
-            return FileClientPro.Create();
         });
     }
 
