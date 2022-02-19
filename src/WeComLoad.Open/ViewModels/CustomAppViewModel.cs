@@ -47,13 +47,6 @@ namespace WeComLoad.Open.ViewModels
             set { corpName = value; RaisePropertyChanged(); }
         }
 
-        private string corpId = string.Empty;
-        public string CorpId
-        {
-            get { return corpId; }
-            set { corpId = value; RaisePropertyChanged(); }
-        }
-
         private AuditConfig authConfig;
         public AuditConfig AuthConfig
         {
@@ -149,7 +142,7 @@ namespace WeComLoad.Open.ViewModels
         private async void AuthAndOnlineAppHandler()
         {
             var hint = string.Empty;
-            if (string.IsNullOrWhiteSpace(CorpId))
+            if (string.IsNullOrWhiteSpace(AuthConfig.CorpId))
                 hint = "请输入企业ID";
 
             if (string.IsNullOrWhiteSpace(AuthConfig.Domain))
