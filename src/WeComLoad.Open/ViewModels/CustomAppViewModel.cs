@@ -19,7 +19,6 @@ namespace WeComLoad.Open.ViewModels
             set { customAppTpls = value; RaisePropertyChanged(); }
         }
 
-
         private ObservableCollection<CorpApp> customAppAuths;
         public ObservableCollection<CorpApp> CustomAppAuths
         {
@@ -131,7 +130,7 @@ namespace WeComLoad.Open.ViewModels
             }
             else
             {
-                apps = authApps.corpapp_list.corpapp;
+                apps = authApps.corpapp_list.corpapp.Where(a => a.customized_app_status != 2 || (a.auditorder != null && a.auditorder.status != 5)).ToList();
             }
 
             CustomAppAuths.AddRange(apps);
@@ -153,10 +152,10 @@ namespace WeComLoad.Open.ViewModels
             if (string.IsNullOrWhiteSpace(CorpId))
                 hint = "请输入企业ID";
 
-            if (string.IsNullOrWhiteSpace(authConfig.Domain))
+            if (string.IsNullOrWhiteSpace(AuthConfig.Domain))
                 hint = "请输入可信域名";
 
-            if (string.IsNullOrWhiteSpace(authConfig.CallbackUrlComplete))
+            if (string.IsNullOrWhiteSpace(AuthConfig.CallbackUrlComplete))
                 hint = "请输入回调地址";
 
             if (!string.IsNullOrWhiteSpace(hint))
@@ -172,18 +171,18 @@ namespace WeComLoad.Open.ViewModels
             var authAppReq = new AuthCorpAppRequest();
             authAppReq.suiteid = currTpl.suiteid.ToString();
             authAppReq.corpapp = new AuthCorpAppRequest.CorpappReq().MapFrom(currTpl);
-            authAppReq.corpapp.app_id = authConfig.AppId;
-            authAppReq.corpapp.callbackurl = authConfig.CallbackUrlComplete;
-            authAppReq.corpapp.redirect_domain = authConfig.Domain;
-            if (!string.IsNullOrWhiteSpace(authConfig.WhiteIp))
-                authAppReq.corpapp.white_ip_list.ip = new string[1] { authConfig.WhiteIp };
-            authAppReq.corpapp.homepage = authConfig.HomePage;
+            authAppReq.corpapp.app_id = AuthConfig.AppId;
+            authAppReq.corpapp.callbackurl = AuthConfig.CallbackUrlComplete;
+            authAppReq.corpapp.redirect_domain = AuthConfig.Domain;
+            if (!string.IsNullOrWhiteSpace(AuthConfig.WhiteIp))
+                authAppReq.corpapp.white_ip_list.ip = new string[1] { AuthConfig.WhiteIp };
+            authAppReq.corpapp.homepage = AuthConfig.HomePage;
             authAppReq.corpapp.enter_homeurl_in_wx = true;
             authAppReq.corpapp.page_type = "CREATE";
 
             try
             {
-                var authRes = await _weComOpenSvc.AuthCustAppAndOnlineAsync(authAppReq, authConfig.VerifyBucket);
+                var authRes = await _weComOpenSvc.AuthCustAppAndOnlineAsync(authAppReq, AuthConfig.VerifyBucket);
                 if (!authRes)
                 {
                     EventAggregator.PubMainSnackbar(new MainSnackbarEventModel
@@ -226,28 +225,28 @@ namespace WeComLoad.Open.ViewModels
             switch (env.Content)
             {
                 case "开发":
-                    authConfig.CallbackUrl = _custAppSettings.Callback.Dev;
-                    authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
-                    authConfig.WhiteIp = _custAppSettings.WhiteIp.Dev;
-                    authConfig.Domain = _custAppSettings.Domain.Dev;
-                    authConfig.HomePage = _custAppSettings.HomePage.Dev;
-                    authConfig.VerifyBucket = _buckets[0];
+                    AuthConfig.CallbackUrl = _custAppSettings.Callback.Dev;
+                    AuthConfig.CallbackUrlComplete = string.Format(AuthConfig.CallbackUrl, AuthConfig.CorpId);
+                    AuthConfig.WhiteIp = _custAppSettings.WhiteIp.Dev;
+                    AuthConfig.Domain = _custAppSettings.Domain.Dev;
+                    AuthConfig.HomePage = _custAppSettings.HomePage.Dev;
+                    AuthConfig.VerifyBucket = _buckets[0];
                     break;
                 case "测试":
-                    authConfig.CallbackUrl = _custAppSettings.Callback.Test;
-                    authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
-                    authConfig.WhiteIp = _custAppSettings.WhiteIp.Test;
-                    authConfig.Domain = _custAppSettings.Domain.Test;
-                    authConfig.HomePage = _custAppSettings.HomePage.Test;
-                    authConfig.VerifyBucket = _buckets[1];
+                    AuthConfig.CallbackUrl = _custAppSettings.Callback.Test;
+                    AuthConfig.CallbackUrlComplete = string.Format(AuthConfig.CallbackUrl, AuthConfig.CorpId);
+                    AuthConfig.WhiteIp = _custAppSettings.WhiteIp.Test;
+                    AuthConfig.Domain = _custAppSettings.Domain.Test;
+                    AuthConfig.HomePage = _custAppSettings.HomePage.Test;
+                    AuthConfig.VerifyBucket = _buckets[1];
                     break;
                 case "正式":
-                    authConfig.CallbackUrl = _custAppSettings.Callback.Prod;
-                    authConfig.CallbackUrlComplete = string.Format(authConfig.CallbackUrl, authConfig.CorpId);
-                    authConfig.WhiteIp = _custAppSettings.WhiteIp.Prod;
-                    authConfig.Domain = _custAppSettings.Domain.Prod;
-                    authConfig.HomePage = _custAppSettings.HomePage.Prod;
-                    authConfig.VerifyBucket = _buckets[2];
+                    AuthConfig.CallbackUrl = _custAppSettings.Callback.Prod;
+                    AuthConfig.CallbackUrlComplete = string.Format(AuthConfig.CallbackUrl, AuthConfig.CorpId);
+                    AuthConfig.WhiteIp = _custAppSettings.WhiteIp.Prod;
+                    AuthConfig.Domain = _custAppSettings.Domain.Prod;
+                    AuthConfig.HomePage = _custAppSettings.HomePage.Prod;
+                    AuthConfig.VerifyBucket = _buckets[2];
                     break;
             }
             _env = env;
@@ -257,7 +256,7 @@ namespace WeComLoad.Open.ViewModels
         {
             if (app.customized_app_status == 0)
             {
-                authConfig = new AuditConfig
+                AuthConfig = new AuditConfig
                 {
                     CorpId = string.Empty,
                     CallbackUrl = _custAppSettings.Callback.Dev,

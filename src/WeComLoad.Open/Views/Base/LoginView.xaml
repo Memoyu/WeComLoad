@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              prism:ViewModelLocator.AutoWireViewModel="True"
              Width="480" Height="430">
-    <materialDesign:DialogHost Identifier="Root" IsOpen="{Binding DialogIsOpen}">
+    <materialDesign:DialogHost Identifier="Root">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition />

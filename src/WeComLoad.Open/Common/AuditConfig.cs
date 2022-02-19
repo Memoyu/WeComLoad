@@ -1,23 +1,85 @@
-﻿namespace WeComLoad.Open.Common;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-public class AuditConfig
+namespace WeComLoad.Open.Common;
+
+public class AuditConfig : INotifyPropertyChanged
 {
-    public string CorpId { get; set; }
+    private string corpId ;
 
-    public string AppId { get; set; }
+    private string appId ;
 
-    public int EnvType { get; set; } = 3;
+    private string callbackUrl ;
 
-    public string CallbackUrl { get; set; }
+    private string callbackUrlComplete ;
 
-    public string CallbackUrlComplete { get; set; }
+    private string whiteIp ;
 
-    public string WhiteIp { get; set; }
+    private string domain ;
 
-    public string Domain { get; set; }
+    private string homePage ;
 
-    public string HomePage { get; set; }
+    private string verifyBucket ;
 
-    public string VerifyBucket { get; set; }
+
+    public string CorpId
+    {
+        get { return corpId; }
+        set { corpId = value; OnPropertyChanged(); }
+    }
+
+    public string AppId
+    {
+        get { return appId; }
+        set { appId = value; OnPropertyChanged(); }
+    }
+
+    public string CallbackUrl
+    {
+        get { return callbackUrl; }
+        set { callbackUrl = value; OnPropertyChanged(); }
+    }
+
+    public string CallbackUrlComplete
+    {
+        get { return callbackUrlComplete; }
+        set { callbackUrlComplete = value; OnPropertyChanged(); }
+    }
+
+    public string WhiteIp
+    {
+        get { return whiteIp; }
+        set { whiteIp = value; OnPropertyChanged(); }
+    }
+
+    public string Domain
+    {
+        get { return domain; }
+        set { domain = value; OnPropertyChanged(); }
+    }
+
+    public string HomePage
+    {
+        get { return homePage; }
+        set { homePage = value; OnPropertyChanged(); }
+    }
+
+    public string VerifyBucket
+    {
+        get { return verifyBucket; }
+        set { verifyBucket = value; OnPropertyChanged(); }
+    }
+
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    /// 实现通知更新
+    /// </summary>
+    /// <param name="propertyName"></param>
+    public void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
 
