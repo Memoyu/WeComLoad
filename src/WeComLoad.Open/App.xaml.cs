@@ -29,10 +29,11 @@ public partial class App : PrismApplication
         containerRegistry.RegisterForNavigation<SkinView, SkinViewModel>();
         containerRegistry.RegisterForNavigation<CustomAppSettingView, CustomAppSettingViewModel>();
 
+        // 注册企微接口请求
         containerRegistry.RegisterSingleton<IWeComOpen, WeComOpenFunc>();
-
         containerRegistry.RegisterScoped<IWeComOpenSvc, WeComOpenSvc>();
 
+        // 注册代开发自建应用开发、上线配置信息（Scoped 为了实时配置信息）
         containerRegistry.RegisterScoped<CustAppSetting>(f =>
         {
             var config = JsonFileHelper.ReadJson<CustAppSetting>(JsonFileHelper.configPath);

@@ -256,6 +256,7 @@ namespace WeComLoad.Open.ViewModels
         {
             if (app.customized_app_status == 0)
             {
+                // 初始化配置信息
                 AuthConfig = new AuditConfig
                 {
                     CorpId = string.Empty,
@@ -266,6 +267,7 @@ namespace WeComLoad.Open.ViewModels
                     WhiteIp = _custAppSettings.WhiteIp.Dev,
                     VerifyBucket = _buckets[0],
                 };
+                SelectedEnvHandler(_env);
 
                 CorpName = app.authcorp_name;
 
