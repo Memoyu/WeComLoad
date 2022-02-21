@@ -10,6 +10,10 @@ public partial class Index
 
     private bool loading { get; set; } = false;
 
+    private bool authappListLoading { get; set; } = false;
+
+    private bool moreLoading { get; set; } = false;
+
     private bool initLoading { get; set; } = true;
 
     private int size { get; set; } = 10;
@@ -103,6 +107,7 @@ public partial class Index
     private async Task GetCustAppAuthsAsync(string suiteid, int currOffset)
     {
         if (string.IsNullOrWhiteSpace(suiteid)) return;
+        authappListLoading = true;
         var authApps = await WeComOpenSvc.GetCustomAppAuthsAsync(suiteid, currOffset, size);
         var apps = new List<CorpApp>();
 
@@ -123,6 +128,8 @@ public partial class Index
             initLoading = true;
         else
             initLoading = false;
+
+        authappListLoading = false;
 
         StateHasChanged();
     }
@@ -174,7 +181,7 @@ public partial class Index
             var resSubmitAudit = await WeComOpenSvc.SubmitAuditCorpAppAsync(new SubmitAuditCorpAppRequest(app.app_id, currTpl.suiteid.ToString()));
             if (resSubmitAudit.Flag)
             {
-                await MessageService.Error("审核应用失败！");
+                _ = MessageService.Error("审核应用失败！");
                 return;
             }
 
@@ -184,16 +191,16 @@ public partial class Index
             var resOnline = await WeComOpenSvc.OnlineCorpAppAsync(new OnlineCorpAppRequest(auditOrderId));
             if (resOnline.Flag)
             {
-                await MessageService.Error("上线应用失败！");
+                _ = MessageService.Error("上线应用失败！");
                 return;
             }
 
+            _ = MessageService.Success($"审核上线应用成功");
             await RefreshCustAppAuthsAsync();
-            await MessageService.Success($"审核上线应用成功");
         }
         catch (Exception ex)
         {
-            await MessageService.Error($"审核上线应用异常，异常信息：{ex.Message}");
+            _ = MessageService.Error($"审核上线应用异常，异常信息：{ex.Message}");
             return;
         }
     }
@@ -206,37 +213,37 @@ public partial class Index
             var resOnline = await WeComOpenSvc.OnlineCorpAppAsync(new OnlineCorpAppRequest(app.auditorder.auditorderid));
             if (resOnline.Flag)
             {
-                await MessageService.Error("上线应用失败！");
+                _ = MessageService.Error("上线应用失败！");
                 return;
             }
 
+            _ = MessageService.Success($"上线应用成功");
             await RefreshCustAppAuthsAsync();
-            await MessageService.Success($"上线应用成功");
         }
         catch (Exception ex)
         {
-            await MessageService.Error($"上线应用异常，异常信息：{ex.Message}");
+            _ = MessageService.Error($"上线应用异常，异常信息：{ex.Message}");
             return;
         }
     }
 
-    private async void HandleOk(MouseEventArgs e)
+    private async Task HandleOk(MouseEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(authConfig.CorpId))
         {
-            await MessageService.Warning("请输入授权企业Id");
+            _ = MessageService.Warning("请输入授权企业Id");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(authConfig.Domain))
         {
-            await MessageService.Warning("请输入可信域名");
+            _ = MessageService.Warning("请输入可信域名");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(authConfig.CallbackUrlComplete))
         {
-            await MessageService.Warning("请输入回调地址");
+            _ = MessageService.Warning("请输入回调地址");
             return;
         }
 
@@ -255,19 +262,22 @@ public partial class Index
 
         try
         {
+            loading = true;
             var authRes = await WeComOpenSvc.AuthCustAppAndOnlineAsync(authAppReq, authConfig.VerifyBucket);
             if (!authRes)
             {
-                await MessageService.Error($"开发上线应用失败");
+                _ = MessageService.Error($"开发上线应用失败");
+                loading = false;
                 return;
             }
-            await MessageService.Success($"开发上线应用成功");
-            await RefreshCustAppAuthsAsync();
+           _ = MessageService.Success($"开发上线应用成功");
             modalVisible = false;
+            loading = false;
+            await RefreshCustAppAuthsAsync();
         }
         catch (Exception ex)
         {
-            await MessageService.Error($"开发上线应用异常，异常信息：{ex.Message}");
+            _ = MessageService.Error($"开发上线应用异常，异常信息：{ex.Message}");
             return;
         }
     }

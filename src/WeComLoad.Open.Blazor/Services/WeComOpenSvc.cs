@@ -56,7 +56,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         var restAuth = await AuthCorpAppAsync(req);
         if (restAuth.Flag)
         {
-            await _messageService.Error("授权开发自建应用异常！");
+            _ = _messageService.Error("授权开发自建应用异常！");
             return false;
         }
 
@@ -67,7 +67,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         var resFile = await UploadDomainVerify(suiteId, appId, verifyBucket);
         if (!resFile)
         {
-            await _messageService.Error("上传应用可信域名校验文件异常！");
+            _ = _messageService.Error("上传应用可信域名校验文件异常！");
             return false;
         }
 
@@ -75,7 +75,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         var resSubmitAudit = await SubmitAuditCorpAppAsync(new SubmitAuditCorpAppRequest(appId, suiteId));
         if (resSubmitAudit.Flag)
         {
-            await _messageService.Error("审核应用失败！");
+            _ = _messageService.Error("审核应用失败！");
             return false;
         }
 
@@ -85,7 +85,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         var resOnline = await OnlineCorpAppAsync(new OnlineCorpAppRequest(auditOrderId));
         if (resOnline.Flag)
         {
-            await _messageService.Error("上线应用异常！");
+            _ = _messageService.Error("上线应用异常！");
             return false;
         }
 

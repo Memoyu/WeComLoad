@@ -8,7 +8,7 @@
         private HttpClient HttpClient { get; set; }
 
         [Inject]
-        public MessageService Message { get; set; }
+        public MessageService MessageService { get; set; }
 
         [Inject]
         private IWebHostEnvironment HostingEnv { get; set; }
@@ -23,7 +23,7 @@
         {
             string path = Path.Combine("resources", "custapp.settings.json");
             JsonFileHelper.WriteJson(Path.Combine(HostingEnv.WebRootPath, path), Settings);
-            await Message.Success("保存成功");
+            _ = MessageService.Success("保存成功");
         }
     }
 }

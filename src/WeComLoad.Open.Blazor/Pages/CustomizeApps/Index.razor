@@ -5,96 +5,101 @@
 		<span>代开发自建应用审核、上线</span>
 	</Content>
 	<ChildContent>
-		<div class="custapp-manager">
-
-			<Card Class="tplList"
-				  Style="margin-bottom: 24px;"
-				  Title="应用模板"
-				  BodyStyle="padding: 0px;">
-				<Extra>
-					<Button Type="@ButtonType.Link" OnClick="GetCustAppTplAsync">刷新</Button>
-				</Extra>
-				<ChildContent>
-					@foreach (var tpl in customAppTpls)
-					{
-						<div class="ant-card-grid ant-card-hoverable" @onclick="()=>SelectCustAppTplHandler(tpl)">
-							<div class="tplTitle">
-								<Avatar Size="large" Src="@tpl.logo"></Avatar>
-								<span class="tplTitle-title">@tpl.name</span>
-							</div>
-
-							<div class="ant-card-meta-description">
-								@tpl.description
-							</div>
-						</div>
-					}
-				</ChildContent>
-			</Card>
-
-			<Card Class="authappList"
-				  Title="@("授权列表：" + currTpl?.name)"
-				  Style="margin-top: 24px;"
-				  BodyStyle="padding: 0 32px 40px 32px">
-				<Extra>
-					<Button Type="@ButtonType.Link" OnClick="RefreshCustAppAuthsAsync">刷新</Button>
-				</Extra>
-				<ChildContent>
-					<AntList TItem="CorpApp"
-							 DataSource="customAppAuths"
-							 ItemLayout="ListItemLayout.Horizontal">
-						<ChildContent>
-							<ListItem Actions="@GetRenderActions(context)">
-								<ListItemMeta Class="" Avatar="@(string.IsNullOrWhiteSpace(context.logo) ? defaultLogo : context.logo)" Description="@(string.IsNullOrWhiteSpace(context.description) ? "未审核" : context.description)">
-									<TitleTemplate>
-										<span>@context.authcorp_name</span>
-									</TitleTemplate>
-								</ListItemMeta>
-							</ListItem>
-						</ChildContent>
-						<LoadMore>
-							@if (!initLoading && !loading)
-							{
-								<div class="authapp-loadmore-btn-content">
-									<Button Type="@ButtonType.Link" OnClick="LoadMoreAuthAppAsync">加载更多......</Button>
+		<Spin Spinning=loading>
+			<div class="custapp-manager">
+				<Card Class="tplList"
+					  Style="margin-bottom: 24px;"
+					  Title="应用模板"
+					  BodyStyle="padding: 0px;">
+					<Extra>
+						<Button Type="@ButtonType.Link" OnClick="GetCustAppTplAsync">刷新</Button>
+					</Extra>
+					<ChildContent>
+						@foreach (var tpl in customAppTpls)
+						{
+							<div class="ant-card-grid ant-card-hoverable" @onclick="()=>SelectCustAppTplHandler(tpl)">
+								<div class="tplTitle">
+									<Avatar Size="large" Src="@tpl.logo"></Avatar>
+									<span class="tplTitle-title">@tpl.name</span>
 								</div>
-							}
-						</LoadMore>
-					</AntList>
-				</ChildContent>
-			</Card>
-		</div>
 
-		<Modal Title="@("审核配置：" + modalTitle)"
-			   Visible="@modalVisible"
-			   OnOk="@HandleOk"
-			   OnCancel="@HandleCancel">
+								<div class="ant-card-meta-description">
+									@tpl.description
+								</div>
+							</div>
+						}
+					</ChildContent>
+				</Card>
 
-			<Form Model="authConfig">
-				<FormItem>
-					<Input Placeholder="企业Id" @bind-Value="@context.CorpId" TValue="string" OnChange="@InputCorpId"/>
-				</FormItem>
-				<FormItem Label="环境">
-					<RadioGroup @bind-Value="@context.EnvType" TValue="int" OnChange="@SelectEnv">
-						<Radio Value="1">开发</Radio>
-						<Radio Value="2">测试</Radio>
-						<Radio Value="3">正式</Radio>
-					</RadioGroup>
-				</FormItem>
-				<FormItem Label="应用主页">
-					<Input Placeholder="应用主页" @bind-Value="@context.HomePage" />
-				</FormItem>
-				<FormItem Label="可信域名">
-					<Input Placeholder="可信域名" @bind-Value="@context.Domain" />
-				</FormItem>
-				<FormItem Label="IP白名单">
-					<Input Placeholder="IP白名单" @bind-Value="@context.WhiteIp" />
-				</FormItem>
-				<FormItem Label="回调地址">
-					<Input Placeholder="回调地址" @bind-Value="@context.CallbackUrlComplete" />
-				</FormItem>
-			</Form>
+				<Card Class="authappList"
+					  Title="@("授权列表：" + currTpl?.name)"
+					  Style="margin-top: 24px;"
+					  BodyStyle="padding: 0 32px 40px 32px">
+					<Extra>
+						<Button Type="@ButtonType.Link" OnClick="RefreshCustAppAuthsAsync">刷新</Button>
+					</Extra>
+					<ChildContent>
+						<Spin Spinning=authappListLoading>
+							<AntList TItem="CorpApp"
+									 DataSource="customAppAuths"
+									 ItemLayout="ListItemLayout.Horizontal">
+								<ChildContent>
+									<ListItem Actions="@GetRenderActions(context)">
+										<ListItemMeta Class="" Avatar="@(string.IsNullOrWhiteSpace(context.logo) ? defaultLogo : context.logo)" Description="@(string.IsNullOrWhiteSpace(context.description) ? "未审核" : context.description)">
+											<TitleTemplate>
+												<span>@context.authcorp_name</span>
+											</TitleTemplate>
+										</ListItemMeta>
+									</ListItem>
+								</ChildContent>
+								<LoadMore>
+									@if (!initLoading && !moreLoading)
+									{
+										<div class="authapp-loadmore-btn-content">
+											<Button Type="@ButtonType.Link" OnClick="LoadMoreAuthAppAsync">加载更多......</Button>
+										</div>
+									}
+								</LoadMore>
+							</AntList>
+						</Spin>
+					</ChildContent>
+				</Card>
 
-		</Modal>
+			</div>
+
+			<Modal Title="@("审核配置：" + modalTitle)"
+				   MaskClosable="false"
+				   Visible="@modalVisible"
+				   OnOk="@HandleOk"
+				   OnCancel="@HandleCancel">
+
+				<Form Model="authConfig">
+					<FormItem>
+						<Input Placeholder="企业Id" @bind-Value="@context.CorpId" TValue="string" OnChange="@InputCorpId" />
+					</FormItem>
+					<FormItem Label="环境">
+						<RadioGroup @bind-Value="@context.EnvType" TValue="int" OnChange="@SelectEnv">
+							<Radio Value="1">开发</Radio>
+							<Radio Value="2">测试</Radio>
+							<Radio Value="3">正式</Radio>
+						</RadioGroup>
+					</FormItem>
+					<FormItem Label="应用主页">
+						<Input Placeholder="应用主页" @bind-Value="@context.HomePage" />
+					</FormItem>
+					<FormItem Label="可信域名">
+						<Input Placeholder="可信域名" @bind-Value="@context.Domain" />
+					</FormItem>
+					<FormItem Label="IP白名单">
+						<Input Placeholder="IP白名单" @bind-Value="@context.WhiteIp" />
+					</FormItem>
+					<FormItem Label="回调地址">
+						<Input Placeholder="回调地址" @bind-Value="@context.CallbackUrlComplete" />
+					</FormItem>
+				</Form>
+
+			</Modal>
+		</Spin>
 	</ChildContent>
 </PageContainer>
 

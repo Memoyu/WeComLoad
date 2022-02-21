@@ -15,7 +15,7 @@ public partial class Index
     public IWeComOpen WeComOpen { get; set; }
 
     [Inject]
-    public MessageService Message { get; set; }
+    public MessageService MessageService { get; set; }
 
     [Inject]
     public NavigationManager NavigationManager { get; set; }
@@ -26,13 +26,12 @@ public partial class Index
     {
         await base.OnInitializedAsync();
         // QrCode = "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png";
+        await GotoLoginAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        if (firstRender)
-            await GotoLoginAsync();
     }
 
     private async Task GotoLoginAsync()
@@ -57,6 +56,8 @@ public partial class Index
                 {
                     isLogin = true;
                     canRefresh = true;
+                    delay = 0;
+                    _ = MessageService.Success("登录成功");
                 }
                 loginHint = state.Msg;
                 await InvokeAsync(() => StateHasChanged());
@@ -64,7 +65,6 @@ public partial class Index
                 count++;
             }
 
-            await Message.Success("登录成功");
             NavigationManager.NavigateTo("/");
         });
     }
