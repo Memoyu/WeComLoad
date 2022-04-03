@@ -5,7 +5,7 @@ namespace WeComLoad.Open.Blazor.Utils;
 public class JsonFileHelper
 {
 
-    public static T? ReadJson<T>(string path)
+    public static T ReadJson<T>(string path)
     {
         if (!File.Exists(path)) return default;
         using (StreamReader file = File.OpenText(path))

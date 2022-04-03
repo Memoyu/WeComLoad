@@ -1,8 +1,4 @@
-﻿export function showPrompt(message) {
-    return prompt(message, 'Type anything here');
-}
-
-export function reload() {
+﻿export function reload() {
     window.location.reload();
 }
 
