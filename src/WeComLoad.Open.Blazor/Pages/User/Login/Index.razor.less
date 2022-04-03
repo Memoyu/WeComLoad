@@ -8,40 +8,46 @@
         width: 95%;
     }
 
-    .login {
-        text-align: center;
+    .login_container {
+        width: 100%;
 
-        .top {
+        .login {
             text-align: center;
+            position: fixed;
+            top: 20%;
 
-            .desc {
-                margin-top: 12px;
-                margin-bottom: 40px;
-                color: @text-color-secondary;
-                font-size: 17px;
+            .top {
+                text-align: center;
+
+                .desc {
+                    margin-top: 12px;
+                    margin-bottom: 40px;
+                    color: @text-color-secondary;
+                    font-size: 17px;
+                    font-weight: bold;
+                }
+            }
+
+            .qrcode {
+                margin-bottom: 12px;
+                overflow: hidden;
+
+                img {
+                    object-fit: cover;
+                    width: 240px; //*必需
+                    height: 240px; //*必需
+                }
+            }
+
+            .user_corp_info {
+                font-size: 19px;
                 font-weight: bold;
+                margin-top: 30px;
             }
-        }
 
-        .qrcode {
-            margin-bottom: 12px;
-            overflow: hidden;
-
-            img {
-                object-fit: cover;
-                width: 240px; //*必需
-                height: 240px; //*必需
+            .quick_login_btn {
+                margin-top: 60px;
             }
-        }
-
-        .user_corp_info {
-            font-size: 19px;
-            font-weight: bold;
-            margin-top: 30px;
-        }
-
-        .quick_login_btn {
-            margin-top: 60px;
         }
     }
 }

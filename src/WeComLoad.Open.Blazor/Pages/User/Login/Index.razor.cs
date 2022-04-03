@@ -119,12 +119,13 @@ public partial class Index : IAsyncDisposable
             while (!isLogin)
             {
                 ct.ThrowIfCancellationRequested();
-                Console.WriteLine("循环中");
+                Console.WriteLine("循环中" + Thread.CurrentThread.ManagedThreadId);
                 if (string.IsNullOrWhiteSpace(qrCodeKey)) continue;
                 var state = await GetLoginStatusAsync(qrCodeKey);
                 if (state.Code == 4 || state.Code == 5)
                 {
                     await GetLoginAndShowQrCodeAsync();
+                    _ = MessageService.Error($"登录失败：{state.Msg}");
                     continue;
                 }
                 else if (state.Code == 6)
@@ -217,7 +218,7 @@ public partial class Index : IAsyncDisposable
         {
             // 1：等待扫码；2：扫码成功；3：确认登录；4：扫码后取消登录；5：登录失败；6：登录成功
             var status = await WeComOpen.GetQrCodeScanStatusAsync(qrCodeKey);
-            if (status == null) return (5, "登录失败");
+            if (status == null) return (5, "二维码过期");
             var statusCode = 1;
             var statusMsg = "等待扫码";
             switch (status.Status)
