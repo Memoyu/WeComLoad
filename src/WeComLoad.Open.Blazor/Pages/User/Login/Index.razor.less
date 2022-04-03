@@ -1,57 +1,51 @@
 ﻿@import '~antd/es/style/themes/default.less';
 
-.main__b__0 {
-    width: 368px;
-    margin: 0 auto;
+.login_container {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
 
-    @media screen and (max-width: @screen-sm) {
-        width: 95%;
-    }
+    .login {
+        text-align: center;
+        position: fixed;
+        top: 20%;
 
-    .login_container {
-        width: 100%;
-
-        .login {
+        .top {
             text-align: center;
-            position: fixed;
-            top: 20%;
 
-            .top {
-                text-align: center;
-
-                .desc {
-                    margin-bottom: 20px;
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: @text-color-secondary;
-                }
-            }
-
-            .qrcode {
-                margin-bottom: 12px;
-                overflow: hidden;
-
-                img {
-                    object-fit: cover;
-                    width: 240px; //*必需
-                    height: 240px; //*必需
-                }
-            }
-
-            .hint {
-                font-size: 13px;
+            .desc {
+                margin-bottom: 20px;
+                font-size: 18px;
+                font-weight: bold;
                 color: @text-color-secondary;
             }
+        }
 
-            .user_corp_info {
-                font-size: 19px;
-                font-weight: bold;
-                margin-top: 30px;
-            }
+        .qrcode {
+            margin-bottom: 12px;
+            overflow: hidden;
 
-            .quick_login_btn {
-                margin-top: 60px;
+            img {
+                object-fit: cover;
+                width: 240px; //*必需
+                height: 240px; //*必需
             }
+        }
+
+        .hint {
+            font-size: 13px;
+            color: @text-color-secondary;
+        }
+
+        .user_corp_info {
+            font-size: 19px;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+
+        .quick_login_btn {
+            margin-top: 60px;
         }
     }
 }

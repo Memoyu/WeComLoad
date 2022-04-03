@@ -1,38 +1,36 @@
 ﻿@layout UserLayout
 @page "/login"
 
-<div class="main__b__0">
-    <div class="login_container">
-        <div class="login">
-            @if (IsQuickLogin)
-            {
-                <div class="top">
-                    <div class="desc">当前企业身份登录</div>
+<div class="login_container">
+    <div class="login">
+        @if (IsQuickLogin)
+        {
+            <div class="top">
+                <div class="desc">当前企业身份登录</div>
+            </div>
+            <Card Style="min-width: 400px;">
+                <div>
+                    <Avatar src="@corpInfo.user_logo" Style="height: 80px; width: 80px" />
+                    <div class="user_corp_info">@($"{corpInfo.user_name} @{corpInfo.corp_name}")</div>
                 </div>
-                <Card Style="min-width: 400px;">
-                    <div>
-                        <Avatar src="@corpInfo.user_logo" Style="height: 80px; width: 80px" />
-                        <div class="user_corp_info">@($"{corpInfo.user_name} @{corpInfo.corp_name}")</div>
-                    </div>
-                    <Button Class="quick_login_btn" Type="@ButtonType.Primary" Size="large" OnClick="QuickLoginAsync">进入服务商工具</Button>
+                <Button Class="quick_login_btn" Type="@ButtonType.Primary" Size="large" OnClick="QuickLoginAsync">进入服务商工具</Button>
 
-                    <Button Type="@ButtonType.Link" Size="small" Block OnClick="ScanQrCodeLoginAsync" Style="margin-top: 15px">扫码登录</Button>
-                </Card>
-            }
-            else
-            {
-                <div class="top">
-                    <div class="desc">请使用企业微信扫码</div>
+                <Button Type="@ButtonType.Link" Size="small" Block OnClick="ScanQrCodeLoginAsync" Style="margin-top: 15px">扫码登录</Button>
+            </Card>
+        }
+        else
+        {
+            <div class="top">
+                <div class="desc">请使用企业微信扫码</div>
+            </div>
+            <Card Style="min-width: 400px;">
+                <div class="qrcode">
+                    <img src="@qrCode" alt="qrcode" />
                 </div>
-                <Card Style="min-width: 400px;">
-                    <div class="qrcode">
-                        <img src="@qrCode" alt="qrcode" />
-                    </div>
-                    <Button Type="@ButtonType.Link" Size="large" Block OnClick="GetLoginAndShowQrCodeAsync" Disabled="@canRefresh">刷新</Button>
+                <Button Type="@ButtonType.Link" Size="large" Block OnClick="GetLoginAndShowQrCodeAsync" Disabled="@canRefresh">刷新</Button>
 
-                    <div class="hint">@loginHint</div>
-                </Card>
-            }
-        </div>
+                <div class="hint">@loginHint</div>
+            </Card>
+        }
     </div>
 </div>
