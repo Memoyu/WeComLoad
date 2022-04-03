@@ -125,7 +125,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         try
         {
             int downFileCount = 0;
-            int upFileCount = 0;
+            // int upFileCount = 0;
 
         DownloadBegin:
             var (fileName, file) = await _weComOpen.GetDomainVerifyFileAsync(suiteId, appId);
@@ -143,8 +143,8 @@ public class WeComOpenSvc : IWeComOpenSvc
                 }
             }
 
-        UploadBegin:
-            /* 上传可信域名校验文件到域名的根目录下操作
+        /*UploadBegin:
+            // 上传可信域名校验文件到域名的根目录下操作
             var (uploadFlag, uploadMsg) = await _fileClientPro.UploadToRootPathAsync(file, verifyBucket, fileName, OSSType.Aliyun);
             if (!uploadFlag)
             {
@@ -162,7 +162,7 @@ public class WeComOpenSvc : IWeComOpenSvc
 
             return true;
         }
-        catch (Exception ex)
+        catch
         {
             return false;
         }

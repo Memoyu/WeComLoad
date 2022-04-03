@@ -16,9 +16,9 @@ public class JsonFileHelper
                 var dtos = JsonConvert.DeserializeObject<T>(json);
                 return dtos;
             }
-            catch (Exception ex)
+            catch
             {
-                return default;
+                throw;
             }
         }
 
@@ -36,7 +36,7 @@ public class JsonFileHelper
             var json = JsonConvert.SerializeObject(data);
             File.WriteAllText(path, json);
         }
-        catch (Exception ex)
+        catch
         { 
             throw;
         }

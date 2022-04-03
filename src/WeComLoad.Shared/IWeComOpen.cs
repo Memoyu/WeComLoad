@@ -60,7 +60,7 @@ public interface IWeComOpen
     /// </summary>
     /// <param name="req">请参</param>
     /// <returns></returns>
-    Task<string > AuthCorpAppAsync(AuthCorpAppRequest req);
+    Task<string> AuthCorpAppAsync(AuthCorpAppRequest req);
 
     /// <summary>
     /// 提交审核代开发自建应用 SubmitAuditCorpAppResult
@@ -75,4 +75,41 @@ public interface IWeComOpen
     /// <param name="req"></param>
     /// <returns></returns>
     Task<string> OnlineCorpAppAsync(OnlineCorpAppRequest req);
+
+    #region 快速登录
+
+    /// <summary>
+    /// 获取快速登录参数
+    /// </summary>
+    /// <returns></returns>
+    Task<GetQuickLoginParam?> GetQuickLoginParameAsync();
+
+    /// <summary>
+    /// 获取企业绑定服务商关系
+    /// </summary>
+    /// <param name="webKey"></param>
+    /// <returns></returns>
+    Task<GetCorpBindDeveloperInfo?> GetCorpBindDeveloperInfoAsync(string webKey);
+
+    /// <summary>
+    /// 获取快速登录授权企业
+    /// </summary>
+    /// <param name="webKey"></param>
+    /// <returns></returns>
+    Task<QuickLoginCorpInfo?> GetQuickLoginCorpInfoAsync(string webKey);
+
+    /// <summary>
+    /// 确认快速登录获取授权信息
+    /// </summary>
+    /// <param name="webKey"></param>
+    /// <returns></returns>
+    Task<(ConfirmQuickLoginAuthInfo? data, string? msg)> ConfirmQuickLoginAsync(string webKey);
+
+    /// <summary>
+    /// 快速登录
+    /// </summary>
+    /// <param name="authCode">授权码</param>
+    /// <returns></returns>
+    Task<bool> QuickLoginAsync(string authCode);
+    #endregion
 }

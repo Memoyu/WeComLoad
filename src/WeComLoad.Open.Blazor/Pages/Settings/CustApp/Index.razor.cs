@@ -19,7 +19,7 @@
             Settings = await HttpClient.GetFromJsonAsync<CustAppSetting>("resources/custapp.settings.json");
         }
 
-        private async Task HandleSubmit()
+        private void HandleSubmit()
         {
             string path = Path.Combine("resources", "custapp.settings.json");
             JsonFileHelper.WriteJson(Path.Combine(HostingEnv.WebRootPath, path), Settings);
