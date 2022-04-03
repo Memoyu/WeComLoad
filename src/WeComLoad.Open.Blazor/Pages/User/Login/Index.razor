@@ -16,7 +16,7 @@
                     </div>
                     <Button Class="quick_login_btn" Type="@ButtonType.Primary" Size="large" OnClick="QuickLoginAsync">进入服务商工具</Button>
 
-                    <Button Type="@ButtonType.Link" Size="large" Block OnClick="ScanQrCodeLoginAsync" Style="margin-top: 15px">扫码登录</Button>
+                    <Button Type="@ButtonType.Link" Size="small" Block OnClick="ScanQrCodeLoginAsync" Style="margin-top: 15px">扫码登录</Button>
                 </Card>
             }
             else
@@ -30,7 +30,7 @@
                     </div>
                     <Button Type="@ButtonType.Link" Size="large" Block OnClick="GetLoginAndShowQrCodeAsync" Disabled="@canRefresh">刷新</Button>
 
-                    <div class="desc">@loginHint</div>
+                    <div class="hint">@loginHint</div>
                 </Card>
             }
         </div>
