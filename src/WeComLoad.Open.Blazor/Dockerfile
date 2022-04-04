@@ -6,8 +6,7 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["src/WeComLoad.Open.Blazor/WeComLoad.Open.Blazor.csproj", "src/WeComLoad.Open.Blazor/"]
-COPY ["src/WeComLoad.Shared/WeComLoad.Shared.csproj", "src/WeComLoad.Shared/"]
+COPY . .
 RUN dotnet restore "src/WeComLoad.Open.Blazor/WeComLoad.Open.Blazor.csproj"
 COPY . .
 WORKDIR "/src/src/WeComLoad.Open.Blazor"
