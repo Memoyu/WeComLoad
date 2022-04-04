@@ -1,9 +1,5 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get update && apt-get install -y nodejs
-
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -15,6 +11,12 @@ RUN dotnet restore "src/WeComLoad.Open.Blazor/WeComLoad.Open.Blazor.csproj"
 COPY . .
 WORKDIR "/src/src/WeComLoad.Open.Blazor"
 RUN dotnet build "WeComLoad.Open.Blazor.csproj" -c Release -o /app/build
+
+
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-get update && apt-get install -y nodejs
+
 
 FROM build AS publish
 RUN dotnet publish "WeComLoad.Open.Blazor.csproj" -c Release -o /app/publish
