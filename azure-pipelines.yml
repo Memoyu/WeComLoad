@@ -26,7 +26,9 @@ stages:
     steps:
     - script: |
         echo ready to execute command
-        sed  -n  'w $(custAppConfig)' $(cust_app_config) 
+        # sed '1,$d' $(cust_app_config)
+        # sed  -n  'w $(custAppConfig)' $(cust_app_config) 
+        sed -i 's/"Domain"/$(MySqlConStr)/g' $(cust_app_config)
         echo "================= print file $(custAppConfig) start ===================="
         cat $(custAppConfig) | while read line; do echo $line ; done
         echo "================= print file $(custAppConfig) end ===================="
