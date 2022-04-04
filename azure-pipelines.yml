@@ -26,7 +26,7 @@ stages:
     steps:
     - script: |
         echo ready to execute command
-        sed -i 's/"Domain"/$(cust_app_config)/g' $(custAppConfig)
+        sed -i 's/Domain/$(cust_app_config)/g' $(custAppConfig)
         echo "================= print file $(custAppConfig) start ===================="
         cat $(custAppConfig) | while read line; do echo $line ; done
         echo "================= print file $(custAppConfig) end ===================="
