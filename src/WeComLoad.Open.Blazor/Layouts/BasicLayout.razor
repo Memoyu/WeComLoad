@@ -1,5 +1,9 @@
 ﻿@namespace WeComLoad.Open.Blazor
 @inherits LayoutComponentBase
+@inject IWeComOpenSvc WeComOpenSvc
+@inject MessageService MessageService
+@inject NavigationManager NavigationManager
+
 
 <AntDesign.ProLayout.BasicLayout Logo="@("./resources/images/logo.png")"
                                  MenuData="_menuData">
@@ -18,15 +22,6 @@
 
 @code
 {
-    [Inject]
-    public IWeComOpenSvc WeComOpenSvc { get; set; }
-
-    [Inject]
-    public MessageService MessageService { get; set; }
-
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
-
     private readonly MenuDataItem[] _menuData =
     {
         new MenuDataItem
