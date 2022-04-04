@@ -27,6 +27,14 @@ stages:
       inputs:
         versionSpec: '16.x'
       displayName: 'Install Node.js'
+
+    - script: |
+        echo ==================to build project==================
+        cd src/WeComLoad.Open.Blazor
+        npm install
+        echo ==================completed build==================
+      displayName: 'npm install and build'
+
     - task: Docker@2
       displayName: 'build docker image and push'
       inputs:
