@@ -1,0 +1,75 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+ tags:
+   include:
+     - release-*
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  containerName: wecom_tool
+  imageName: memoyu/wecom_tool
+
+stages:
+- stage: Build
+  displayName: build wecom tool
+  jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+        
+    - task: Docker@2
+      displayName: 'build docker image and push'
+      inputs:
+        containerRegistry: 'memoyu-docker'
+        repository: $(imageName)
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        buildContext: $(Build.Repository.LocalPath)
+        tags: 'latest'
+
+    - task: SSH@0
+      displayName: 'run wecom tool container'
+      inputs:
+        sshEndpoint: 'HuaweiCloud'
+        runOptions: 'inline'
+        inline: |
+          echo "================= to del container ===================="
+          # 判断是否存在容器
+          docker ps | grep $(containerName) &> /dev/null
+          # 如果不存在，则Remove
+          if [ $? -ne 0 ]
+          then
+              echo "$(containerName) container not exist continue.. "
+          else
+              echo "remove $(containerName) container"
+              docker kill $(containerName)
+              docker rm $(containerName)
+          fi
+
+          echo "================= to rm image ===================="
+          # 判断是否存在镜像
+          docker images | grep $(imageName) &> /dev/null
+          # 如果不存在，不做操作
+          if [ $? -ne 0 ]
+          then
+              echo "image does not exist , continue..."
+          else
+              echo "image exists !!! remove it"
+              docker rmi $(imageName)
+          fi
+
+          echo "================= to pull image ===================="
+          docker pull $(imageName)
+
+          echo "================= to run container ===================="
+          docker run --name $(containerName) -d -p 9001:80 $(imageName)
+
+          echo "================= publish success ===================="
+        readyTimeout: '20000'
