@@ -242,6 +242,8 @@ public class WeComAdminWebReq
         return $"{(Math.Round((random.NextDouble() * (1 - 0)) + 0, 15) * 0.1) + 0.3}";
     }
 
+    public void ClearCookie() => _cookiesStr = string.Empty;
+
     #region Private
 
     private HttpWebRequest BuildRequest(HttpWebRequest request, bool isSetCookie = false)

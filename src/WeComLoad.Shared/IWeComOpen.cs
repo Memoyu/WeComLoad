@@ -2,7 +2,9 @@
 
 public interface IWeComOpen
 {
-    WeComAdminWebReq GetWeCombReq();
+    WeComAdminWebReq GetWeComReq();
+
+    void ClearReqCookie();
 
     /// <summary>
     /// 获取企微后台登录二维码

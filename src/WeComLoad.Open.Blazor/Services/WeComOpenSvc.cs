@@ -15,6 +15,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         _messageService = messageService;
     }
 
+    public void InitWeComOpen() => _weComOpen.ClearReqCookie();
 
     public async Task<(string Url, string Key)> GetLoginQrCodeUrlAsync()
     {

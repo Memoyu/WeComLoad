@@ -1,11 +1,15 @@
 ﻿@namespace WeComLoad.Open.Blazor
 @inherits LayoutComponentBase
 
-<AntDesign.ProLayout.BasicLayout 
-    Logo="@("./resources/images/logo.png")"
-    MenuData="_menuData">
+<AntDesign.ProLayout.BasicLayout Logo="@("./resources/images/logo.png")"
+                                 MenuData="_menuData">
     <RightContentRender>
-        <WeComLoad.Open.Blazor.Components.RightContent />
+        <Space Size="@("24")">
+            <SpaceItem>
+               <Button Type="@ButtonType.Link" OnClick="SignOut" >退出登录</Button>
+            </SpaceItem>
+        </Space>
+
     </RightContentRender>
     <ChildContent>
         @Body
@@ -14,6 +18,15 @@
 
 @code
 {
+    [Inject]
+    public IWeComOpenSvc WeComOpenSvc { get; set; }
+
+    [Inject]
+    public MessageService MessageService { get; set; }
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
     private readonly MenuDataItem[] _menuData =
     {
         new MenuDataItem
@@ -47,4 +60,11 @@
             }
         }
     };
+
+    private void SignOut()
+    {
+        WeComOpenSvc.InitWeComOpen();
+        NavigationManager.NavigateTo("/login");
+        _ = MessageService.Success("退出登录成功");
+    }
 }

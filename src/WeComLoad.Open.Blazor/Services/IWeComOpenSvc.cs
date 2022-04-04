@@ -2,6 +2,8 @@
 
 public interface IWeComOpenSvc
 {
+    void InitWeComOpen();
+
     /// <summary>
     /// 获取企微后台登录二维码
     /// </summary>
