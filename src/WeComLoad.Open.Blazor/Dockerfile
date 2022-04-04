@@ -13,8 +13,6 @@ WORKDIR "/src/src/WeComLoad.Open.Blazor"
 RUN dotnet build "WeComLoad.Open.Blazor.csproj" -c Release -o /app/build
 
 
-RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get update && apt-get install -y nodejs
 
 
