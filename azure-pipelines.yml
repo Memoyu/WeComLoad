@@ -47,7 +47,7 @@ stages:
 
     - task: SSH@0
       displayName: 'run wecom tool container'
-      condition: and(succeeded())
+      condition: succeeded('Docker@2')
       inputs:
         sshEndpoint: 'HuaweiCloud'
         runOptions: 'inline'
