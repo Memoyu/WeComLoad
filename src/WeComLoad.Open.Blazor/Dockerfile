@@ -10,11 +10,12 @@ COPY . .
 RUN dotnet restore "src/WeComLoad.Open.Blazor/WeComLoad.Open.Blazor.csproj"
 COPY . .
 WORKDIR "/src/src/WeComLoad.Open.Blazor"
+
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs \
+    npm                       # note this one
+
 RUN dotnet build "WeComLoad.Open.Blazor.csproj" -c Release -o /app/build
-
-
-RUN apt-get update && apt-get install -y nodejs
-
 
 FROM build AS publish
 RUN dotnet publish "WeComLoad.Open.Blazor.csproj" -c Release -o /app/publish
