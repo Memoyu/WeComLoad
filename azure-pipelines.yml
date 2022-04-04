@@ -26,8 +26,7 @@ stages:
     steps:
     - script: |
         echo ready to execute command
-        sed '1,$d' $(custAppConfig)
-        sed '$a234567' $(custAppConfig)
+        echo '$(cust_app_config)' > $(custAppConfig)
         echo "================= print file $(custAppConfig) start ===================="
         cat $(custAppConfig) | while read line; do echo $line ; done
         echo "================= print file $(custAppConfig) end ===================="
