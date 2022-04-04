@@ -6,7 +6,7 @@
 
 **Open**：(WPF)主要解决服务商对授权企业的代开发自建应用的审核、上线流程一条龙服务，提高审核效率以及配置正确性，无脑一键自动化；
 
-**Open.Blazor**：(Blazor)与Open 功能一致，采用了Blazor + Ant Design Blazor 实现；适配企微服务商后台快速登录功能，并集成到工具中；
+**Open.Blazor**：(Blazor)与Open 功能一致，采用了Blazor + Ant Design Blazor 实现；**适配企微服务商后台快速登录功能，并集成到工具中**；
 
 本项目主要提供一个思路，并实现了部分功能；
 
@@ -25,17 +25,43 @@
 
 **WeComLoad.Open**
 
+* 适配企微服务商后台快速登录
+
 * 代开自建应用审核、上线
 
 * More.......
 
 ## How to achieve?
 
+**Admin**
+
+登录在改版后发生了改变，只需要一步即可获取完整带授权cookies信息
+
 ![mind.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/mind.png)
+
+**Open**
+
+企微客户端4.0.3以上版本在启动后会开启50000 或 50001 或 50002端口的本地接口服务；
+
+1. 调用http://127.0.0.1:50000/checkLoginState，获取企微客户端信息及校验能否快速登陆；
+
+2. 调用企微服务wwopen/wwLogin/wwQuickLogin，获取登录凭证参数（web_key、client_key）
+
+3. 调用http://127.0.0.1:50000/checkLoginState，进行确认登录
+
+4. 调用企微服务wwopen/monoApi/wwQuickLogin/login/confirmQuickLoginByKey，获取最终登录授权码
+
+5. 调用企微服务wwopen/login，进行登录cookie获取（该接口即可完整获取到授权的cookies）
 
 ## Effect
 
+**Admin Demo**
+
 ![Effect.gif](https://github.com/Memoyu/WeComLoad/raw/master/doc/Effect.gif)
+
+**Open Demo**
+
+![sp20220405_001606.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/open.png)
 
 ## Run
 
