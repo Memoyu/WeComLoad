@@ -26,70 +26,70 @@ stages:
     steps:
     - script: |
         echo ready to execute command
-        echo $(cust_app_config) > $(custAppConfig)
+        sed  -n  'w $(custAppConfig)' $(cust_app_config) 
         echo "================= print file $(custAppConfig) start ===================="
         cat $(custAppConfig) | while read line; do echo $line ; done
         echo "================= print file $(custAppConfig) end ===================="
         echo command executed
       displayName: 'replace config value'
 
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '16.x'
-      displayName: 'Install Node.js'
-
-    - script: |
-        echo ==================to build project==================
-        cd src/WeComLoad.Open.Blazor
-        npm install
-        echo ==================completed build==================
-      displayName: 'npm install and build'
-
-    - task: Docker@2
-      displayName: 'build docker image and push'
-      inputs:
-        containerRegistry: 'memoyu-docker'
-        repository: $(imageName)
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        buildContext: $(Build.Repository.LocalPath)
-        tags: 'latest'
-
-    - task: SSH@0
-      displayName: 'run wecom tool container'
-      inputs:
-        sshEndpoint: 'HuaweiCloud'
-        runOptions: 'inline'
-        inline: |
-          echo "================= to del container ===================="
-          # 判断是否存在容器
-          docker ps | grep $(containerName) &> /dev/null
-          # 如果不存在，则Remove
-          if [ $? -ne 0 ]
-          then
-              echo "$(containerName) container not exist continue.. "
-          else
-              echo "remove $(containerName) container"
-              docker kill $(containerName)
-              docker rm $(containerName)
-          fi
-
-          echo "================= to rm image ===================="
-          # 判断是否存在镜像
-          docker images | grep $(imageName) &> /dev/null
-          # 如果不存在，不做操作
-          if [ $? -ne 0 ]
-          then
-              echo "image does not exist , continue..."
-          else
-              echo "image exists !!! remove it"
-              docker rmi $(imageName)
-          fi
-
-          echo "================= to pull image ===================="
-          docker pull $(imageName)
-
-          echo "================= to run container ===================="
-          docker run --name $(containerName) -d -p 9004:80 $(imageName)
-
-          echo "================= publish success ===================="
+#    - task: NodeTool@0
+#      inputs:
+#        versionSpec: '16.x'
+#      displayName: 'Install Node.js'
+#
+#    - script: |
+#        echo ==================to build project==================
+#        cd src/WeComLoad.Open.Blazor
+#        npm install
+#        echo ==================completed build==================
+#      displayName: 'npm install and build'
+#
+#    - task: Docker@2
+#      displayName: 'build docker image and push'
+#      inputs:
+#        containerRegistry: 'memoyu-docker'
+#        repository: $(imageName)
+#        command: 'buildAndPush'
+#        Dockerfile: '**/Dockerfile'
+#        buildContext: $(Build.Repository.LocalPath)
+#        tags: 'latest'
+#
+#    - task: SSH@0
+#      displayName: 'run wecom tool container'
+#      inputs:
+#        sshEndpoint: 'HuaweiCloud'
+#        runOptions: 'inline'
+#        inline: |
+#          echo "================= to del container ===================="
+#          # 判断是否存在容器
+#          docker ps | grep $(containerName) &> /dev/null
+#          # 如果不存在，则Remove
+#          if [ $? -ne 0 ]
+#          then
+#              echo "$(containerName) container not exist continue.. "
+#          else
+#              echo "remove $(containerName) container"
+#              docker kill $(containerName)
+#              docker rm $(containerName)
+#          fi
+#
+#          echo "================= to rm image ===================="
+#          # 判断是否存在镜像
+#          docker images | grep $(imageName) &> /dev/null
+#          # 如果不存在，不做操作
+#          if [ $? -ne 0 ]
+#          then
+#              echo "image does not exist , continue..."
+#          else
+#              echo "image exists !!! remove it"
+#              docker rmi $(imageName)
+#          fi
+#
+#          echo "================= to pull image ===================="
+#          docker pull $(imageName)
+#
+#          echo "================= to run container ===================="
+#          docker run --name $(containerName) -d -p 9004:80 $(imageName)
+#
+#          echo "================= publish success ===================="
