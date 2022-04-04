@@ -93,4 +93,3 @@ stages:
           docker run --name $(containerName) -d -p 9004:80 $(imageName)
 
           echo "================= publish success ===================="
-        readyTimeout: '20000'
