@@ -21,7 +21,7 @@ export async function checkLoginState() {
             'Origin': 'https://open.work.weixin.qq.com',
             'referer': 'https://open.work.weixin.qq.com/',
         },
-        referrerPolicy: "strict-origin-when-cross-origin",
+        // referrerPolicy: "strict-origin-when-cross-origin",
         body: "{\"scene\":1,\"redirect_uri\":\"https://open.work.weixin.qq.com\"}",
         method: "POST"
     }).then(response => response.json())
@@ -55,7 +55,7 @@ export async function confirmLogin(key) {
             'Origin': 'https://open.work.weixin.qq.com',
             'referer': 'https://open.work.weixin.qq.com/',
         },
-        referrerPolicy: "strict-origin-when-cross-origin",
+        // referrerPolicy: "strict-origin-when-cross-origin",
         body: JSON.stringify(data),
         method: "POST"
     }).then(response => response.ok)
