@@ -37,9 +37,7 @@
 
 登录在改版后发生了改变，只需要一步即可获取完整带授权cookies信息
 
-![mind.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/mind.png)
-
-
+![mind.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/admin.flow.png)
 
 ### Open流程
 
@@ -64,8 +62,6 @@
 ### Admin 效果
 
 ![Effect.gif](https://github.com/Memoyu/WeComLoad/raw/master/doc/Effect.gif)
-
-
 
 ### Open效果
 
