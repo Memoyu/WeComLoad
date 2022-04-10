@@ -41,6 +41,8 @@
 
 **Open**
 
+![mind.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/open.flow.png)
+
 企微客户端4.0.3以上版本在启动后会开启50000 或 50001 或 50002端口的本地接口服务；
 
 1. 调用127.0.0.1:50000/checkLoginState，获取企微客户端信息及校验能否快速登陆；
