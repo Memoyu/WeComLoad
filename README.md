@@ -33,15 +33,15 @@
 
 ## How to achieve?
 
-### Admin实现
+### Admin流程
 
 登录在改版后发生了改变，只需要一步即可获取完整带授权cookies信息
 
 ![mind.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/mind.png)
 
-### 
 
-### Open实现
+
+### Open流程
 
 扫码登录与Admin流程类似，不同在于服务商可以快速登录，如下：
 
@@ -61,11 +61,13 @@
 
 ## Effect
 
-**Admin Demo**
+### Admin 效果
 
 ![Effect.gif](https://github.com/Memoyu/WeComLoad/raw/master/doc/Effect.gif)
 
-**Open Demo**
+
+
+### Open效果
 
 ![sp20220405_001606.png](https://github.com/Memoyu/WeComLoad/raw/master/doc/open.png)
 
