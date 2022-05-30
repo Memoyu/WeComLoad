@@ -13,7 +13,6 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.Configure<ProSettings>(Configuration.GetSection("ProSettings"));
 
 // 注册全局企微操作
-builder.Services.AddSingleton<IWeComAdmin, WeComAdminFunc>();
 builder.Services.AddScoped<IWeComAdminSvc, WeComAdminSvc>();
 
 var app = builder.Build();

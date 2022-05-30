@@ -16,6 +16,14 @@ public interface IWeComAdminSvc
     Task<WeComQrCodeScanStatus> GetQrCodeScanStatusAsync(string qrCodeKey);
 
     /// <summary>
+    /// 获取登录可选企业列表
+    /// </summary>
+    /// <param name="qrCodeKey">二维码coede</param>
+    /// <param name="authCode">授权码</param>
+    /// <returns></returns>
+    Task<WeComWxLoginCorps> GetWxLoginCorpsAsync(string qrCodeKey, string authCode);
+
+    /// <summary>
     /// 开始登录（凑齐Cookie）
     /// </summary>
     /// <param name="qrCodeKey">二维码Key</param>
@@ -23,4 +31,11 @@ public interface IWeComAdminSvc
     /// <returns>bool</returns>
     Task<bool> LoginAsync(string qrCodeKey, string authCode);
 
+    /// <summary>
+    /// 微信扫码登录
+    /// </summary>
+    /// <param name="tlKey">tlKey</param>
+    /// <param name="corpId">corpId</param>
+    /// <returns>0：登录失败， 1：登录成功，2：需要输入验证码</returns>
+    Task<int> WxLoginAsync(string tlKey, string corpId);
 }

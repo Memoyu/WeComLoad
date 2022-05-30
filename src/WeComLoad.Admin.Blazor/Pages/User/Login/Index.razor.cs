@@ -29,7 +29,7 @@ public partial class Index : IAsyncDisposable
     public IJSRuntime JS { get; set; }
 
     [Inject]
-    public IWeComAdmin WeComAdmin { get; set; }
+    public IWeComAdminSvc WeComAdmin { get; set; }
 
     [Inject]
     public MessageService MessageService { get; set; }

@@ -7,4 +7,6 @@ public class AddOpenApiAppRequest
     public string Desc { get; set; }
 
     public string LogoImage { get; set; }
+
+
 }

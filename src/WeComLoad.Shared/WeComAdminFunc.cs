@@ -4,29 +4,27 @@ namespace WeComLoad.Shared;
 
 public class WeComAdminFunc : IWeComAdmin
 {
-    private readonly WeComAdminWebReq _weCombReq;
-    private WeComBase<WeComCorpApp> _weComCorpApps = null;
-    private WeComBase<WeComCorpDept> _weComCorpDepts = null;
+    private readonly WeComAdminWebReq _weComReq;
 
     public WeComAdminFunc()
     {
-        _weCombReq = new WeComAdminWebReq();
+        _weComReq = new WeComAdminWebReq();
     }
 
-    public WeComAdminWebReq GetWeCombReq() => _weCombReq;
+    public WeComAdminWebReq GetWeCombReq() => _weComReq;
 
     public async Task<(string Url, string Key)> GetLoginQrCodeUrlAsync()
     {
-        var keyUrl = _weCombReq.GetQueryUrl("wework_admin/wwqrlogin/mng/get_key", new Dictionary<string, string>
+        var keyUrl = _weComReq.GetQueryUrl("wework_admin/wwqrlogin/mng/get_key", new Dictionary<string, string>
             {
-                { "r", _weCombReq.GetRandom() }
+                { "r", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestGetAsync(keyUrl);
-        if (!_weCombReq.IsResponseSucc(response)) return (null, null);
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeKey>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestGetAsync(keyUrl);
+        if (!_weComReq.IsResponseSucc(response)) return (null, null);
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeKey>>(_weComReq.GetResponseStr(response));
         if (model == null || string.IsNullOrWhiteSpace(model.Data.QrCodeKey)) throw new Exception("企微二维码Key为空");
         var key = model.Data.QrCodeKey;
-        var qrCodeUrl = _weCombReq.GetQueryUrl($"{_weCombReq.BaseUrl}wwqrlogin/mng/qrcode/{key}", new Dictionary<string, string>
+        var qrCodeUrl = _weComReq.GetQueryUrl($"{_weComReq.BaseUrl}wwqrlogin/mng/qrcode/{key}", new Dictionary<string, string>
             {
                 { "login_type", "login_admin" }
             });
@@ -36,13 +34,13 @@ public class WeComAdminFunc : IWeComAdmin
     public async Task<WeComQrCodeScanStatus> GetQrCodeScanStatusAsync(string qrCodeKey)
     {
         if (string.IsNullOrWhiteSpace(qrCodeKey)) throw new ArgumentNullException("企微登录二维码Key为空");
-        var url = _weCombReq.GetQueryUrl("wework_admin/wwqrlogin/check", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/wwqrlogin/check", new Dictionary<string, string>
             {
                 { "qrcode_key", qrCodeKey }, { "status", "" }
             });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeScanStatus>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        if (!_weComReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeScanStatus>>(_weComReq.GetResponseStr(response));
         return model?.Data;
     }
 
@@ -51,25 +49,25 @@ public class WeComAdminFunc : IWeComAdmin
         if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
 
         // 开始进行预登录
-        var url = _weCombReq.GetQueryUrl("wework_admin/loginpage_wx", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/loginpage_wx", new Dictionary<string, string>
             {
                { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
             });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseRedi(response)) return false;
-        var rediUrlData = _weCombReq.GetResponseStr(response);
+        var response = await _weComReq.HttpWebRequestGetAsync(url, true);
+        if (!_weComReq.IsResponseRedi(response)) return false;
+        var rediUrlData = _weComReq.GetResponseStr(response);
         if (string.IsNullOrWhiteSpace(rediUrlData)) return false;
-        url = _weCombReq.GetRedirectUrl(rediUrlData);
+        url = _weComReq.GetRedirectUrl(rediUrlData);
 
         // 手动重定向到url下，获取第一部分Cookie
-        response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseRedi(response)) return false;
-        rediUrlData = _weCombReq.GetResponseStr(response);
-        url = _weCombReq.GetRedirectUrl(rediUrlData);
+        response = await _weComReq.HttpWebRequestGetAsync(url, true);
+        if (!_weComReq.IsResponseRedi(response)) return false;
+        rediUrlData = _weComReq.GetResponseStr(response);
+        url = _weComReq.GetRedirectUrl(rediUrlData);
 
         // 手动重定向到url下，获取第二部分cookie，且为完整的Cookie
-        response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
+        response = await _weComReq.HttpWebRequestGetAsync(url, true);
+        if (!_weComReq.IsResponseSucc(response)) return false;
 
         return true;
     }
@@ -80,20 +78,20 @@ public class WeComAdminFunc : IWeComAdmin
         if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
 
         // 开始进行预登录
-        var url = _weCombReq.GetQueryUrl("wework_admin/loginpage_wx", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/loginpage_wx", new Dictionary<string, string>
             {
                { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
             });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseRedi(response)) return dto;
-        var rediUrlData = _weCombReq.GetResponseStr(response);
+        var response = await _weComReq.HttpWebRequestGetAsync(url, true);
+        if (!_weComReq.IsResponseRedi(response)) return dto;
+        var rediUrlData = _weComReq.GetResponseStr(response);
         if (string.IsNullOrWhiteSpace(rediUrlData)) return dto;
-        url = _weCombReq.GetRedirectUrl(rediUrlData);
+        url = _weComReq.GetRedirectUrl(rediUrlData);
 
         // 手动重定向到选择企业页面
-        response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseSucc(response)) return dto;
-        var html = _weCombReq.GetResponseStr(response);
+        response = await _weComReq.HttpWebRequestGetAsync(url, true);
+        if (!_weComReq.IsResponseSucc(response)) return dto;
+        var html = _weComReq.GetResponseStr(response);
 
         // 解析html页面企业数据
         var htmlDoc = new HtmlDocument();
@@ -112,7 +110,7 @@ public class WeComAdminFunc : IWeComAdmin
         return dto;
     }
 
-    public async Task<bool> WxLoginAsync(string tlKey, string corpId)
+    public async Task<string> WxLoginAsync(string tlKey, string corpId)
     {
         if (string.IsNullOrWhiteSpace(tlKey) || string.IsNullOrWhiteSpace(corpId)) throw new ArgumentNullException("企微登录必要参数为空");
 
@@ -120,126 +118,86 @@ public class WeComAdminFunc : IWeComAdmin
                 {
                     ("tl_key", tlKey), ("corp_id", corpId)
                 };
-        var url = _weCombReq.GetQueryUrl("wework_admin/login/choose_corp/login", new Dictionary<string, string> { });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic, true);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
-        var login = _weCombReq.GetResponseStr(response);
-        response = await _weCombReq.HttpWebRequestGetAsync("wework_admin/frame", true);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
-        return true;
+        var url = _weComReq.GetQueryUrl("wework_admin/login/choose_corp/login", new Dictionary<string, string> { });
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
+        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
+        return _weComReq.GetResponseStr(response);
     }
 
-    public async Task<WeComBase<WeComCorpApp>> GetCorpAppAsync(bool isReLoad = false)
+    public async Task<bool> WxLoginAfterAsync()
     {
-        if (_weComCorpApps == null || isReLoad)
-        {
-            var dic = new List<(string, string)>()
+        var response = await _weComReq.HttpWebRequestGetAsync("wework_admin/frame", true);
+        return _weComReq.IsResponseSucc(response);
+    }
+
+    public async Task<string> GetCorpAppAsync()
+    {
+
+        var dic = new List<(string, string)>()
                 {
-                    ("_d2st", _weCombReq.GetD2st()), ("app_type", "0")
+                    ("_d2st", _weComReq.GetD2st()), ("app_type", "0")
                 };
-            var url = _weCombReq.GetQueryUrl("wework_admin/getCorpApplication", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/getCorpApplication", new Dictionary<string, string>
                 {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
                 });
-            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-            if (!_weCombReq.IsResponseSucc(response)) return null;
-            var model = JsonConvert.DeserializeObject<WeComBase<WeComCorpApp>>(_weCombReq.GetResponseStr(response));
-            _weComCorpApps = model;
-            return model;
-        }
-
-        return _weComCorpApps;
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        return GetResponseStr(response);
     }
 
-    public async Task<WeComBase<WeComOpenapiApp>> GetCorpOpenAppAsync(string appOpenId)
+    public async Task<string> GetCorpOpenAppAsync(string appOpenId)
     {
 
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/getOpenApiApp", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/getOpenApiApp", new Dictionary<string, string>
                 {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() },
-                    { "app_open_id", appOpenId }, { "notperm", "true" }, { "_d2st", _weCombReq.GetD2st() }
+                    { "lang", "zh_CN" }, { "f", "json" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() },
+                    { "app_open_id", appOpenId }, { "notperm", "true" }, { "_d2st", _weComReq.GetD2st() }
                 });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComOpenapiApp>>(_weCombReq.GetResponseStr(response));
-        return model;
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        return GetResponseStr(response);
     }
 
-    public async Task<WeComBase<WeComCorpDept>> GetCorpDeptAsync(bool isReLoad = false)
+    public async Task<string> GetCorpDeptAsync()
     {
-        if (_weComCorpDepts == null || isReLoad)
-        {
-            var dic = new List<(string, string)>
-                {
-                    ("_d2st", _weCombReq.GetD2st())
-                };
-            var url = _weCombReq.GetQueryUrl("wework_admin/contacts/party/cache", new Dictionary<string, string>
-                {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
-                });
-            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-            if (!_weCombReq.IsResponseSucc(response)) return null;
-            var model = JsonConvert.DeserializeObject<WeComBase<WeComCorpDept>>(_weCombReq.GetResponseStr(response));
-            _weComCorpDepts = model;
-            return model;
-        }
-
-        return _weComCorpDepts;
-    }
-
-    public async Task<bool> SendExtContactAndUserSecretAsync()
-    {
-        // 1、获取应用列表
-        var model = await GetCorpAppAsync();
-
-        // 获取客户联系、通讯录appid (app_open_id为固定值，2000002：通讯录同步助手，2000003：外部联系人)
-        var appids = model.Data.OpenapiApps.Where(m => m.AppOpenId == 2000002 || m.AppOpenId == 2000003).Select(a => a.AppId).ToList();
-        foreach (var id in appids)
-        {
-            var dic = new List<(string, string)>
-                {
-                  ("appid", id), ("business_type", "1"), ("app_type", "1"), ("_d2st", _weCombReq.GetD2st())
-                };
-            var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
-                {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
-                });
-            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        }
-
-        return true;
-    }
-
-    public async Task<WeComOpenapiApp> AddOpenApiAppAsync(AddOpenApiAppRequest req)
-    {
-        var appModel = await GetCorpAppAsync(true);
-        var agent = appModel.Data.OpenapiApps.FirstOrDefault(a => a.Name.Equals(req.Name));
-        if (agent != null) return agent;
-
-        var deptModel = await GetCorpDeptAsync();
-        var dept = deptModel.Data.Partys.List.Where(p => p.OpenapiPartyid.Equals("1")).FirstOrDefault();
-        if (dept == null) throw new Exception("获取根部门异常");
-
-        var visible_pid = dept.Partyid;
         var dic = new List<(string, string)>
+                {
+                    ("_d2st", _weComReq.GetD2st())
+                };
+        var url = _weComReq.GetQueryUrl("wework_admin/contacts/party/cache", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
+                });
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> SendSecretAsync(string appId)
+    {
+        var dic = new List<(string, string)>
+                {
+                  ("appid", appId), ("business_type", "1"), ("app_type", "1"), ("_d2st", _weComReq.GetD2st())
+                };
+        var url = _weComReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
+                });
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> AddOpenApiAppAsync(List<string> pids)
+    {
+        var dic = new List<(string, string)>();
+        foreach (var pid in pids)
+        {
+            dic.Add(("visible_pid[]", pid));
+        }
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/addOpenApiApp", new Dictionary<string, string>
             {
-                ("name", req.Name),
-                ("description", req.Desc),
-                ("english_name", ""),
-                ("english_description", ""),
-                ("app_open", "true"),
-                ("logoimage", req.LogoImage),
-                ("visible_pid[]", visible_pid),
-                ("_d2st", _weCombReq.GetD2st())
-            };
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/addOpenApiApp", new Dictionary<string, string>
-            {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComOpenapiApp>>(_weCombReq.GetResponseStr(response));
-        return model.Data;
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        return GetResponseStr(response);
     }
 
     public async Task<bool> AddChatMenuAsync(List<AddChatMenuRequest> menus, WeComOpenapiApp agent)
@@ -262,44 +220,44 @@ public class WeComAdminFunc : IWeComAdmin
                     ("banner_list[0][name]", item.MenuName),
                     ("banner_list[0][item_name]", item.MenuName),
                     ("banner_list[0][item_info]", item.MenuUrl),
-                    ("_d2st", _weCombReq.GetD2st())
+                    ("_d2st", _weComReq.GetD2st())
                 };
-            var url = _weCombReq.GetQueryUrl("wework_admin/customer/addChatMenu", new Dictionary<string, string>
+            var url = _weComReq.GetQueryUrl("wework_admin/customer/addChatMenu", new Dictionary<string, string>
                 {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
                 });
-            var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-            if (!_weCombReq.IsResponseSucc(response)) flag = false;
+            var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+            if (!_weComReq.IsResponseSucc(response)) flag = false;
         }
 
         return flag;
     }
 
-    public async Task<WeComSaveOpenApiApp> SaveOpenApiAppAsync(List<(string Key, string Value)> req)
+    public async Task<string> SaveOpenApiAppAsync(List<(string Key, string Value)> req)
     {
-        req.Add(new("_d2st", _weCombReq.GetD2st()));
+        req.Add(new("_d2st", _weComReq.GetD2st()));
 
         // wework_admin/apps/saveOpenApiApp?lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.6716191463354881
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, req);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComSaveOpenApiApp>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestPostAsync(url, req);
+        if (!_weComReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComSaveOpenApiApp>>(_weComReq.GetResponseStr(response));
         return model.Data;
     }
 
     public async Task<List<string>> GetApiAccessibleApps(string businessId)
     {
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/getApiAccessibleApps", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/getApiAccessibleApps", new Dictionary<string, string>
                 {
                     { "lang", "zh_CN" }, { "f", "json" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" },
-                    { "random", _weCombReq.GetRandom() }, { "businessId", businessId }, { "_d2st", _weCombReq.GetD2st() }
+                    { "random", _weComReq.GetRandom() }, { "businessId", businessId }, { "_d2st", _weComReq.GetD2st() }
                 });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComGetApiAccessibleApps>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        if (!_weComReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComGetApiAccessibleApps>>(_weComReq.GetResponseStr(response));
         return model.Data.Auths.AppIds;
     }
 
@@ -310,32 +268,32 @@ public class WeComAdminFunc : IWeComAdmin
                 ("appid", appId),
                 ("business_type", "3"),
                 ("app_type", "1"),
-                ("_d2st", _weCombReq.GetD2st())
+                ("_d2st", _weComReq.GetD2st())
             };
-        var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/two_factor_auth_operation/create", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComCreateTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        if (!_weComReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComCreateTwoFactorAuthOp>>(_weComReq.GetResponseStr(response));
         return model?.Data?.Key;
     }
 
     public async Task<int> QueryTwoFactorAuthOpAsync(string key)
     {
-        var url = _weCombReq.GetQueryUrl("wework_admin/two_factor_auth_operation/query", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/two_factor_auth_operation/query", new Dictionary<string, string>
             {
                 { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "key",key },
-                { "random", _weCombReq.GetRandom() }
+                { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return 0;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComQueryTwoFactorAuthOp>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        if (!_weComReq.IsResponseSucc(response)) return 0;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComQueryTwoFactorAuthOp>>(_weComReq.GetResponseStr(response));
         return model?.Data?.Status ?? 0;
     }
 
-    public async Task<WeComConfigCallback> ConfigContactCallbackAsync(ConfigCallbackRequest req)
+    public async Task<string> ConfigContactCallbackAsync(ConfigCallbackRequest req)
     {
         var dic = new List<(string, string)>
             {
@@ -348,19 +306,19 @@ public class WeComAdminFunc : IWeComAdmin
                ("report_loc_flag", "0"),
                ("is_report_enter", "false"),
                ("report_approval_event", "false"),
-               ("_d2st", _weCombReq.GetD2st())
+               ("_d2st", _weComReq.GetD2st())
             };
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComConfigCallback>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        if (!_weComReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComConfigCallback>(_weComReq.GetResponseStr(response));
         return model;
     }
 
-    public async Task<WeComConfigCallback> ConfigExtContactCallbackAsync(ConfigCallbackRequest req)
+    public async Task<string> ConfigExtContactCallbackAsync(ConfigCallbackRequest req)
     {
         var dic = new List<(string, string)>
             {
@@ -369,15 +327,15 @@ public class WeComAdminFunc : IWeComAdmin
                ("callback_aeskey", req.AesKey),
                ("app_id", req.Appid),
                ("callback_host", req.HostUrl),
-               ("_d2st", _weCombReq.GetD2st())
+               ("_d2st", _weComReq.GetD2st())
             };
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/saveOpenApiApp", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComConfigCallback>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        if (!_weComReq.IsResponseSucc(response)) return null;
+        var model = JsonConvert.DeserializeObject<WeComConfigCallback>(_weComReq.GetResponseStr(response));
         return model;
     }
 
@@ -390,7 +348,7 @@ public class WeComAdminFunc : IWeComAdmin
         var dic = new List<(string, string)>
             {
                 ("businessId", businessId),
-                ("_d2st", _weCombReq.GetD2st())
+                ("_d2st", _weComReq.GetD2st())
             };
         req.AccessibleApps = req.AccessibleApps.Distinct().ToList();
         foreach (var item in req.AccessibleApps)
@@ -399,29 +357,29 @@ public class WeComAdminFunc : IWeComAdmin
         }
 
         // wework_admin/apps/saveOpenApiApp?lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.6716191463354881
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/setApiAccessibleApps", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/setApiAccessibleApps", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComSaveOpenApiApp>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        if (!_weComReq.IsResponseSucc(response)) return false;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComSaveOpenApiApp>>(_weComReq.GetResponseStr(response));
         return true;
     }
 
     public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync()
     {
         // 获取可新域名校验文件名
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/getDomainOwnershipVerifyInfo", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/getDomainOwnershipVerifyInfo", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }, { "_d2st", _weCombReq.GetD2st() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }, { "_d2st", _weComReq.GetD2st() }
             });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return (null, null);
-        var model = JsonConvert.DeserializeObject<WeComDomainVerifyFileName>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        if (!_weComReq.IsResponseSucc(response)) return (null, null);
+        var model = JsonConvert.DeserializeObject<WeComDomainVerifyFileName>(_weComReq.GetResponseStr(response));
 
         // 地址写死： https://work.weixin.qq.com/wework_admin/apps/getDomainOwnershipVerifyInfo?action=download
-        var file = await _weCombReq.HttpWebRequestDownloadsync("wework_admin/apps/getDomainOwnershipVerifyInfo?action=download");
+        var file = await _weComReq.HttpWebRequestDownloadsync("wework_admin/apps/getDomainOwnershipVerifyInfo?action=download");
         return (model.FileName, file);
     }
 
@@ -429,14 +387,14 @@ public class WeComAdminFunc : IWeComAdmin
     {
         // wework_admin/apps/checkCustomAppURL?
         // lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.8351865053727201&url=devscrmh5.lianou.tech&appid=5629502294442019&type=redirect_domain&_d2st=a3652781
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/checkCustomAppURL", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/checkCustomAppURL", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() },
-                { "url", domian }, { "appid", appid }, { "type", "redirect_domain" }, { "_d2st", _weCombReq.GetD2st() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() },
+                { "url", domian }, { "appid", appid }, { "type", "redirect_domain" }, { "_d2st", _weComReq.GetD2st() }
             });
-        var response = await _weCombReq.HttpWebRequestGetAsync(url);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComCheckCustomAppURLDomain>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        if (!_weComReq.IsResponseSucc(response)) return false;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComCheckCustomAppURLDomain>>(_weComReq.GetResponseStr(response));
         var result = model.Data.Status;
         return result.Equals("PASS");
     }
@@ -445,17 +403,17 @@ public class WeComAdminFunc : IWeComAdmin
     {
         var dic = new List<(string, string)>
             {
-                ("xcxDomains[]", domian), ("_d2st", _weCombReq.GetD2st())
+                ("xcxDomains[]", domian), ("_d2st", _weComReq.GetD2st())
             };
 
         // https://work.weixin.qq.com/wework_admin/apps/checkXcxDomains?lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.9542216877814127
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/checkXcxDomains", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/checkXcxDomains", new Dictionary<string, string>
             {
-                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
             });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComCheckXcxDomain>>(_weCombReq.GetResponseStr(response));
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        if (!_weComReq.IsResponseSucc(response)) return false;
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComCheckXcxDomain>>(_weComReq.GetResponseStr(response));
         var result = model.Data.Result.FirstOrDefault();
         if (result == null) return false;
         return result.Status;
@@ -570,18 +528,29 @@ public class WeComAdminFunc : IWeComAdmin
                     ("app_privilege[6][sub_app_privilege][1][b_check]", "false"),
                     ("app_privilege[6][sub_app_privilege][1][sub_app_privilege][0][val]", "210001"),
                     ("app_privilege[6][sub_app_privilege][1][sub_app_privilege][0][b_check]", "false"),
-                    ("_d2st", _weCombReq.GetD2st())
+                    ("_d2st", _weComReq.GetD2st())
                 };
-        var url = _weCombReq.GetQueryUrl("wework_admin/apps/custom/perm/setCustomizedAppPrivilege", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wework_admin/apps/custom/perm/setCustomizedAppPrivilege", new Dictionary<string, string>
                 {
-                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weCombReq.GetRandom() }
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "timeZoneInfo%5Bzone_offset%5D", "-8" }, { "random", _weComReq.GetRandom() }
                 });
-        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic);
-        if (!_weCombReq.IsResponseSucc(response)) return false;
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic);
+        if (!_weComReq.IsResponseSucc(response)) return false;
 
-        var model = JsonConvert.DeserializeObject<WeComBase<object>>(_weCombReq.GetResponseStr(response));
+        var model = JsonConvert.DeserializeObject<WeComBase<object>>(_weComReq.GetResponseStr(response));
         if (model == null) return false;
         return true;
+    }
+
+    private string GetResponseStr(HttpWebResponse response)
+    {
+        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
+        Stream responseStream = response.GetResponseStream();
+        StreamReader sr = new StreamReader(responseStream);
+        var responseStr = sr.ReadToEnd();
+        response.Close();
+        responseStream.Close();
+        return responseStr;
     }
 
     private string GetQueryString(string name, string url)
