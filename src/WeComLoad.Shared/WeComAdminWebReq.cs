@@ -35,7 +35,7 @@ public class WeComAdminWebReq
             HttpWebResponse response = null;
             if (isUseBaseUrl)
                 url = $"{_weWorkBaseUrl}{url}";
-           
+
             request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "GET";
             BuildRequest(request, isSetCookie);
@@ -61,7 +61,7 @@ public class WeComAdminWebReq
         }
     }
 
-    public async Task<HttpWebResponse> HttpWebRequestPostAsync(string url, List<(string Key, string Value)> formData, bool isUseBaseUrl = true)
+    public async Task<HttpWebResponse> HttpWebRequestPostAsync(string url, List<(string Key, string Value)> formData, bool isSetCookie = false, bool isUseBaseUrl = true)
     {
         try
         {
@@ -71,7 +71,7 @@ public class WeComAdminWebReq
             if (isUseBaseUrl)
                 url = $"{_weWorkBaseUrl}{url}";
             request = (HttpWebRequest)WebRequest.Create(url);
-            BuildRequest(request);
+            BuildRequest(request, isSetCookie);
             request.Method = "POST";
             var datas = new List<string>();
             foreach (var item in formData)
@@ -94,6 +94,8 @@ public class WeComAdminWebReq
             }
 
             response = (HttpWebResponse)await request.GetResponseAsync();
+            if (isSetCookie)
+                SetCookies(request);
             return response;
         }
         catch (WebException ex)
@@ -106,7 +108,7 @@ public class WeComAdminWebReq
         }
     }
 
-    public async Task<HttpWebResponse> HttpWebRequestPostJsonAsync(string url,string content, bool isUseBaseUrl = true)
+    public async Task<HttpWebResponse> HttpWebRequestPostJsonAsync(string url, string content, bool isUseBaseUrl = true)
     {
         try
         {

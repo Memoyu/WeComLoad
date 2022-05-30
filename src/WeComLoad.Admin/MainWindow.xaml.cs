@@ -186,8 +186,8 @@ public partial class MainWindow : Window
                         break;
                     }
 
-                    var corpId = await _weComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
-                    if (string.IsNullOrWhiteSpace(corpId))
+                    var flag = await _weComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
+                    if (flag)
                     {
                         statusCode = 5;
                         statusMsg = "登录失败";
@@ -195,7 +195,7 @@ public partial class MainWindow : Window
                     }
 
                     statusCode = 6;
-                    statusMsg = $"登录成功, CorpId：{corpId}";
+                    statusMsg = $"登录成功";
 
                     break;
                 case "QRCODE_SCAN_FAIL":

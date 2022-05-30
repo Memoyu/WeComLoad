@@ -22,7 +22,23 @@ public interface IWeComAdmin
     /// <param name="qrCodeKey">二维码Key</param>
     /// <param name="authCode">授权登录码</param>
     /// <returns>string</returns>
-    Task<string> LoginAsync(string qrCodeKey, string authCode);
+    Task<bool> LoginAsync(string qrCodeKey, string authCode);
+
+    /// <summary>
+    /// 获取可选企业列表
+    /// </summary>
+    /// <param name="qrCodeKey">二维码coede</param>
+    /// <param name="authCode">授权码</param>
+    /// <returns></returns>
+    Task<WeComWxLoginCorps> GetWxLoginCorpsAsync(string qrCodeKey, string authCode);
+
+    /// <summary>
+    /// 微信扫码登录
+    /// </summary>
+    /// <param name="tlKey">tlKey</param>
+    /// <param name="corpId">corpId</param>
+    /// <returns></returns>
+    Task<bool> WxLoginAsync(string tlKey, string corpId);
 
     /// <summary>
     /// 获取企业应用列表

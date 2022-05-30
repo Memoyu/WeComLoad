@@ -1,0 +1,64 @@
+﻿@namespace WeComLoad.Admin.Blazor
+@inherits LayoutComponentBase
+@inject IWeComAdminSvc WeComOpenSvc
+@inject MessageService MessageService
+@inject NavigationManager NavigationManager
+
+
+<AntDesign.ProLayout.BasicLayout Logo="@("./resources/images/logo.png")"
+                                 MenuData="_menuData">
+    <RightContentRender>
+        <Space Size="@("24")">
+            <SpaceItem>
+               <Button Type="@ButtonType.Link" OnClick="SignOut" >退出登录</Button>
+            </SpaceItem>
+        </Space>
+
+    </RightContentRender>
+    <ChildContent>
+        @Body
+    </ChildContent>
+</AntDesign.ProLayout.BasicLayout>
+
+@code
+{
+    private readonly MenuDataItem[] _menuData =
+    {
+        new MenuDataItem
+        {
+            Path = "/",
+            Name = "首页",
+            Key = "welcome",
+            Icon = "smile",
+        },
+        new MenuDataItem
+        {
+            Path = "/custapp",
+            Name = "代开发自建应用管理",
+            Key = "customize-app",
+            Icon = "apartment",
+        },
+        new MenuDataItem
+        {
+            Path = "/setting",
+            Name = "设置",
+            Key = "setting",
+            Icon = "setting",
+            Children = new  MenuDataItem[]
+            {
+                new MenuDataItem
+                {
+                    Path = "/setting/custapp",
+                    Name = "代开发自建应用配置",
+                    Key = "setting.custapp",
+                }
+            }
+        }
+    };
+
+    private void SignOut()
+    {
+        NavigationManager.NavigateTo("/login");
+        _ = MessageService.Success("退出登录成功");
+    }
+}

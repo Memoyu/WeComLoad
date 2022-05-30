@@ -1,4 +1,6 @@
-﻿namespace WeComLoad.Shared;
+﻿using HtmlAgilityPack;
+
+namespace WeComLoad.Shared;
 
 public class WeComAdminFunc : IWeComAdmin
 {
@@ -44,7 +46,7 @@ public class WeComAdminFunc : IWeComAdmin
         return model?.Data;
     }
 
-    public async Task<string> LoginAsync(string qrCodeKey, string authCode)
+    public async Task<bool> LoginAsync(string qrCodeKey, string authCode)
     {
         if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
 
@@ -54,28 +56,77 @@ public class WeComAdminFunc : IWeComAdmin
                { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
             });
         var response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseRedi(response)) return null;
+        if (!_weCombReq.IsResponseRedi(response)) return false;
         var rediUrlData = _weCombReq.GetResponseStr(response);
-        if (string.IsNullOrWhiteSpace(rediUrlData)) return null;
+        if (string.IsNullOrWhiteSpace(rediUrlData)) return false;
         url = _weCombReq.GetRedirectUrl(rediUrlData);
 
         // 手动重定向到url下，获取第一部分Cookie
         response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseRedi(response)) return null;
+        if (!_weCombReq.IsResponseRedi(response)) return false;
         rediUrlData = _weCombReq.GetResponseStr(response);
         url = _weCombReq.GetRedirectUrl(rediUrlData);
 
         // 手动重定向到url下，获取第二部分cookie，且为完整的Cookie
         response = await _weCombReq.HttpWebRequestGetAsync(url, true);
-        if (!_weCombReq.IsResponseSucc(response)) return null;
+        if (!_weCombReq.IsResponseSucc(response)) return false;
 
-        // 获取响应页面信息，正则获取CorpID
-        var frame = _weCombReq.GetResponseStr(response);
-        var rep = frame.Replace("\\", "");
-        string pattern = "(?<=encode_corp_id\\\":\\\").*?(?=\\\",)";
-        var match = Regex.Matches(rep, pattern);
-        var corpId = match.FirstOrDefault()?.Value;
-        return corpId;
+        return true;
+    }
+
+    public async Task<WeComWxLoginCorps> GetWxLoginCorpsAsync(string qrCodeKey, string authCode)
+    {
+        var dto = new WeComWxLoginCorps();
+        if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
+
+        // 开始进行预登录
+        var url = _weCombReq.GetQueryUrl("wework_admin/loginpage_wx", new Dictionary<string, string>
+            {
+               { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
+            });
+        var response = await _weCombReq.HttpWebRequestGetAsync(url, true);
+        if (!_weCombReq.IsResponseRedi(response)) return dto;
+        var rediUrlData = _weCombReq.GetResponseStr(response);
+        if (string.IsNullOrWhiteSpace(rediUrlData)) return dto;
+        url = _weCombReq.GetRedirectUrl(rediUrlData);
+
+        // 手动重定向到选择企业页面
+        response = await _weCombReq.HttpWebRequestGetAsync(url, true);
+        if (!_weCombReq.IsResponseSucc(response)) return dto;
+        var html = _weCombReq.GetResponseStr(response);
+
+        // 解析html页面企业数据
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.LoadHtml(html);
+        var list = htmlDoc.DocumentNode.SelectNodes("//li[@class='login_selectBiz_item']/a").Select(e =>
+        {
+            var corp = new LoginCorp
+            {
+                CorpId = e.GetAttributeValue("data-id", ""),
+                CorpName = e.GetAttributeValue("data-corpname", "")
+            };
+            return corp;
+        }).ToList();
+        dto.Corps = list;
+        dto.TlKey = GetQueryString("tl_key", url);
+        return dto;
+    }
+
+    public async Task<bool> WxLoginAsync(string tlKey, string corpId)
+    {
+        if (string.IsNullOrWhiteSpace(tlKey) || string.IsNullOrWhiteSpace(corpId)) throw new ArgumentNullException("企微登录必要参数为空");
+
+        var dic = new List<(string, string)>()
+                {
+                    ("tl_key", tlKey), ("corp_id", corpId)
+                };
+        var url = _weCombReq.GetQueryUrl("wework_admin/login/choose_corp/login", new Dictionary<string, string> { });
+        var response = await _weCombReq.HttpWebRequestPostAsync(url, dic, true);
+        if (!_weCombReq.IsResponseSucc(response)) return false;
+        var login = _weCombReq.GetResponseStr(response);
+        response = await _weCombReq.HttpWebRequestGetAsync("wework_admin/frame", true);
+        if (!_weCombReq.IsResponseSucc(response)) return false;
+        return true;
     }
 
     public async Task<WeComBase<WeComCorpApp>> GetCorpAppAsync(bool isReLoad = false)
@@ -531,5 +582,19 @@ public class WeComAdminFunc : IWeComAdmin
         var model = JsonConvert.DeserializeObject<WeComBase<object>>(_weCombReq.GetResponseStr(response));
         if (model == null) return false;
         return true;
+    }
+
+    private string GetQueryString(string name, string url)
+    {
+        Regex re = new Regex(@"(^|&)?(\w+)=([^&]+)(&|$)?", RegexOptions.Compiled);
+        MatchCollection mc = re.Matches(url);
+        foreach (Match m in mc)
+        {
+            if (m.Result("$2").Equals(name))
+            {
+                return m.Result("$3");
+            }
+        }
+        return "";
     }
 }

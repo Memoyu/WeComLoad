@@ -1,0 +1,12 @@
+﻿@page "/"
+
+<PageContainer Title="欢迎">
+    <h3 style="text-align: center; margin-top: 24px;">
+        企微工具
+    </h3>
+    <Button OnClick="GetCorpDeptsAsync">获取企业部门</Button>
+    <div>
+        <div>请求结果</div>
+        @depts
+    </div>
+</PageContainer>

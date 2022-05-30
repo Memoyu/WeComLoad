@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeComLoad.Open", "src\WeCom
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeComLoad.Open.Blazor", "src\WeComLoad.Open.Blazor\WeComLoad.Open.Blazor.csproj", "{173468EF-2671-4D01-B18E-4DB97D5004F2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeComLoad.Admin.Blazor", "src\WeComLoad.Admin.Blazor\WeComLoad.Admin.Blazor.csproj", "{E1933E53-41CB-4284-A977-29AACE611D3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{173468EF-2671-4D01-B18E-4DB97D5004F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{173468EF-2671-4D01-B18E-4DB97D5004F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{173468EF-2671-4D01-B18E-4DB97D5004F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1933E53-41CB-4284-A977-29AACE611D3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1933E53-41CB-4284-A977-29AACE611D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1933E53-41CB-4284-A977-29AACE611D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1933E53-41CB-4284-A977-29AACE611D3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,36 @@
+﻿@layout UserLayout
+@page "/login"
+
+<div class="login_container">
+    <div class="login">
+
+        <div class="top">
+            <div class="desc">请使用企业微信扫码</div>
+        </div>
+        <Card Style="min-width: 400px;">
+            <div class="qrcode">
+                <img src="@qrCode" alt="qrcode" />
+            </div>
+            <Button Type="@ButtonType.Link" Size="large" Block OnClick="GetLoginAndShowQrCodeAsync" Disabled="@canRefresh">刷新</Button>
+
+            <div class="hint">@loginHint</div>
+        </Card>
+
+        <Modal Title="选择已有企业"
+               MaskClosable="false"
+               Visible="@modalVisible"
+               OnOk="@ModalHandleOk"
+               OnCancel="@ModalHandleCancel">
+
+            <div>
+                <RadioGroup @bind-Value="@selectedCorpId">
+                    @foreach (var corp in corps)
+                    {
+                         <Radio Value="@corp.CorpId" >@corp.CorpName</Radio>
+                    }
+                </RadioGroup>
+            </div>
+
+        </Modal>
+    </div>
+</div>
