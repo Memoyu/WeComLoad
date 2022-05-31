@@ -2,15 +2,17 @@
 
 public class WeComAdminSvc : IWeComAdminSvc
 {
+
     private readonly IWeComAdmin _weComAdmin;
     private readonly NavigationManager _navigationManager;
     private readonly MessageService _messageService;
 
     public WeComAdminSvc(
+        IWeComAdmin weComAdmin,
         NavigationManager navigationManager,
         MessageService messageService)
     {
-        _weComAdmin = new WeComAdminFunc();
+        _weComAdmin = weComAdmin;
         _navigationManager = navigationManager;
         _messageService = messageService;
     }
@@ -47,7 +49,6 @@ public class WeComAdminSvc : IWeComAdminSvc
     }
 
     #endregion
-
 
     public async Task<WeComCorpApp> GetCorpAppAsync()
     {

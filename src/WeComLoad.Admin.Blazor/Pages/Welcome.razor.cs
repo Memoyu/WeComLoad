@@ -5,11 +5,11 @@ public partial class Welcome
     private string depts = string.Empty;
 
     [Inject]
-    public IWeComAdmin WeComAdmin { get; set; }
+    public IWeComAdminSvc WeComAdminSvc { get; set; }
 
     private async Task GetCorpDeptsAsync()
     {
-        var model = await WeComAdmin.GetCorpDeptAsync();
+        var model = await WeComAdminSvc.GetCorpDeptAsync();
         depts = JsonConvert.SerializeObject(model);
     }
 }
