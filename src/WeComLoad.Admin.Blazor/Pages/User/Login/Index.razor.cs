@@ -109,7 +109,7 @@ public partial class Index : IAsyncDisposable
     private async Task ModalHandleOk(MouseEventArgs e)
     {
        var flag = await WeComAdmin.WxLoginAsync(tlKey, selectedCorpId);
-        if (flag)
+        if (flag == 1)
         {
             modalVisible = false;
             NavigationManager.NavigateTo("/");

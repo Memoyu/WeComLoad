@@ -102,29 +102,104 @@ public class WeComAdminSvc : IWeComAdminSvc
         return parse.Data;
     }
 
-    public async Task<bool> AddChatMenuAsync(List<AddChatMenuRequest> menus, WeComOpenapiApp agent)
-    { 
-
+    public async Task<(bool flag, string msg)> AddChatMenuAsync(List<AddChatMenuRequest> menus, WeComOpenapiApp agent)
+    {
+        var flag = true;
+        var msg = string.Empty;
+        foreach (var item in menus)
+        {
+            var result = await _weComAdmin.AddChatMenuAsync(item, agent);
+            var parse = IsSuccessT<object>(result);
+            if (parse.Data == null)
+            {
+                msg += $"{item.MenuName} 添加失败";
+                flag = false;
+            }
+        }
+        return (flag, msg);
     }
 
-    public async Task<List<string>> GetApiAccessibleApps(string businessId)
-    { }
+    public async Task<bool> SaveOpenApiAppAsync(List<(string Key, string Value)> req)
+    {
+        var result = await _weComAdmin.SaveOpenApiAppAsync(req);
+        var parse = IsSuccessT<object>(result);
+        return parse.Data != null;
+    }
 
-    public async Task<string> CreateTwoFactorAuthOpAsync(string appId) { }
-    public async Task<int> QueryTwoFactorAuthOpAsync(string key) { }
+    public async Task<WeComCreateTwoFactorAuthOp> CreateTwoFactorAuthOpAsync(string appId)
+    {
+        var result = await _weComAdmin.CreateTwoFactorAuthOpAsync(appId);
+        var parse = IsSuccessT<WeComCreateTwoFactorAuthOp>(result);
+        return parse.Data;
+    }
 
-    public async Task<WeComConfigCallback> ConfigContactCallbackAsync(ConfigCallbackRequest req) { }
+    public async Task<WeComQueryTwoFactorAuthOp> QueryTwoFactorAuthOpAsync(string key)
+    {
+        var result = await _weComAdmin.QueryTwoFactorAuthOpAsync(key);
+        var parse = IsSuccessT<WeComQueryTwoFactorAuthOp>(result);
+        return parse.Data;
+    }
 
-    public async Task<WeComConfigCallback> ConfigExtContactCallbackAsync(ConfigCallbackRequest req) { }
+    public async Task<WeComConfigCallback> ConfigContactCallbackAsync(ConfigCallbackRequest req)
+    {
+        var result = await _weComAdmin.ConfigContactCallbackAsync(req);
+        var parse = IsSuccessT<WeComConfigCallback>(result);
+        return parse.Data;
+    }
 
-    public async Task<bool> SetApiAccessibleAppsAsync(SetApiAccessibleAppsRequest req) { }
-    public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync() { }
+    public async Task<WeComConfigCallback> ConfigExtContactCallbackAsync(ConfigCallbackRequest req)
+    {
+        var result = await _weComAdmin.ConfigExtContactCallbackAsync(req);
+        var parse = IsSuccessT<WeComConfigCallback>(result);
+        return parse.Data;
+    }
 
-    public async Task<bool> CheckCustomAppURLAsync(string appid, string domian) { }
+    public async Task<WeComGetApiAccessibleApps> GetApiAccessibleAppsAsync(string businessId)
+    {
+        var result = await _weComAdmin.GetApiAccessibleAppsAsync(businessId);
+        var parse = IsSuccessT<WeComGetApiAccessibleApps>(result);
+        return parse.Data;
+    }
 
-    public async Task<bool> CheckXcxDomainStatusAsync(string domian) { }
+    public async Task<WeComSaveOpenApiApp> SetApiAccessibleAppsAsync(string businessId, List<string> accessibleApps)
+    {
+        var currentAcc = await GetApiAccessibleAppsAsync(businessId);
+        if (currentAcc == null) return null;
+        var accs = currentAcc.Auths?.AppIds ?? new List<string>();
+        accessibleApps.AddRange(accs);
+        accessibleApps = accessibleApps.Distinct().ToList();
 
-    public async Task<bool> SetCustomizedAppPrivilege(string appId) { }
+        var result = await _weComAdmin.SetApiAccessibleAppsAsync(businessId, accessibleApps);
+        var parse = IsSuccessT<WeComSaveOpenApiApp>(result);
+        return parse.Data;
+    }
+    public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync()
+    {
+        return await _weComAdmin.GetDomainVerifyFileAsync();
+    }
+
+    public async Task<bool> CheckCustomAppURLAsync(string appid, string domian)
+    {
+        var result = await _weComAdmin.CheckCustomAppURLAsync(appid, domian);
+        var parse = IsSuccessT<WeComCheckCustomAppURLDomain>(result);
+        return parse.Data.Status.Equals("PASS");
+    }
+
+    public async Task<bool> CheckXcxDomainStatusAsync(string domian)
+    {
+        var result = await _weComAdmin.CheckXcxDomainStatusAsync(domian);
+        var parse = IsSuccessT<WeComCheckXcxDomain>(result);
+        var domain = parse.Data.Result.FirstOrDefault();
+        if (domain == null) return false;
+        return domain.Status;
+    }
+
+    public async Task<bool> SetCustomizedAppPrivilege(string appId)
+    {
+        var result = await _weComAdmin.SetCustomizedAppPrivilege(appId);
+        var parse = IsSuccessT<object>(result);
+        return parse.Data != null;
+    }
 
     private (bool flag, T Data) IsSuccessT<T>(string result) where T : class
     {
@@ -149,6 +224,7 @@ public class WeComAdminSvc : IWeComAdminSvc
         }
         return true;
     }
+
     private void GoToLogin()
     {
         _navigationManager.NavigateTo("/login");

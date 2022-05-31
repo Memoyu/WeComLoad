@@ -62,9 +62,8 @@ public interface IWeComAdmin
     /// <summary>
     /// 获取企业部门列表
     /// </summary>
-    /// <param name="isReLoad">是否需要重新获取</param>
     /// <returns>WeComCorpDept</returns>
-    Task<string> GetCorpDeptAsync(bool isReLoad = false);
+    Task<string> GetCorpDeptAsync();
 
     /// <summary>
     /// 发送客户联系、通讯录Secret查看
@@ -83,10 +82,10 @@ public interface IWeComAdmin
     /// <summary>
     /// 配置自建应用侧边栏
     /// </summary>
-    /// <param name="req">请求参数</param>
+    /// <param name="menu">侧边栏配置</param>
     /// <param name="agent">应用信息</param>
     /// <returns>bool</returns>
-    Task<bool> AddChatMenuAsync(List<AddChatMenuRequest> menus, WeComOpenapiApp agent);
+    Task<string> AddChatMenuAsync(AddChatMenuRequest menu, WeComOpenapiApp agent);
 
     /// <summary>
     /// 保存应用信息（配置可信域名）
@@ -96,11 +95,19 @@ public interface IWeComAdmin
     Task<string> SaveOpenApiAppAsync(List<(string Key, string Value)> req);
 
     /// <summary>
+    /// 获取应用的 可调用应用
+    /// </summary>
+    /// <param name="businessId"></param>
+    /// <returns></returns>
+    Task<string> GetApiAccessibleAppsAsync(string businessId);
+
+    /// <summary>
     /// 配置客户联系 可调用应用
     /// </summary>
-    /// <param name="req">请求参数</param>
+    /// <param name="businessId">目标应用id</param>
+    /// <param name="accessibleApps">可调用应用id</param>
     /// <returns>WeComSetApiAccessibleApps</returns>
-    Task<bool> SetApiAccessibleAppsAsync(SetApiAccessibleAppsRequest req);
+    Task<string> SetApiAccessibleAppsAsync(string businessId, List<string> accessibleApps);
 
     /// <summary>
     /// 创建应用授权推送
@@ -114,7 +121,7 @@ public interface IWeComAdmin
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    Task<int> QueryTwoFactorAuthOpAsync(string key);
+    Task<string> QueryTwoFactorAuthOpAsync(string key);
 
     /// <summary>
     /// 配置通讯录回调
@@ -142,19 +149,19 @@ public interface IWeComAdmin
     /// <param name="appid">应用Id</param>
     /// <param name="domian">域名</param>
     /// <returns>bool</returns>
-    Task<bool> CheckCustomAppURLAsync(string appid, string domian);
+    Task<string> CheckCustomAppURLAsync(string appid, string domian);
 
     /// <summary>
     /// 校验：可调用JS-SDK、跳转小程序的可信域名
     /// </summary>
     /// <param name="domian">域名</param>
     /// <returns>bool</returns>
-    Task<bool> CheckXcxDomainStatusAsync(string domian);
+    Task<string> CheckXcxDomainStatusAsync(string domian);
 
     /// <summary>
     /// 配置代开发自建应用的授权信息
     /// </summary>
     /// <param name="appId">代开发自建应用AppId</param>
     /// <returns></returns>
-    Task<bool> SetCustomizedAppPrivilege(string appId);
+    Task<string> SetCustomizedAppPrivilege(string appId);
 }
