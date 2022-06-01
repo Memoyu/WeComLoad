@@ -1,0 +1,48 @@
+﻿<div class="demo-get-app-detail">
+    <SearchForm OnSearch="HandleOnSearchAsync">
+        <SearchFormItem Label="应用appOpenId">
+            <Input @bind-Value="@appOpenId" />
+        </SearchFormItem>
+    </SearchForm>
+    <textarea class="demo-get-app-detail-result" value="@result" />
+</div>
+
+<style>
+    .demo-get-app-detail {
+        width: 100%;
+        min-height: 350px;
+    }
+
+        .demo-get-app-detail .demo-get-app-detail-result {
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+            min-height: 250px;
+        }
+
+</style>
+
+@code {
+    private string appOpenId;
+
+    private string result = string.Empty;
+
+
+    [Inject]
+    public IWeComAdminSvc WeComAdminSvc { get; set; }
+
+    [Inject]
+    public MessageService MessageService { get; set; }
+
+
+    private async Task HandleOnSearchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(appOpenId))
+        {
+            _ = MessageService.Warning("请输入AppId");
+            return;
+        }
+        var model = await WeComAdminSvc.GetCorpOpenAppAsync(appOpenId);
+        result = (JsonConvert.SerializeObject(model)).FormateJsonString();
+    }
+}

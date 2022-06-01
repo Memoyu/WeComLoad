@@ -185,10 +185,19 @@ public class WeComAdminFunc : IWeComAdmin
         return GetResponseStr(response);
     }
 
-    public async Task<string> AddOpenApiAppAsync(List<string> pids)
+    public async Task<string> AddOpenApiAppAsync(AddOpenApiAppRequest req)
     {
-        var dic = new List<(string, string)>();
-        foreach (var pid in pids)
+        var dic = new List<(string, string)>
+            {
+                ("name", req.Name),
+                ("description", req.Desc),
+                ("english_name", ""),
+                ("english_description", ""),
+                ("app_open", "true"),
+                ("logoimage", req.LogoImage),
+                ("_d2st", _weComReq.GetD2st())
+            };
+        foreach (var pid in req.VisiblePIds)
         {
             dic.Add(("visible_pid[]", pid));
         }

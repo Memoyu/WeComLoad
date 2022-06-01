@@ -1,0 +1,12 @@
+﻿@inherits AntDomComponentBase
+
+<div class=@($"{_prefixCls} {_prefixCls}-inline") >
+	@ChildContent
+	<Space>
+		<SpaceItem>
+			<Button Type="@ButtonType.Primary" OnClick="HandleOnSearch">
+				查询
+			</Button>
+		</SpaceItem>
+	</Space>
+</div>

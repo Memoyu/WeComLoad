@@ -1,8 +1,57 @@
 @import '~antd/es/style/themes/default.less';
 
-.pre {
-  margin: 12px 0;
-  padding: 12px 20px;
-  background: @input-bg;
-  box-shadow: @card-shadow;
+.toc-affix {
+    position: absolute;
+    top: 8px;
+    right: 20px;
+
+    .ant-affix {
+        z-index: 9;
+        max-height: ~'calc(100vh - 26px)';
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .ant-row-rtl & {
+        right: auto;
+        left: 20px;
+    }
+
+    .ant-anchor {
+        font-size: 12px;
+
+        .ant-anchor-ink::before {
+            width: 1px;
+            border-left: 1px solid #f0f0f0;
+        }
+
+        .ant-anchor-link-active {
+            border-left: 2px solid @primary-color;
+            margin-left: -2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .ant-anchor-ink-ball.visible {
+            display: none;
+        }
+
+        .ant-anchor-link {
+            padding: 0 0 4px 16px;
+            line-height: 1.5;
+
+            &.ant-anchor-link-active {
+                .ant-anchor-link-title {
+                    color: @primary-color;
+                }
+            }
+
+            .ant-anchor-link-title {
+                color: #000000;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                width: 210px;
+            }
+        }
+    }
 }

@@ -8,5 +8,6 @@ public class AddOpenApiAppRequest
 
     public string LogoImage { get; set; }
 
+    public List<string> VisiblePIds { get; set; }
 
 }

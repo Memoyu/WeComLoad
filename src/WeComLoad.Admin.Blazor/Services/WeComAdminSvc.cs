@@ -92,13 +92,14 @@ public class WeComAdminSvc : IWeComAdminSvc
         return true;
     }
 
-    public async Task<WeComOpenapiApp> AddOpenApiAppAsync(List<string> pids)
+    public async Task<WeComOpenapiApp> AddOpenApiAppAsync(AddOpenApiAppRequest req)
     {
         var depts = await GetCorpDeptAsync();
         var dept = depts.Partys.List.Where(p => p.OpenapiPartyid.Equals("1")).FirstOrDefault();
         if (dept == null) throw new Exception("获取根部门异常");
         var visible_pid = dept.Partyid;
-        var result = await _weComAdmin.AddOpenApiAppAsync(pids);
+        req.VisiblePIds = new List<string> { visible_pid };
+        var result = await _weComAdmin.AddOpenApiAppAsync(req);
         var parse = IsSuccessT<WeComOpenapiApp>(result);
         return parse.Data;
     }

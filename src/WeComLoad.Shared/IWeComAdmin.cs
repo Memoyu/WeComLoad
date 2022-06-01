@@ -75,9 +75,9 @@ public interface IWeComAdmin
     /// <summary>
     /// 创建企业自建应用
     /// </summary>
-    /// <param name="pids">pids</param>
+    /// <param name="req">请求参数</param>
     /// <returns>WeComOpenapiApp</returns>
-    Task<string> AddOpenApiAppAsync(List<string> pids);
+    Task<string> AddOpenApiAppAsync(AddOpenApiAppRequest req);
 
     /// <summary>
     /// 配置自建应用侧边栏

@@ -1,0 +1,36 @@
+﻿<div class="demo-get-depts">
+     <SearchForm OnSearch="HandleOnSearchAsync">
+    </SearchForm>
+    <textarea class="demo-get-depts-result" value="@result" />
+</div>
+
+<style>
+    .demo-get-depts {
+        width: 100%;
+        min-height: 350px;
+    }
+    .demo-get-depts .demo-get-depts-result{
+        margin-top: 20px;
+        display: block;
+        width: 100%;
+        min-height: 250px;
+
+    }
+
+</style>
+
+@code {
+
+    private string result = string.Empty;
+
+
+    [Inject]
+    public IWeComAdminSvc WeComAdminSvc { get; set; }
+
+
+    private async Task HandleOnSearchAsync()
+    {
+        var model = await WeComAdminSvc.GetCorpDeptAsync();
+        result = (JsonConvert.SerializeObject(model)).FormateJsonString();
+    }
+}
