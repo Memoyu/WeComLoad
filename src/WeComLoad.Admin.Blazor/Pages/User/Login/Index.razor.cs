@@ -46,7 +46,7 @@ public partial class Index : IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-   
+
     }
 
     public async ValueTask DisposeAsync()
@@ -102,13 +102,19 @@ public partial class Index : IAsyncDisposable
             {
                 NavigationManager.NavigateTo("/");
             }
-            
+
         }, tk, TaskCreationOptions.LongRunning);
+    }
+
+    private void SelectedCorp(string corpId)
+    {
+        selectedCorpId = corpId;
+        StateHasChanged();
     }
 
     private async Task ModalHandleOk(MouseEventArgs e)
     {
-       var flag = await WeComAdmin.WxLoginAsync(tlKey, selectedCorpId);
+        var flag = await WeComAdmin.WxLoginAsync(tlKey, selectedCorpId);
         if (flag == 1)
         {
             modalVisible = false;
@@ -116,8 +122,10 @@ public partial class Index : IAsyncDisposable
         }
     }
 
-    private void ModalHandleCancel(MouseEventArgs e)
+    private async Task ModalHandleCancel(MouseEventArgs e)
     {
+        // 刷新二维码
+        await GetLoginAndShowQrCodeAsync();
         modalVisible = false;
     }
 

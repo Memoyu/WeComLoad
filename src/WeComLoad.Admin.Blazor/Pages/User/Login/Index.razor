@@ -22,14 +22,15 @@
                OnOk="@ModalHandleOk"
                OnCancel="@ModalHandleCancel">
 
-            <div>
-                <RadioGroup @bind-Value="@selectedCorpId">
-                    @foreach (var corp in corps)
-                    {
-                         <Radio Value="@corp.CorpId" >@corp.CorpName</Radio>
-                    }
-                </RadioGroup>
-            </div>
+            <AntList DataSource="@corps" TItem="LoginCorp">
+                <ListItem class="@((selectedCorpId == context.CorpId ? "corp-item-select corp-item" : "corp-item"))" OnClick="()=> SelectedCorp(context.CorpId)">
+                    <ListItemMeta >
+                        <TitleTemplate>
+                           <span>@context.CorpName</span>
+                        </TitleTemplate>
+                    </ListItemMeta>
+                </ListItem>
+            </AntList>
 
         </Modal>
     </div>
