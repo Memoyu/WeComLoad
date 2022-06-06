@@ -123,6 +123,41 @@ public class WeComAdminFunc : IWeComAdmin
         if (!_weComReq.IsResponseSucc(response)) return string.Empty;
         return _weComReq.GetResponseStr(response);
     }
+    public async Task<string> WxLoginCaptchaAsync(string tlKey, string corpId)
+    {
+        return "";
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/captcha_page?tl_key=b5182f15d0f1dd44e4e2865dbfc384a0&redirect_url=https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%3Db5182f15d0f1dd44e4e2865dbfc384a0&from=spamcheck
+        // get
+    }
+ public async Task<string> WxLoginSendCaptchaAsync(string tlKey, string corpId)
+    {
+        return "";
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha?lang=zh_CN&ajax=1&f=json&random=945334
+        // post :{tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
+
+    }
+
+    public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string corpId)
+    {
+        return "";
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/confirm_captcha?lang=zh_CN&ajax=1&f=json&random=188841
+        // post :{captcha: "222222", tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
+
+    }
+
+    public async Task<string> WxLoginCaptchaCompletedAsync(string tlKey, string corpId)
+    {
+        if (string.IsNullOrWhiteSpace(tlKey) || string.IsNullOrWhiteSpace(corpId)) throw new ArgumentNullException("企微登录必要参数为空");
+
+        var dic = new List<(string, string)>()
+                {
+                    ("tl_key", tlKey)
+                };
+        var url = _weComReq.GetQueryUrl("wework_admin/login/choose_corp", new Dictionary<string, string> { });
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
+        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
+        return _weComReq.GetResponseStr(response);
+    }
 
     public async Task<bool> WxLoginAfterAsync()
     {
