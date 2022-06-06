@@ -1,4 +1,6 @@
-﻿namespace WeComLoad.Admin.Blazor.Services;
+﻿using System.Text.RegularExpressions;
+
+namespace WeComLoad.Admin.Blazor.Services;
 
 public class WeComAdminSvc : IWeComAdminSvc
 {
@@ -41,11 +43,27 @@ public class WeComAdminSvc : IWeComAdminSvc
 
     public async Task<int> WxLoginAsync(string tlKey, string corpId)
     {
-        var login = await _weComAdmin.WxLoginAsync(tlKey, corpId);
-        // TODO：进行 微信扫码登陆后参数校验，因为可能需要输入验证码
+        var result = await _weComAdmin.WxLoginAsync(tlKey, corpId);
+
+        // 进行 微信扫码登陆后参数校验，因为可能需要输入验证码
+        if (IsNeedCaptcha(result)) return 2;
 
         var after = await _weComAdmin.WxLoginAfterAsync();
         return after ? 1 : 0;
+    }
+
+    public async Task<string> WxLoginCaptchaAsync(string tlKey)
+    {
+        var result = await _weComAdmin.WxLoginCaptchaAsync(tlKey);
+        string pattern = "(?<=mobile\\\":\\\").*?(?=\\\",)";
+        var match = Regex.Matches(result, pattern);
+        return match.FirstOrDefault()?.Value;
+    }
+
+    public async Task<string> WxLoginSendCaptchaAsync(string tlKey)
+    {
+        var result = await _weComAdmin.WxLoginCaptchaAsync(tlKey);
+        return result;
     }
 
     #endregion
@@ -210,6 +228,18 @@ public class WeComAdminSvc : IWeComAdminSvc
         return (true, res?.Data);
     }
 
+    private bool IsNeedCaptcha(string result)
+    {
+
+        var err = JsonConvert.DeserializeObject<WeComErr>(result);
+        if (err is not null && err.result?.errCode != null && err.result.errCode == -50000000003)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private bool IsSuccess(string result)
     {
         if (string.IsNullOrWhiteSpace(result))
@@ -232,7 +262,7 @@ public class WeComAdminSvc : IWeComAdminSvc
         _navigationManager.NavigateTo("/login");
     }
 
-    private bool NeedLogin(int? errCode)
+    private bool NeedLogin(long? errCode)
     {
         if (errCode == null) return false;
         // "{\"result\":{\"errCode\":-3,\"message\":\"outsession\",\"etype\":\"otherLogin\"}}"

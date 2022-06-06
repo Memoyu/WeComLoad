@@ -41,6 +41,20 @@ public interface IWeComAdminSvc
     /// <returns>0：登录失败， 1：登录成功，2：需要输入验证码</returns>
     Task<int> WxLoginAsync(string tlKey, string corpId);
 
+    /// <summary>
+    /// 获取验证码发送页面信息
+    /// </summary>
+    /// <param name="tlKey">tlKey</param>
+    /// <returns></returns>
+    Task<string> WxLoginCaptchaAsync(string tlKey);
+
+    /// <summary>
+    /// 发送验证码
+    /// </summary>
+    /// <param name="tlKey">tlKey</param>
+    /// <returns></returns>
+    Task<string> WxLoginSendCaptchaAsync(string tlKey);
+
     #endregion
 
     /// <summary>

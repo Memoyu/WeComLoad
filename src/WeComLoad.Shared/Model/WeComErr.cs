@@ -6,7 +6,7 @@ public class WeComErr
 
     public class Result
     {
-        public int errCode { get; set; }
+        public long errCode { get; set; }
         public string message { get; set; }
         public string etype { get; set; }
     }

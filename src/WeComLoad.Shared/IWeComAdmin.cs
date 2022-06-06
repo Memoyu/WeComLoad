@@ -41,6 +41,20 @@ public interface IWeComAdmin
     Task<string> WxLoginAsync(string tlKey, string corpId);
 
     /// <summary>
+    /// 获取验证码发送页面信息
+    /// </summary>
+    /// <param name="tlKey">tlKey</param>
+    /// <returns></returns>
+    Task<string> WxLoginCaptchaAsync(string tlKey);
+
+    /// <summary>
+    /// 发送验证码
+    /// </summary>
+    /// <param name="tlKey">tlKey</param>
+    /// <returns></returns>
+    Task<string> WxLoginSendCaptchaAsync(string tlKey);
+
+    /// <summary>
     /// 微信扫码登录后完善cookie操作
     /// </summary>
     /// <returns></returns>

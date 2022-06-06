@@ -1,5 +1,6 @@
 ﻿using Microsoft.JSInterop;
 using System.Threading;
+using System.Timers;
 
 namespace WeComLoad.Admin.Blazor.Pages.User.Login;
 
@@ -9,11 +10,20 @@ public partial class Index : IAsyncDisposable
 
     private string loginHint { get; set; } = "请扫码登陆";
 
-    private bool modalVisible = false;
+    private bool selectModalVisible = false;
+
+    private bool captchaModalVisible = false;
 
     private List<LoginCorp> corps = new List<LoginCorp>();
 
     private string tlKey = string.Empty;
+
+    /// <summary>
+    /// 验证码
+    /// </summary>
+    private string captcha = string.Empty;
+
+    private string mobile = string.Empty;
 
     private string selectedCorpId = string.Empty;
 
@@ -22,6 +32,12 @@ public partial class Index : IAsyncDisposable
     private QuickLoginCorpInfo corpInfo { get; set; }
 
     private bool canRefresh { get; set; } = false;
+    
+    private bool canReSendCaptcha { get; set; } = false;
+
+    private int second { get; set; } = 60;
+
+   private  System.Timers.Timer t = new System.Timers.Timer(1000);//实例化Timer类，设置间隔时间为10000毫秒；
 
     private CancellationTokenSource _cts = null;
 
@@ -112,21 +128,69 @@ public partial class Index : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task ModalHandleOk(MouseEventArgs e)
+    private async Task HandleSelectModalOk(MouseEventArgs e)
     {
+        // 如果微信未绑定企业微信，则直接关闭弹窗，刷新二维码
+        if (corps == null || corps.Count <= 0)
+        {
+            // 刷新二维码
+            await GetLoginAndShowQrCodeAsync();
+            selectModalVisible = false;
+            return;
+        }
+
         var flag = await WeComAdmin.WxLoginAsync(tlKey, selectedCorpId);
         if (flag == 1)
         {
-            modalVisible = false;
+            selectModalVisible = false;
             NavigationManager.NavigateTo("/");
+        }
+        else if (flag == 2)
+        {
+            selectModalVisible = false;
+            captchaModalVisible = true;
+            mobile = await WeComAdmin.WxLoginCaptchaAsync(tlKey);
+            CreateCaptchaTimer();
+            StateHasChanged();
+        }
+        else // 登录失败
+        {
+            // 刷新二维码
+            await GetLoginAndShowQrCodeAsync();
+            selectModalVisible = false;
         }
     }
 
-    private async Task ModalHandleCancel(MouseEventArgs e)
+    private async Task HandleSelectModalCancel(MouseEventArgs e)
     {
         // 刷新二维码
         await GetLoginAndShowQrCodeAsync();
-        modalVisible = false;
+        selectModalVisible = false;
+    }
+
+    private async Task RefreshCaptchaAsync()
+    {
+        await WeComAdmin.WxLoginSendCaptchaAsync(tlKey);
+        second = 60;
+        canReSendCaptcha = false;
+        CreateCaptchaTimer();
+        StateHasChanged();
+    }
+
+    private async Task HandleCaptchaModalOk(MouseEventArgs e)
+    {
+        if (captcha.Length != 6)
+        {
+            _ = MessageService.Error($"验证码位数有误");
+            return;
+        }
+    }
+
+    private async Task HandleCaptchaModalCancel(MouseEventArgs e)
+    {
+        // 刷新二维码
+        await GetLoginAndShowQrCodeAsync();
+        captchaModalVisible = false;
     }
 
     #region 登录操作
@@ -178,7 +242,7 @@ public partial class Index : IAsyncDisposable
                         var data = await WeComAdmin.GetWxLoginCorpsAsync(qrCodeKey, status.AuthCode);
                         corps = data.Corps;
                         tlKey = data.TlKey;
-                        modalVisible = true;
+                        selectModalVisible = true;
                         statusCode = 7;
                         statusMsg = $"微信扫码成功";
                         break;
@@ -197,6 +261,33 @@ public partial class Index : IAsyncDisposable
         {
             return (5, "登录异常");
         }
+    }
+
+    #endregion
+
+    #region Private
+
+    private void CreateCaptchaTimer()
+    {
+        t.Elapsed += new ElapsedEventHandler(TimeExecute);//到达时间的时候执行事件；
+        t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
+        t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
+        t.Start(); //启动定时器
+    }
+
+    private void TimeExecute(object source, ElapsedEventArgs e)
+    {
+        if (second <= 0)
+        {
+            t.Stop();
+            canReSendCaptcha = true;
+        }
+
+        _ = InvokeAsync(() =>
+        {
+            second -= 1;
+            StateHasChanged();
+        });  
     }
 
     #endregion

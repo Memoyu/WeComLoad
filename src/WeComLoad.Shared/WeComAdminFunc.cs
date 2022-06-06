@@ -123,18 +123,43 @@ public class WeComAdminFunc : IWeComAdmin
         if (!_weComReq.IsResponseSucc(response)) return string.Empty;
         return _weComReq.GetResponseStr(response);
     }
-    public async Task<string> WxLoginCaptchaAsync(string tlKey, string corpId)
+    public async Task<string> WxLoginCaptchaAsync(string tlKey)
     {
-        return "";
-        // https://work.weixin.qq.com/wework_admin/mobile_confirm/captcha_page?tl_key=b5182f15d0f1dd44e4e2865dbfc384a0&redirect_url=https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%3Db5182f15d0f1dd44e4e2865dbfc384a0&from=spamcheck
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/captcha_page?
+        // tl_key=b5182f15d0f1dd44e4e2865dbfc384a0
+        // &redirect_url=https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%3Db5182f15d0f1dd44e4e2865dbfc384a0
+        // &from=spamcheck
         // get
+        var url = _weComReq.GetQueryUrl("wework_admin/mobile_confirm/captcha_page", new Dictionary<string, string>
+                {
+                    { "tl_key", tlKey },
+                    { "redirect_url", $"https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%{tlKey}" },
+                    { "from", "spamcheck" }
+                });
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        return GetResponseStr(response);
+
     }
- public async Task<string> WxLoginSendCaptchaAsync(string tlKey, string corpId)
+    public async Task<string> WxLoginSendCaptchaAsync(string tlKey)
     {
-        return "";
-        // https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha?lang=zh_CN&ajax=1&f=json&random=945334
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha?
+        // lang=zh_CN
+        // &ajax=1
+        // &f=json&
+        // random=945334
         // post :{tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
 
+        var dic = new List<(string, string)>()
+                {
+                    ("tl_key", tlKey)
+                };
+        var url = _weComReq.GetQueryUrl("wework_admin/mobile_confirm/send_captcha", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
+                });
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
+        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
+        return _weComReq.GetResponseStr(response);
     }
 
     public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string corpId)
@@ -377,7 +402,7 @@ public class WeComAdminFunc : IWeComAdmin
                 ("_d2st", _weComReq.GetD2st())
             };
         foreach (var item in accessibleApps)
-        {   
+        {
             dic.Add(("auth_list[appid_list][]", item));
         }
 
