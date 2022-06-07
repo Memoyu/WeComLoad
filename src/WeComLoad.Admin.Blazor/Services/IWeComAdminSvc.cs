@@ -55,6 +55,14 @@ public interface IWeComAdminSvc
     /// <returns></returns>
     Task<string> WxLoginSendCaptchaAsync(string tlKey);
 
+    /// <summary>
+    /// 确认验证码
+    /// </summary>
+    /// <param name="tlKey">tlKey</param>
+    /// <param name="captcha">验证码</param>
+    /// <returns></returns>
+    Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha);
+
     #endregion
 
     /// <summary>

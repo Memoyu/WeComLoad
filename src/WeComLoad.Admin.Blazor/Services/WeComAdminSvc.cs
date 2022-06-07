@@ -66,6 +66,12 @@ public class WeComAdminSvc : IWeComAdminSvc
         return result;
     }
 
+    public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha)
+    {
+        var result = await _weComAdmin.WxLoginCaptchaAsync(tlKey);
+        return result;
+    }
+
     #endregion
 
     public async Task<WeComCorpApp> GetCorpAppAsync()

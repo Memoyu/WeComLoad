@@ -4,7 +4,7 @@ var Configuration = builder.Configuration;
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
 builder.Services.AddAntDesign();
 builder.Services.AddScoped(sp => new HttpClient
 {

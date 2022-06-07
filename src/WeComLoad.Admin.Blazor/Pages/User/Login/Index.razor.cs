@@ -184,6 +184,8 @@ public partial class Index : IAsyncDisposable
             _ = MessageService.Error($"验证码位数有误");
             return;
         }
+
+        await WeComAdmin.WxLoginConfirmCaptchaAsync(tlKey, captcha);
     }
 
     private async Task HandleCaptchaModalCancel(MouseEventArgs e)

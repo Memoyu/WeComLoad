@@ -140,6 +140,7 @@ public class WeComAdminFunc : IWeComAdmin
         return GetResponseStr(response);
 
     }
+
     public async Task<string> WxLoginSendCaptchaAsync(string tlKey)
     {
         // https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha?
@@ -162,11 +163,21 @@ public class WeComAdminFunc : IWeComAdmin
         return _weComReq.GetResponseStr(response);
     }
 
-    public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string corpId)
+    public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha)
     {
-        return "";
         // https://work.weixin.qq.com/wework_admin/mobile_confirm/confirm_captcha?lang=zh_CN&ajax=1&f=json&random=188841
         // post :{captcha: "222222", tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
+        var dic = new List<(string, string)>()
+                {
+                    ("tl_key", tlKey), ("captcha", captcha)
+                };
+        var url = _weComReq.GetQueryUrl("wework_admin/mobile_confirm/confirm_captcha", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
+                });
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
+        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
+        return _weComReq.GetResponseStr(response);
 
     }
 
