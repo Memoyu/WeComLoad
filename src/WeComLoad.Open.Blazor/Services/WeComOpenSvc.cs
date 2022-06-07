@@ -198,7 +198,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         _navigationManager.NavigateTo("/login");
     }
 
-    private bool NeedLogin(int? errCode)
+    private bool NeedLogin(long? errCode)
     {
         if (errCode == null) return false;
         // "{\"result\":{\"errCode\":-3,\"message\":\"outsession\",\"etype\":\"otherLogin\"}}"

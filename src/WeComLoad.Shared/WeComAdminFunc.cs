@@ -159,7 +159,6 @@ public class WeComAdminFunc : IWeComAdmin
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
                 });
         var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
-        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
         return _weComReq.GetResponseStr(response);
     }
 
@@ -167,30 +166,29 @@ public class WeComAdminFunc : IWeComAdmin
     {
         // https://work.weixin.qq.com/wework_admin/mobile_confirm/confirm_captcha?lang=zh_CN&ajax=1&f=json&random=188841
         // post :{captcha: "222222", tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
-        var dic = new List<(string, string)>()
-                {
-                    ("tl_key", tlKey), ("captcha", captcha)
-                };
+        var content = new
+        {
+            tl_key = tlKey,
+            captcha = captcha
+        };
         var url = _weComReq.GetQueryUrl("wework_admin/mobile_confirm/confirm_captcha", new Dictionary<string, string>
                 {
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
                 });
-        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
-        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
+        var response = await _weComReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(content), true);
         return _weComReq.GetResponseStr(response);
-
     }
 
-    public async Task<string> WxLoginCaptchaCompletedAsync(string tlKey, string corpId)
+    public async Task<string> WxLoginCaptchaCompletedAsync(string tlKey)
     {
-        if (string.IsNullOrWhiteSpace(tlKey) || string.IsNullOrWhiteSpace(corpId)) throw new ArgumentNullException("企微登录必要参数为空");
+        if (string.IsNullOrWhiteSpace(tlKey)) throw new ArgumentNullException("企微登录必要参数为空");
 
         var dic = new List<(string, string)>()
                 {
                     ("tl_key", tlKey)
                 };
-        var url = _weComReq.GetQueryUrl("wework_admin/login/choose_corp", new Dictionary<string, string> { });
-        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
+        var url = _weComReq.GetQueryUrl("wework_admin/login/choose_corp", new Dictionary<string, string> { { "tl_key", tlKey } });
+        var response = await _weComReq.HttpWebRequestGetAsync(url, true);
         if (!_weComReq.IsResponseSucc(response)) return string.Empty;
         return _weComReq.GetResponseStr(response);
     }

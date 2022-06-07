@@ -195,7 +195,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         _eventAggregator.PubMainDialog(new MainDialogEventModel { IsOpen = true, DialogType = MainDialogEnum.Login });
     }
 
-    private bool NeedLogin(int? errCode)
+    private bool NeedLogin(long? errCode)
     {
         if (errCode == null) return false;
         // "{\"result\":{\"errCode\":-3,\"message\":\"outsession\",\"etype\":\"otherLogin\"}}"

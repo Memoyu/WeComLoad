@@ -68,8 +68,15 @@ public class WeComAdminSvc : IWeComAdminSvc
 
     public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha)
     {
-        var result = await _weComAdmin.WxLoginCaptchaAsync(tlKey);
-        return result;
+        var confirmRes =  await _weComAdmin.WxLoginConfirmCaptchaAsync(tlKey, captcha);
+        var confirm = JsonConvert.DeserializeObject<WeComErr>(confirmRes);
+        if (confirm is not null && confirm.result?.errCode != null)
+        {
+            return confirm.result?.message;
+        }
+        await _weComAdmin.WxLoginCaptchaCompletedAsync(tlKey);
+        await _weComAdmin.WxLoginAfterAsync();
+        return string.Empty;
     }
 
     #endregion

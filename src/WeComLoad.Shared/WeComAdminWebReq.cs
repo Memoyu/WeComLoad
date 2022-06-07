@@ -53,11 +53,11 @@ public class WeComAdminWebReq
                 return resp;
             }
 
-            throw ex;
+            return null;
         }
         catch (Exception ex)
         {
-            throw ex;
+            return null;
         }
     }
 
@@ -100,11 +100,11 @@ public class WeComAdminWebReq
         }
         catch (WebException ex)
         {
-            throw ex;
+            return null;
         }
         catch (Exception ex)
         {
-            throw ex;
+            return null;
         }
     }
 
@@ -137,11 +137,11 @@ public class WeComAdminWebReq
         }
         catch (WebException ex)
         {
-            throw ex;
+            return null;
         }
         catch (Exception ex)
         {
-            throw ex;
+            return null;
         }
     }
 
@@ -168,11 +168,11 @@ public class WeComAdminWebReq
         }
         catch (WebException ex)
         {
-            throw ex;
+            return null;
         }
         catch (Exception ex)
         {
-            throw ex;
+            return null;
         }
     }
 
@@ -199,9 +199,9 @@ public class WeComAdminWebReq
         return model;
     }
 
-    public bool IsResponseSucc(HttpWebResponse response) => response.StatusCode == HttpStatusCode.OK;
+    public bool IsResponseSucc(HttpWebResponse response) => response?.StatusCode == HttpStatusCode.OK;
 
-    public bool IsResponseRedi(HttpWebResponse response) => response.StatusCode == HttpStatusCode.Redirect;
+    public bool IsResponseRedi(HttpWebResponse response) => response?.StatusCode == HttpStatusCode.Redirect;
 
     public string GetQueryUrl(string prefixUrl, Dictionary<string, string> query)
     {
@@ -256,6 +256,7 @@ public class WeComAdminWebReq
         request.Referer = $"{_weWorkBaseUrl}wework_admin/loginpage_wx?from=myhome";
         request.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
         // 当需要设置保存cookie时，则使用CookieContainer，因为这样更易于获取\管理\持久化请求响应的Set-Cookie
+        
         if (isSetCookie)
         {
             request.CookieContainer = new CookieContainer();
