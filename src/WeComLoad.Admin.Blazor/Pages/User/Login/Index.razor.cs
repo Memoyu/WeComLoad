@@ -32,12 +32,12 @@ public partial class Index : IAsyncDisposable
     private QuickLoginCorpInfo corpInfo { get; set; }
 
     private bool canRefresh { get; set; } = false;
-    
+
     private bool canReSendCaptcha { get; set; } = false;
 
     private int second { get; set; } = 60;
 
-   private  System.Timers.Timer t = new System.Timers.Timer(1000);//实例化Timer类，设置间隔时间为10000毫秒；
+    private System.Timers.Timer t = new System.Timers.Timer(1000);//实例化Timer类，设置间隔时间为10000毫秒；
 
     private CancellationTokenSource _cts = null;
 
@@ -224,33 +224,35 @@ public partial class Index : IAsyncDisposable
                     statusCode = 2;
                     break;
                 case "QRCODE_SCAN_SUCC":
-                    if (status.AuthSource.Equals("SOURCE_FROM_WEWORK"))
+                    var res = await WeComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
+                    if (!res)
                     {
-                        var res = await WeComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
-                        if (!res)
-                        {
-                            statusCode = 5;
-                            statusMsg = "登录失败";
-                            break;
-                        }
-
-                        statusCode = 6;
-                        statusMsg = $"登录成功";
-
+                        statusCode = 5;
+                        statusMsg = "登录失败";
                         break;
                     }
-                    else if (status.AuthSource.Equals("SOURCE_FROM_WX"))
-                    {
-                        var data = await WeComAdmin.GetWxLoginCorpsAsync(qrCodeKey, status.AuthCode);
-                        corps = data.Corps;
-                        tlKey = data.TlKey;
-                        selectModalVisible = true;
-                        statusCode = 7;
-                        statusMsg = $"微信扫码成功";
-                        break;
-                    }
+
+                    statusCode = 6;
+                    statusMsg = $"登录成功";
 
                     break;
+
+                    // 原本需要判断是企微扫码还是微信扫码，然后进行不同的处理
+                    // 现在改版后只需要统一处理即可
+                    //if (status.AuthSource.Equals("SOURCE_FROM_WEWORK"))
+                    //{
+                    //}
+                    //else if (status.AuthSource.Equals("SOURCE_FROM_WX"))
+                    //{
+                    //    var data = await WeComAdmin.GetWxLoginCorpsAsync(qrCodeKey, status.AuthCode);
+                    //    corps = data.Corps;
+                    //    tlKey = data.TlKey;
+                    //    selectModalVisible = true;
+                    //    statusCode = 7;
+                    //    statusMsg = $"微信扫码成功";
+                    //    break;
+                    //}
+                    // break;
                 case "QRCODE_SCAN_FAIL":
                     statusCode = 4;
                     statusMsg = "取消登录";
@@ -289,7 +291,7 @@ public partial class Index : IAsyncDisposable
         {
             second -= 1;
             StateHasChanged();
-        });  
+        });
     }
 
     #endregion

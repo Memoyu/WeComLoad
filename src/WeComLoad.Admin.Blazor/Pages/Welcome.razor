@@ -12,26 +12,11 @@
         </Affix>
     </div>
     <section class="demo-content">
-        @*<div style="height:300px;" id="demo-get-depts">
-        获取企业部门列表
-        </div>
-        <div style="height:300px;" id="demo-get-apps">
-        获取企业应用列表
-        </div>
-        <div style="height:300px;" id="demo-get-app-detail">
-        获取企业应用信息
-        </div>
-        <div style="height:300px;" id="demo-send-app-secret">
-        发送指定Agent Secret查看
-        </div>
-        <div style="height:300px;" id="demo-add-open-api-app">
-        创建企业自建应用
-        </div>*@
         <Row Style="margin-left: -8px; margin-right: -8px;">
             @foreach (var demo in demos)
             {
                 <AntDesign.Col Span="24" Class="code-boxes-col-1-1" Style="padding-left: 8px; padding-right: 8px;">
-                    <div id="@demo.Id" style="margin: 20px 0;">
+                    <div id="@("demo-" + demo.Id)" style="margin: 20px 0;">
                         <div style="font-size: 17px; font-weight: bold;margin-bottom: 20px;">@demo.Title</div>
                         @GetShowCase(demo.Type)
                     </div>

@@ -18,7 +18,7 @@
         private async void Button_TwoFactorAuthOp_Click(object sender, RoutedEventArgs e)
         {
             // 获取客户联系、通讯录appid (app_open_id为固定值，2000002：通讯录同步助手，2000003：外部联系人)
-            var apps = await _weComAdmin.GetCorpAppAsync(true);
+            var apps = await _weComAdmin.GetCorpAppAsync();
             if (apps == null || apps.Data == null)
             {
                 richText_resp.Document = new FlowDocument(new Paragraph(new Run("获取企业app信息失败")));

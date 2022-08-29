@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using WeComLoad.Shared.Model.Admin;
 
 namespace WeComLoad.Admin.Blazor.Services;
 
@@ -68,7 +69,7 @@ public class WeComAdminSvc : IWeComAdminSvc
 
     public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha)
     {
-        var confirmRes =  await _weComAdmin.WxLoginConfirmCaptchaAsync(tlKey, captcha);
+        var confirmRes = await _weComAdmin.WxLoginConfirmCaptchaAsync(tlKey, captcha);
         var confirm = JsonConvert.DeserializeObject<WeComErr>(confirmRes);
         if (confirm is not null && confirm.result?.errCode != null)
         {
@@ -105,8 +106,8 @@ public class WeComAdminSvc : IWeComAdminSvc
     public async Task<bool> SendSecretAsync(string appId)
     {
         var result = await _weComAdmin.SendSecretAsync(appId);
-        var parse = IsSuccessT<string>(result);
-        return !string.IsNullOrWhiteSpace(parse.Data);
+        var parse = IsSuccessT<WeComSendSecret>(result);
+        return !string.IsNullOrWhiteSpace(parse.Data.Key);
     }
 
     public async Task<bool> SendExtContactAndUserSecretAsync()

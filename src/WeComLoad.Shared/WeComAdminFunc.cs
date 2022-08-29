@@ -24,8 +24,9 @@ public class WeComAdminFunc : IWeComAdmin
         var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeKey>>(_weComReq.GetResponseStr(response));
         if (model == null || string.IsNullOrWhiteSpace(model.Data.QrCodeKey)) throw new Exception("企微二维码Key为空");
         var key = model.Data.QrCodeKey;
-        var qrCodeUrl = _weComReq.GetQueryUrl($"{_weComReq.BaseUrl}wwqrlogin/mng/qrcode/{key}", new Dictionary<string, string>
+        var qrCodeUrl = _weComReq.GetQueryUrl($"{_weComReq.BaseUrl}wework_admin/wwqrlogin/mng/qrcode", new Dictionary<string, string>
             {
+                { "qrcode_key", key },
                 { "login_type", "login_admin" }
             });
         return (qrCodeUrl, key);

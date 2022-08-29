@@ -7,7 +7,7 @@ public partial class Welcome
             new DemoModel{ Id = "get-depts",Title = "获取企业部门列表", Type = "Components.GetDepts" },
             new DemoModel{ Id = "get-apps",Title = "获取企业应用列表",  Type = "Components.GetApps" },
             new DemoModel{ Id = "get-app-detail" ,Title = "获取企业应用详情", Type = "Components.GeAppDetail"},
-            new DemoModel{ Id = " send-app-secret",Title = "发送指定Agent Secret查看", Type = "Components.SendAppSecret" },
+            new DemoModel{ Id = "send-app-secret",Title = "发送指定Agent Secret查看", Type = "Components.SendAppSecret" },
             new DemoModel{ Id = "add-open-api-app",Title = "创建企业自建应用",  Type = "Components.AddOpenApiApp" },
         };
 
