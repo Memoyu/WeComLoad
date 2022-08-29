@@ -1,12 +1,18 @@
 ﻿<div style="height:300px;">
+    <Form Model="@model"
+          Style="margin-top: 8px;">
+        <FormItem Label="应用名称">
+            <Input Placeholder="应用名称" @bind-Value="@context.Name" />
+        </FormItem>
+    </Form>
     <Button Type="@ButtonType.Primary" OnClick="() => GetCorpDeptsAsync()">获取部门列表</Button>
-    <textarea value="@result" />
 </div>
 
 @code {
 
-    private string result = string.Empty;
+    private AddOpenApiAppRequest model = new AddOpenApiAppRequest();
 
+    private string name = string.Empty;
 
     [Inject]
     public IWeComAdminSvc WeComAdminSvc { get; set; }
@@ -14,7 +20,5 @@
 
     private async Task GetCorpDeptsAsync()
     {
-        var model = await WeComAdminSvc.GetCorpDeptAsync();
-        result = JsonConvert.SerializeObject(model);
     }
 }
