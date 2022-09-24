@@ -2,31 +2,46 @@
     window.location.reload();
 }
 
-export async function checkLoginState() {
-    const data = await fetch("http://127.0.0.1:50000/checkLoginState", {
+export async function checkLoginState(httpPorts, httpsPorts) {
+    history.replaceState({}, '', '/tttt')
+    let data;
+    /*// 发起http请求
+    httpPorts.map(async p => {
+        let res = await fetchLocal(false, p)
+        if (res !== undefined) data = res;
+    })
+    // 发起https请求
+    httpsPorts.map(async p => {
+        let res = await fetchLocal(true, p)
+        if (res !== undefined) data = res;
+    })*/
+    let res = await fetchLocal(true, 50010)
+    console.log(data)
+    return JSON.stringify(data);
+}
+
+async function fetchLocal(isSSL, port){
+
+}
+
+
+async function fetchLocal1(isSSL, port){
+    const data = await fetch(`${isSSL ? 'https://localhost.work.weixin.qq.com' : 'http://127.0.0.1'}:${port}/checkLoginState`, {
         headers: {
             'content-type': 'text/plain;charset=UTF-8',
-            'accept': '*/*',
             'accept-language': 'zh-CN,zh;q=0.9',
-            //'pragma': 'no-cache',
-            'sec-ch-ua': '\" Not A;Brand\";v=\'99\", \"Chromium\";v=\'99\", \"Microsoft Edge\";v=\"99\"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': 'Windows',
             'sec-fetch-dest': 'empty',
             'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'cross-site',
-            'Host': '127.0.0.1:50000',
-            'Origin': 'http://localhost:5000',
-            'referer': 'https://open.work.weixin.qq.com/',//*/
+            'sec-fetch-site': 'same-site'
         },
         // referrerPolicy: "strict-origin-when-cross-origin",
         body: "{\"scene\":1,\"redirect_uri\":\"https://open.work.weixin.qq.com\"}",
-        method: "POST"
+        method: "POST",
+        mode: 'no-cors',
+        referrer: "https://open.work.weixin.qq.com"
     }).then(response => response.json())
         .catch(error => console.log('Error:', error));
-
-    console.log(data)
-    return JSON.stringify(data);
+    return data;
 }
 
 export async function confirmLogin(key) {
@@ -63,3 +78,4 @@ export async function confirmLogin(key) {
     console.log(respo)
     return respo;
 }
+

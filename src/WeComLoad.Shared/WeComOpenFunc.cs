@@ -26,8 +26,9 @@ public class WeComOpenFunc : IWeComOpen
         var model = _weComReq.GetResponseT<WeComBase<WeComQrCodeKey>>(response);
         if (model == null || string.IsNullOrWhiteSpace(model.Data.QrCodeKey)) throw new Exception("企微二维码Key为空");
         var key = model.Data.QrCodeKey;
-        var qrCodeUrl = _weComReq.GetQueryUrl($"https://work.weixin.qq.com/wwqrlogin/mng/qrcode/{key}", new Dictionary<string, string>
+        var qrCodeUrl = _weComReq.GetQueryUrl($"https://work.weixin.qq.com/wework_admin/wwqrlogin/mng/qrcode", new Dictionary<string, string>
             {
+                { "qrcode_key", key },
                 { "login_type", "service_login" }
             });
         return (qrCodeUrl, key);
@@ -162,17 +163,15 @@ public class WeComOpenFunc : IWeComOpen
         // 参数： code_type=13&redirect_uri=https://open.work.weixin.qq.com&version=0.2.0
         var url = _weComReq.GetQueryUrl("wwopen/wwLogin/wwQuickLogin", new Dictionary<string, string>
                 {
-                    { "code_type", "13" }, { "redirect_uri", "https://open.work.weixin.qq.com" }, { "version", "0.2.0" }
+                    { "code_type", "13" }, { "redirect_uri", "https://open.work.weixin.qq.com" }, { "version", "0.6.2" }
                 });
         var param = new GetQuickLoginParam();
         var response = await _weComReq.HttpWebRequestGetAsync(url);
         var html = GetResponseStr(response);
-        // 通过正则获取web_key、client_key等参数
-        string pattern1 = "(?<=web_key\":\").*?(?=\",)";
-        string pattern2 = "(?<=client_key\":\").*?(?=\",)";
-        param.WebKey = Regex.Matches(html, pattern1).FirstOrDefault()?.Value;
-        param.ClientKey = Regex.Matches(html, pattern2).FirstOrDefault()?.Value;
-        if (string.IsNullOrWhiteSpace(param.WebKey) || string.IsNullOrWhiteSpace(param.ClientKey)) return null;
+        // 通过正则获取登录配置参数
+        string pattern = "(?<=window.settings =).*?(?=;</script>)";
+        var paramJson = Regex.Matches(html, pattern).FirstOrDefault()?.Value;
+        param = JsonConvert.DeserializeObject<GetQuickLoginParam>(paramJson);
         return param;
     }
 

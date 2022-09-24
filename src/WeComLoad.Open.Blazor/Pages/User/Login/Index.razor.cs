@@ -5,7 +5,8 @@ namespace WeComLoad.Open.Blazor.Pages.User.Login;
 
 public partial class Index : IAsyncDisposable
 {
-    private string qrCode { get; set; } = "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png";
+    private string qrCode { get; set; } =
+        "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png";
 
     private string loginHint { get; set; } = "请扫码登陆";
 
@@ -23,6 +24,7 @@ public partial class Index : IAsyncDisposable
     private string _webKey = string.Empty;
 
     private bool _isQuickLogin = false;
+
     public bool IsQuickLogin
     {
         get { return _isQuickLogin; }
@@ -32,31 +34,22 @@ public partial class Index : IAsyncDisposable
             {
                 _webKey = string.Empty;
             }
+
             _isQuickLogin = value;
         }
     }
 
-    [Inject]
-    public IJSRuntime JS { get; set; }
+    [Inject] public IJSRuntime JS { get; set; }
 
-    [Inject]
-    public IWeComOpen WeComOpen { get; set; }
+    [Inject] public IWeComOpen WeComOpen { get; set; }
 
-    [Inject]
-    public MessageService MessageService { get; set; }
+    [Inject] public MessageService MessageService { get; set; }
 
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
+    [Inject] public NavigationManager NavigationManager { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        // QrCode = "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png";
-        //await WeComOpen.CheckLoginStateAsync();
-        //var param = await WeComOpen.GetQuickLoginParameAsync();
-        //await WeComOpen.ConfirmLoginAsync(param.ClientKey);
-        //var corp = await WeComOpen.GetQuickLoginCorpInfoAsync(param.WebKey);
-        //await GotoLoginAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -76,11 +69,11 @@ public partial class Index : IAsyncDisposable
 
     private async Task CheckQuickLoginAsync()
     {
-        var localLoginState = await CheckLoginStateAsync();
-        if (localLoginState)
+        var param = await WeComOpen.GetQuickLoginParameAsync();
+        if (param != null)
         {
-            var param = await WeComOpen.GetQuickLoginParameAsync();
-            if (param != null)
+            var localLoginState = await CheckLoginStateAsync(param);
+            if (localLoginState)
             {
                 _webKey = param.WebKey;
                 var isConfirm = await ConfirmLoginAsync(param.ClientKey);
@@ -135,6 +128,7 @@ public partial class Index : IAsyncDisposable
                     delay = 0;
                     _ = MessageService.Success("登录成功");
                 }
+
                 loginHint = state.Msg;
                 await InvokeAsync(() => StateHasChanged());
                 await Task.Delay(delay);
@@ -145,9 +139,9 @@ public partial class Index : IAsyncDisposable
         }, tk, TaskCreationOptions.LongRunning);
     }
 
-    private async Task<bool> CheckLoginStateAsync()
+    private async Task<bool> CheckLoginStateAsync(GetQuickLoginParam param)
     {
-        var result = await _module.InvokeAsync<string>("checkLoginState");
+        var result = await _module.InvokeAsync<string>("checkLoginState", param.HttpPort, param.HttpsPort);
         if (result == null) return false;
         var state = JsonConvert.DeserializeObject<WeComBase<CheckLoginState>>(result);
         if (state == null || state.Data == null) return false;
@@ -199,6 +193,7 @@ public partial class Index : IAsyncDisposable
     {
         await _module.InvokeAsync<object>("reload");
     }
+
     #region 登录操作
 
     private async Task GetLoginAndShowQrCodeAsync()
@@ -228,13 +223,6 @@ public partial class Index : IAsyncDisposable
                     statusCode = 2;
                     break;
                 case "QRCODE_SCAN_SUCC":
-                    if (!status.AuthSource.Equals("SOURCE_FROM_WEWORK"))
-                    {
-                        statusCode = 5;
-                        statusMsg = "请使用企业微信扫码";
-                        break;
-                    }
-
                     var res = await WeComOpen.LoginAsync(qrCodeKey, status.AuthCode);
                     if (!res)
                     {
@@ -263,4 +251,3 @@ public partial class Index : IAsyncDisposable
 
     #endregion
 }
-

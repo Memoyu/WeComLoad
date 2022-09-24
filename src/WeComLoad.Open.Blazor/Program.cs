@@ -14,7 +14,7 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 builder.Services.Configure<ProSettings>(Configuration.GetSection("ProSettings"));
 
-// ×¢²áÈ«¾ÖÆóÎ¢²Ù×÷
+// ×¢ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½Î¢ï¿½ï¿½ï¿½ï¿½
 builder.Services.AddSingleton<IWeComOpen, WeComOpenFunc>();
 builder.Services.AddScoped<IWeComOpenSvc, WeComOpenSvc>();
 
@@ -37,4 +37,4 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.Run();
+app.Run("https://*:10085");
