@@ -1,4 +1,6 @@
-﻿using Microsoft.JSInterop;
+﻿using System.Net;
+using System.Text;
+using Microsoft.JSInterop;
 using System.Threading;
 
 namespace WeComLoad.Open.Blazor.Pages.User.Login;
@@ -69,6 +71,42 @@ public partial class Index : IAsyncDisposable
 
     private async Task CheckQuickLoginAsync()
     {
+       /* try
+        {
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+            request = (HttpWebRequest)WebRequest.Create("https://localhost.work.weixin.qq.com:50010/checkLoginState");
+            request.Method = "POST";
+            request.Referer = "https://open.work.weixin.qq.com";
+            byte[] postdatabyte =
+                Encoding.UTF8.GetBytes("{\"scene\":1,\"redirect_uri\":\"https://open.work.weixin.qq.com\"}");
+            Stream stream = await request.GetRequestStreamAsync();
+            stream.Write(postdatabyte, 0, postdatabyte.Length);
+            stream.Close();
+            
+            request.ContentType = "application/json";
+            request.ContentLength = postdatabyte.Length;
+
+
+            response = (HttpWebResponse)await request.GetResponseAsync();
+            Stream responseStream = response.GetResponseStream();
+            StreamReader sr = new StreamReader(responseStream);
+            var responseStr = sr.ReadToEnd();
+            response.Close();
+            responseStream.Close();
+            Console.WriteLine(responseStr);
+        }
+        catch (WebException ex)
+        {
+            var resp = (HttpWebResponse)ex.Response;
+            Stream responseStream = resp.GetResponseStream();
+            StreamReader sr = new StreamReader(responseStream);
+            var responseStr = sr.ReadToEnd();
+            resp.Close();
+            responseStream.Close();
+            Console.WriteLine(responseStr);
+        }*/
+
         var param = await WeComOpen.GetQuickLoginParameAsync();
         if (param != null)
         {

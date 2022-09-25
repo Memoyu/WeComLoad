@@ -37,4 +37,4 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.Run("https://*:10085");
+app.Run("http://*:10085");

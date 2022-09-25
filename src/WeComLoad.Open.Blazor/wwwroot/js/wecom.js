@@ -3,9 +3,8 @@
 }
 
 export async function checkLoginState(httpPorts, httpsPorts) {
-    history.replaceState({}, '', '/tttt')
     let data;
-    /*// 发起http请求
+    // 发起http请求
     httpPorts.map(async p => {
         let res = await fetchLocal(false, p)
         if (res !== undefined) data = res;
@@ -14,31 +13,26 @@ export async function checkLoginState(httpPorts, httpsPorts) {
     httpsPorts.map(async p => {
         let res = await fetchLocal(true, p)
         if (res !== undefined) data = res;
-    })*/
-    let res = await fetchLocal(true, 50010)
+    })
     console.log(data)
     return JSON.stringify(data);
 }
 
 async function fetchLocal(isSSL, port){
-
-}
-
-
-async function fetchLocal1(isSSL, port){
     const data = await fetch(`${isSSL ? 'https://localhost.work.weixin.qq.com' : 'http://127.0.0.1'}:${port}/checkLoginState`, {
         headers: {
             'content-type': 'text/plain;charset=UTF-8',
             'accept-language': 'zh-CN,zh;q=0.9',
             'sec-fetch-dest': 'empty',
             'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site'
+            'sec-fetch-site': 'same-site',
+            'xxxxx': 'yyyyy'
         },
         // referrerPolicy: "strict-origin-when-cross-origin",
         body: "{\"scene\":1,\"redirect_uri\":\"https://open.work.weixin.qq.com\"}",
         method: "POST",
         mode: 'no-cors',
-        referrer: "https://open.work.weixin.qq.com"
+        referrer: ""
     }).then(response => response.json())
         .catch(error => console.log('Error:', error));
     return data;
