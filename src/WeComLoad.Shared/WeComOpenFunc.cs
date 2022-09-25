@@ -57,6 +57,8 @@ public class WeComOpenFunc : IWeComOpen
                { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url, true, false);
+        if (!_weComReq.IsResponseRedi(response)) return false;
+        var rediUrlData = _weComReq.GetResponseStr(response);
         /**********************************服务商版本的已经改版，登录只需要调用login即可获取到所有所需的cookie，实现登录**************************************
          * if (!_weCombReq.IsResponseRedi(response)) return false;
         var rediUrlData = _weCombReq.GetResponseStr(response);
@@ -65,7 +67,8 @@ public class WeComOpenFunc : IWeComOpen
 
         // 手动重定向到url下，获取第一部分Cookie
         response = await _weCombReq.HttpWebRequestGetAsync(url, true, false);*/
-        return _weComReq.IsResponseRedi(response);
+        Console.WriteLine(rediUrlData);
+        return false;
     }
 
     public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId)
