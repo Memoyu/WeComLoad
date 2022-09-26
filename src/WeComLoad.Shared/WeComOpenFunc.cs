@@ -65,6 +65,7 @@ public class WeComOpenFunc : IWeComOpen
 
         // 手动重定向到url下，获取第一部分Cookie
         response = await _weCombReq.HttpWebRequestGetAsync(url, true, false);*/
+        Console.WriteLine(_weComReq.CookieString);
         return _weComReq.IsResponseRedi(response);
     }
 

@@ -256,7 +256,7 @@ public class WeComAdminWebReq
         request.Referer = $"{_weWorkBaseUrl}wework_admin/loginpage_wx?from=myhome";
         request.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
         // 当需要设置保存cookie时，则使用CookieContainer，因为这样更易于获取\管理\持久化请求响应的Set-Cookie
-        
+
         if (isSetCookie)
         {
             request.CookieContainer = new CookieContainer();
@@ -275,7 +275,7 @@ public class WeComAdminWebReq
     private void SetCookies(HttpWebRequest request)
     {
         // 获取并赋值cookies string，可将该string进行缓存，供各个服务节点使用
-        _cookiesStr = request.CookieContainer.GetCookieHeader(new Uri("http://www.work.weixin.qq.com"));
+        _cookiesStr = request.CookieContainer.GetCookieHeader(new Uri(_weWorkBaseUrl));
     }
 
     private List<Cookie> GetCookies()
