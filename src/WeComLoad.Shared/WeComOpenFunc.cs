@@ -49,6 +49,8 @@ public class WeComOpenFunc : IWeComOpen
 
     public async Task<bool> LoginAsync(string qrCodeKey, string authCode)
     {
+        Console.WriteLine(_weComReq.CookieString);
+
         if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
 
         // 开始进行预登录
@@ -65,7 +67,10 @@ public class WeComOpenFunc : IWeComOpen
 
         // 手动重定向到url下，获取第一部分Cookie
         response = await _weCombReq.HttpWebRequestGetAsync(url, true, false);*/
-        Console.WriteLine(_weComReq.CookieString);
+        Console.WriteLine($"cookie：{_weComReq.CookieString}，" +
+            $"status:{response.StatusCode}, " +
+            $"header keys:{JsonConvert.SerializeObject(response.Headers.AllKeys)}, " +
+            $"header values:{JsonConvert.SerializeObject(response.Headers.AllKeys.Select(k => response.Headers.GetValues(k)).ToList())}");
         return _weComReq.IsResponseRedi(response);
     }
 
