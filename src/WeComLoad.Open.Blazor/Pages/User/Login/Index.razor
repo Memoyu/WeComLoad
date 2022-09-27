@@ -33,4 +33,25 @@
             </Card>
         }
     </div>
+     <Modal Title="输入验证码"
+               MaskClosable="false"
+               Visible="@captchaModalVisible"
+               OnOk="@HandleCaptchaModalOk"
+               OnCancel="@HandleCaptchaModalCancel">
+            <div style="justify-content: center;display:flex;align-items: center; margin-bottom: 20px;">
+                <div>请输入发送至 </div>
+                <div style="font-size:15px; font-weight: bold; ">@captchParam.Mobile </div>
+                <div> 的6位验证码</div>
+            </div>
+            <Input style="margin-bottom: 20px;" Placeholder="请输入验证码" @bind-Value="@captcha" />
+            @if (canReSendCaptcha)
+            {
+                <div style="color:#1890ff;" @onclick="RefreshCaptchaAsync">重新获取验证码</div>
+            }
+            else
+            {
+                <div>@(second)秒后可重新获取验证码</div>
+            }
+
+        </Modal>
 </div>

@@ -20,8 +20,9 @@ public interface IWeComOpenSvc
     /// </summary>
     /// <param name="qrCodeKey">二维码Key</param>
     /// <param name="authCode">授权登录码</param>
+    /// <param name="authSource">授权来源</param>
     /// <returns>bool</returns>
-    Task<bool> LoginAsync(string qrCodeKey, string authCode);
+    Task<bool> LoginAsync(string qrCodeKey, string authCode, string authSource);
 
     /// <summary>
     /// 获取可信域名校验文件

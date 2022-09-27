@@ -21,8 +21,9 @@ public interface IWeComAdmin
     /// </summary>
     /// <param name="qrCodeKey">二维码Key</param>
     /// <param name="authCode">授权登录码</param>
-    /// <returns>string</returns>
-    Task<bool> LoginAsync(string qrCodeKey, string authCode);
+    /// <param name="authSource">授权途径</param>
+    /// <returns>-1 登录失败，0 需要输入验证码， 1 登录成功</returns>
+    Task<(int flag, string msg, string url)> LoginAsync(string qrCodeKey, string authCode, string authSource);
 
     /// <summary>
     /// 获取可选企业列表
@@ -43,16 +44,16 @@ public interface IWeComAdmin
     /// <summary>
     /// 获取验证码发送页面信息
     /// </summary>
-    /// <param name="tlKey">tlKey</param>
+    /// <param name="url">跳转链接</param>
     /// <returns></returns>
-    Task<string> WxLoginCaptchaAsync(string tlKey);
+    Task<string> LoginCaptchaAsync(string url);
 
     /// <summary>
     /// 发送验证码
     /// </summary>
     /// <param name="tlKey">tlKey</param>
     /// <returns></returns>
-    Task<string> WxLoginSendCaptchaAsync(string tlKey);
+    Task<string> LoginSendCaptchaAsync(string tlKey);
 
     /// <summary>
     /// 确认输入的验证码
@@ -60,20 +61,20 @@ public interface IWeComAdmin
     /// <param name="tlKey"></param>
     /// <param name="captcha"></param>
     /// <returns></returns>
-    Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha);
+    Task<string> LoginConfirmCaptchaAsync(string tlKey, string captcha);
 
     /// <summary>
     /// 验证完成后进行最后的登录
     /// </summary>
     /// <param name="tlKey"></param>
     /// <returns></returns>
-    Task<string> WxLoginCaptchaCompletedAsync(string tlKey);
+    Task<string> LoginCaptchaCompletedAsync(string tlKey);
 
     /// <summary>
-    /// 微信扫码登录后完善cookie操作
+    /// 登录后完善cookie操作
     /// </summary>
     /// <returns></returns>
-    Task<bool> WxLoginAfterAsync();
+    Task<bool> LoginCaptchaAfterAsync();
 
     /// <summary>
     /// 获取企业应用列表

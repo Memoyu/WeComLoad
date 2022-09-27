@@ -1,11 +1,12 @@
 ﻿using MaterialDesignThemes.Wpf;
 using Prism.Services.Dialogs;
+using WeComLoad.Open.Services;
 
 namespace WeComLoad.Open.ViewModels;
 
 public class LoginViewModel : BaseNavigationViewModel
 {
-    private readonly IWeComOpen _weComOpen;
+    private readonly IWeComOpenSvc _weComOpen;
 
     private string _qrCodeKey = string.Empty;
 
@@ -37,7 +38,7 @@ public class LoginViewModel : BaseNavigationViewModel
     }
 
 
-    public LoginViewModel(IWeComOpen weComOpen, IContainerProvider containerProvider) :
+    public LoginViewModel(IWeComOpenSvc weComOpen, IContainerProvider containerProvider) :
         base(containerProvider)
     {
         SnackbarMessage = new SnackbarMessageQueue();
@@ -144,7 +145,7 @@ public class LoginViewModel : BaseNavigationViewModel
                         break;
                     }
 
-                    var res = await _weComOpen.LoginAsync(qrCodeKey, status.AuthCode);
+                    var res = await _weComOpen.LoginAsync(qrCodeKey, status.AuthCode, status.AuthSource);
                     if (!res)
                     {
                         statusCode = 5;

@@ -1,4 +1,9 @@
-﻿namespace WeComLoad.Open.Blazor.Services;
+﻿using System.Text.RegularExpressions;
+using System.Web;
+using WeComLoad.Shared;
+using WeComLoad.Shared.Model.Admin;
+
+namespace WeComLoad.Open.Blazor.Services;
 
 public class WeComOpenSvc : IWeComOpenSvc
 {
@@ -19,17 +24,72 @@ public class WeComOpenSvc : IWeComOpenSvc
 
     public async Task<(string Url, string Key)> GetLoginQrCodeUrlAsync()
     {
-        return await _weComOpen.GetLoginQrCodeUrlAsync();
+
+        var result = await _weComOpen.GetLoginQrCodeUrlAsync();
+        var parse = IsSuccessT<WeComQrCodeKey>(result);
+        if (parse.Data == null || string.IsNullOrWhiteSpace(parse.Data.QrCodeKey)) throw new Exception("企微二维码Key为空");
+        var key = parse.Data.QrCodeKey;
+        var qrCodeUrl = $"https://work.weixin.qq.com/wework_admin/wwqrlogin/mng/qrcode?qrcode_key={key}&login_type=service_login";
+
+        return (qrCodeUrl, key);
     }
 
-    public Task<WeComQrCodeScanStatus> GetQrCodeScanStatusAsync(string qrCodeKey)
+    public async Task<WeComQrCodeScanStatus> GetQrCodeScanStatusAsync(string qrCodeKey)
     {
-        return _weComOpen.GetQrCodeScanStatusAsync(qrCodeKey);
+        var result = await _weComOpen.GetQrCodeScanStatusAsync(qrCodeKey);
+        var parse = IsSuccessT<WeComQrCodeScanStatus>(result);
+        return parse.Data;
     }
 
-    public Task<bool> LoginAsync(string qrCodeKey, string authCode)
+    public async Task<(int flag, string msg, CaptchParam param)> LoginAsync(string qrCodeKey, string authCode, string authSource)
     {
-        return _weComOpen.LoginAsync(qrCodeKey, authCode);
+        CaptchParam param = new CaptchParam();
+        var res = await _weComOpen.LoginAsync(qrCodeKey, authCode, authSource);
+        if (res.flag == -1) return (res.flag, res.msg, param);
+        if (res.flag == 0) // 需要输入验证码
+        {
+            var urlSplit = res.url.Split("?");
+            var tlKey = HttpUtility.ParseQueryString(urlSplit[1])["tl_key"];
+            var result = await _weComOpen.LoginCaptchaAsync(res.url);
+            if (string.IsNullOrWhiteSpace(result)) return (-1, "跳转验证码页面失败", param);
+            string pattern = "(?<=mobile\\\":\\\").*?(?=\\\",)";
+            var match = Regex.Matches(result, pattern);
+            param.TlKey = tlKey;
+            param.Mobile = match.FirstOrDefault()?.Value;
+            return (0, string.Empty, param);
+        }
+        param.AuthCode = authCode;
+        param.AuthSource = authSource;
+        return (1, string.Empty, param);
+    }
+
+    public async Task<bool> LoginAfterAsync(string authCode, string authSource)
+    {
+        return await _weComOpen.LoginAfterAsync(authCode, authSource);
+    }
+
+    public async Task<(bool flag, string msg)> LoginSendCaptchaAsync(string tlKey)
+    {
+        var res = await _weComOpen.LoginSendCaptchaAsync(tlKey);
+        var send = JsonConvert.DeserializeObject<WeComErr>(res);
+        if (send is not null && send.result?.errCode != null)
+        {
+            return (false, send.result?.message);
+        }
+        return (true, string.Empty);
+    }
+
+    public async Task<(bool flag, string msg)> LoginConfirmCaptchaAsync(CaptchParam param, string captcha)
+    {
+        var res = await _weComOpen.LoginConfirmCaptchaAsync(param.TlKey, captcha);
+        var confirm = JsonConvert.DeserializeObject<WeComErr>(res);
+        if (confirm is not null && confirm.result?.errCode != null)
+        {
+            return (false , confirm.result?.message);
+        }
+
+        await _weComOpen.LoginAfterAsync(param.AuthCode, param.AuthSource);
+        return (true,  string.Empty);
     }
 
     public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId)
@@ -126,7 +186,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         try
         {
             int downFileCount = 0;
-            // int upFileCount = 0;
+        // int upFileCount = 0;
 
         DownloadBegin:
             var (fileName, file) = await _weComOpen.GetDomainVerifyFileAsync(suiteId, appId);
@@ -144,22 +204,22 @@ public class WeComOpenSvc : IWeComOpenSvc
                 }
             }
 
-        /*UploadBegin:
-            // 上传可信域名校验文件到域名的根目录下操作
-            var (uploadFlag, uploadMsg) = await _fileClientPro.UploadToRootPathAsync(file, verifyBucket, fileName, OSSType.Aliyun);
-            if (!uploadFlag)
-            {
-                if (upFileCount < 3)
+            /*UploadBegin:
+                // 上传可信域名校验文件到域名的根目录下操作
+                var (uploadFlag, uploadMsg) = await _fileClientPro.UploadToRootPathAsync(file, verifyBucket, fileName, OSSType.Aliyun);
+                if (!uploadFlag)
                 {
-                    upFileCount++;
-                    await Task.Delay(1000);
-                    goto UploadBegin;
-                }
-                else
-                {
-                    return false;
-                }
-            }*/
+                    if (upFileCount < 3)
+                    {
+                        upFileCount++;
+                        await Task.Delay(1000);
+                        goto UploadBegin;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }*/
 
             return true;
         }
@@ -168,6 +228,47 @@ public class WeComOpenSvc : IWeComOpenSvc
             return false;
         }
     }
+
+
+    #region 快速登陆
+
+    public async Task<GetQuickLoginParam> GetQuickLoginParameAsync()
+    {
+        var result = await _weComOpen.GetQuickLoginParameAsync();
+        var parse = IsSuccessT<GetQuickLoginParam>(result);
+        return parse.Data;
+    }
+
+    public async Task<GetCorpBindDeveloperInfo> GetCorpBindDeveloperInfoAsync(string webKey)
+    {
+        var result = await _weComOpen.GetCorpBindDeveloperInfoAsync(webKey);
+        var parse = IsSuccessT<GetCorpBindDeveloperInfo>(result);
+        return parse.Data;
+    }
+
+
+    public async Task<QuickLoginCorpInfo> GetQuickLoginCorpInfoAsync(string webKey)
+    {
+        var result = await _weComOpen.GetQuickLoginCorpInfoAsync(webKey);
+        var parse = IsSuccessT<QuickLoginCorpInfo>(result);
+        return parse.Data;
+    }
+
+    public async Task<ConfirmQuickLoginAuthInfo> ConfirmQuickLoginAsync(string webKey)
+    {
+        var result = await _weComOpen.ConfirmQuickLoginAsync(webKey);
+        var data = JsonConvert.DeserializeObject<WeComBase<ConfirmQuickLoginAuthInfo>>(result)?.Data;
+        if (data == null)
+        {
+            data = new ConfirmQuickLoginAuthInfo();
+            var err = JsonConvert.DeserializeObject<WeComOpenErr>(result);
+            data.msg = err?.result?.humanMessage;
+        }
+
+        return data;
+    }
+
+    #endregion
 
     private bool IsSuccess(string result)
     {

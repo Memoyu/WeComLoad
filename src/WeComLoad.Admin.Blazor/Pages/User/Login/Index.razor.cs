@@ -107,6 +107,7 @@ public partial class Index : IAsyncDisposable
                 {
                     isConfirmLogin = true;
                     isWxLogin = true;
+                    captchaModalVisible = true;
                 }
                 loginHint = state.Msg;
                 await InvokeAsync(() => StateHasChanged());
@@ -149,7 +150,6 @@ public partial class Index : IAsyncDisposable
         {
             selectModalVisible = false;
             captchaModalVisible = true;
-            mobile = await WeComAdmin.WxLoginCaptchaAsync(tlKey);
             CreateCaptchaTimer();
             StateHasChanged();
         }
@@ -170,7 +170,7 @@ public partial class Index : IAsyncDisposable
 
     private async Task RefreshCaptchaAsync()
     {
-        await WeComAdmin.WxLoginSendCaptchaAsync(tlKey);
+        await WeComAdmin.LoginSendCaptchaAsync(tlKey);
         second = 60;
         canReSendCaptcha = false;
         CreateCaptchaTimer();
@@ -185,7 +185,7 @@ public partial class Index : IAsyncDisposable
             return;
         }
 
-        await WeComAdmin.WxLoginConfirmCaptchaAsync(tlKey, captcha);
+        await WeComAdmin.LoginConfirmCaptchaAsync(tlKey, captcha);
     }
 
     private async Task HandleCaptchaModalCancel(MouseEventArgs e)
@@ -224,35 +224,42 @@ public partial class Index : IAsyncDisposable
                     statusCode = 2;
                     break;
                 case "QRCODE_SCAN_SUCC":
-                    var res = await WeComAdmin.LoginAsync(qrCodeKey, status.AuthCode);
-                    if (!res)
+                    var res = await WeComAdmin.LoginAsync(qrCodeKey, status.AuthCode, status.AuthSource);
+                    if (res.flag == -1)
                     {
                         statusCode = 5;
                         statusMsg = "登录失败";
                         break;
                     }
+                    else if (res.flag == 0) // 需要输入验证码
+                    {
+                        statusCode = 7;
+                        mobile = res.mobile;
+                        statusMsg = "需要验证码登录";
+                    }
+
 
                     statusCode = 6;
                     statusMsg = $"登录成功";
 
                     break;
 
-                    // 原本需要判断是企微扫码还是微信扫码，然后进行不同的处理
-                    // 现在改版后只需要统一处理即可
-                    //if (status.AuthSource.Equals("SOURCE_FROM_WEWORK"))
-                    //{
-                    //}
-                    //else if (status.AuthSource.Equals("SOURCE_FROM_WX"))
-                    //{
-                    //    var data = await WeComAdmin.GetWxLoginCorpsAsync(qrCodeKey, status.AuthCode);
-                    //    corps = data.Corps;
-                    //    tlKey = data.TlKey;
-                    //    selectModalVisible = true;
-                    //    statusCode = 7;
-                    //    statusMsg = $"微信扫码成功";
-                    //    break;
-                    //}
-                    // break;
+                // 原本需要判断是企微扫码还是微信扫码，然后进行不同的处理
+                // 现在改版后只需要统一处理即可
+                //if (status.AuthSource.Equals("SOURCE_FROM_WEWORK"))
+                //{
+                //}
+                //else if (status.AuthSource.Equals("SOURCE_FROM_WX"))
+                //{
+                //    var data = await WeComAdmin.GetWxLoginCorpsAsync(qrCodeKey, status.AuthCode);
+                //    corps = data.Corps;
+                //    tlKey = data.TlKey;
+                //    selectModalVisible = true;
+                //    statusCode = 7;
+                //    statusMsg = $"微信扫码成功";
+                //    break;
+                //}
+                // break;
                 case "QRCODE_SCAN_FAIL":
                     statusCode = 4;
                     statusMsg = "取消登录";

@@ -7,4 +7,6 @@ public class ConfirmQuickLoginAuthInfo
 
     public string confirm_clientip { get; set; }
 
+    public string msg { get; set; }
+
 }

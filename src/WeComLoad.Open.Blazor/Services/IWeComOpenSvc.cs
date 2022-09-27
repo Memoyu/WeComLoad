@@ -22,8 +22,32 @@ public interface IWeComOpenSvc
     /// </summary>
     /// <param name="qrCodeKey">二维码Key</param>
     /// <param name="authCode">授权登录码</param>
-    /// <returns>bool</returns>
-    Task<bool> LoginAsync(string qrCodeKey, string authCode);
+    /// <param name="authSource">授权途径</param>
+    /// <returns>-1 登录失败，0 需要输入验证码， 1 登录成功</returns>
+    Task<(int flag, string msg, CaptchParam param)> LoginAsync(string qrCodeKey, string authCode, string authSource);
+
+    /// <summary>
+    /// 快速登录
+    /// </summary>
+    /// <param name="authCode">授权码</param>
+    /// <param name="authSource">授权来源</param>
+    /// <returns></returns>
+    Task<bool> LoginAfterAsync(string authCode, string authSource);
+
+    /// <summary>
+    /// 重发验证码
+    /// </summary>
+    /// <param name="tlKey"></param>
+    /// <returns></returns>
+    Task<(bool flag, string msg)> LoginSendCaptchaAsync(string tlKey);
+
+    /// <summary>
+    /// 确认验证码
+    /// </summary>
+    /// <param name="param">校验参数</param>
+    /// <param name="captcha"></param>
+    /// <returns></returns>
+    Task<(bool flag, string msg)> LoginConfirmCaptchaAsync(CaptchParam param, string captcha);
 
     /// <summary>
     /// 获取可信域名校验文件
@@ -83,4 +107,35 @@ public interface IWeComOpenSvc
     /// <param name="req"></param>
     /// <returns></returns>
     Task<(bool Flag, OnlineCorpAppResult Result)> OnlineCorpAppAsync(OnlineCorpAppRequest req);
+
+    #region 快速登陆
+
+    /// <summary>
+    /// 获取快速登录参数
+    /// </summary>
+    /// <returns></returns>
+    Task<GetQuickLoginParam> GetQuickLoginParameAsync();
+
+    /// <summary>
+    /// 获取企业绑定服务商关系
+    /// </summary>
+    /// <param name="webKey"></param>
+    /// <returns></returns>
+    Task<GetCorpBindDeveloperInfo> GetCorpBindDeveloperInfoAsync(string webKey);
+
+    /// <summary>
+    /// 获取快速登录授权企业
+    /// </summary>
+    /// <param name="webKey"></param>
+    /// <returns></returns>
+    Task<QuickLoginCorpInfo> GetQuickLoginCorpInfoAsync(string webKey);
+
+    /// <summary>
+    /// 确认快速登录获取授权信息
+    /// </summary>
+    /// <param name="webKey"></param>
+    /// <returns></returns>
+    Task<ConfirmQuickLoginAuthInfo> ConfirmQuickLoginAsync(string webKey);
+
+    #endregion
 }

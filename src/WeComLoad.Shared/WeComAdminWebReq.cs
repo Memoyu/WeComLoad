@@ -176,16 +176,6 @@ public class WeComAdminWebReq
         }
     }
 
-    public string GetResponseStr(HttpWebResponse response)
-    {
-        Stream responseStream = response.GetResponseStream();
-        StreamReader sr = new StreamReader(responseStream);
-        var responseStr = sr.ReadToEnd();
-        response.Close();
-        responseStream.Close();
-        return responseStr;
-    }
-
     public T? GetResponseT<T>(HttpWebResponse response)
     {
         if (response.StatusCode != HttpStatusCode.OK) return default;

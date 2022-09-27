@@ -10,22 +10,53 @@ public interface IWeComOpen
     /// 获取企微后台登录二维码
     /// </summary>
     /// <returns>string</returns>
-    Task<(string Url, string Key)> GetLoginQrCodeUrlAsync();
+    Task<string> GetLoginQrCodeUrlAsync();
 
     /// <summary>
     /// 获取企微后台登录二维码扫描情况
     /// </summary>
     /// <param name="qrCodeKey">二维码Key</param>
-    /// <returns>WeComQrCodeScanStatus</returns>
-    Task<WeComQrCodeScanStatus> GetQrCodeScanStatusAsync(string qrCodeKey);
+    /// <returns>string</returns>
+    Task<string> GetQrCodeScanStatusAsync(string qrCodeKey);
 
     /// <summary>
     /// 开始登录（凑齐Cookie）
     /// </summary>
     /// <param name="qrCodeKey">二维码Key</param>
     /// <param name="authCode">授权登录码</param>
-    /// <returns>bool</returns>
-    Task<bool> LoginAsync(string qrCodeKey, string authCode);
+    /// <param name="authSource">授权途径</param>
+    /// <returns>-1 登录失败，0 需要输入验证码， 1 登录成功</returns>
+    Task<(int flag, string msg, string url)> LoginAsync(string qrCodeKey, string authCode, string authSource);
+
+    /// <summary>
+    /// 快速登录
+    /// </summary>
+    /// <param name="authCode">授权码</param>
+    /// <param name="authCode">授权来源</param>
+    /// <returns></returns>
+    Task<bool> LoginAfterAsync(string authCode, string authSource);
+
+    /// <summary>
+    /// 跳转验证码输入页面
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    Task<string> LoginCaptchaAsync(string url);
+
+    /// <summary>
+    /// 重发验证码
+    /// </summary>
+    /// <param name="tlKey"></param>
+    /// <returns></returns>
+    Task<string> LoginSendCaptchaAsync(string tlKey);
+
+    /// <summary>
+    /// 确认验证码
+    /// </summary>
+    /// <param name="tlKey"></param>
+    /// <param name="captcha"></param>
+    /// <returns></returns>
+    Task<string> LoginConfirmCaptchaAsync(string tlKey, string captcha);
 
     /// <summary>
     /// 获取可信域名校验文件
@@ -84,34 +115,28 @@ public interface IWeComOpen
     /// 获取快速登录参数
     /// </summary>
     /// <returns></returns>
-    Task<GetQuickLoginParam?> GetQuickLoginParameAsync();
+    Task<string> GetQuickLoginParameAsync();
 
     /// <summary>
     /// 获取企业绑定服务商关系
     /// </summary>
     /// <param name="webKey"></param>
     /// <returns></returns>
-    Task<GetCorpBindDeveloperInfo?> GetCorpBindDeveloperInfoAsync(string webKey);
+    Task<string> GetCorpBindDeveloperInfoAsync(string webKey);
 
     /// <summary>
     /// 获取快速登录授权企业
     /// </summary>
     /// <param name="webKey"></param>
     /// <returns></returns>
-    Task<QuickLoginCorpInfo?> GetQuickLoginCorpInfoAsync(string webKey);
+    Task<string> GetQuickLoginCorpInfoAsync(string webKey);
 
     /// <summary>
     /// 确认快速登录获取授权信息
     /// </summary>
     /// <param name="webKey"></param>
     /// <returns></returns>
-    Task<(ConfirmQuickLoginAuthInfo? data, string? msg)> ConfirmQuickLoginAsync(string webKey);
+    Task<string> ConfirmQuickLoginAsync(string webKey);
 
-    /// <summary>
-    /// 快速登录
-    /// </summary>
-    /// <param name="authCode">授权码</param>
-    /// <returns></returns>
-    Task<bool> QuickLoginAsync(string authCode);
     #endregion
 }

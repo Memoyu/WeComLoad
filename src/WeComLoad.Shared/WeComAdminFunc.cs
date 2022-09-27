@@ -21,7 +21,7 @@ public class WeComAdminFunc : IWeComAdmin
             });
         var response = await _weComReq.HttpWebRequestGetAsync(keyUrl);
         if (!_weComReq.IsResponseSucc(response)) return (null, null);
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeKey>>(_weComReq.GetResponseStr(response));
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeKey>>(GetResponseStr(response));
         if (model == null || string.IsNullOrWhiteSpace(model.Data.QrCodeKey)) throw new Exception("企微二维码Key为空");
         var key = model.Data.QrCodeKey;
         var qrCodeUrl = _weComReq.GetQueryUrl($"{_weComReq.BaseUrl}wework_admin/wwqrlogin/mng/qrcode", new Dictionary<string, string>
@@ -41,36 +41,44 @@ public class WeComAdminFunc : IWeComAdmin
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url);
         if (!_weComReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeScanStatus>>(_weComReq.GetResponseStr(response));
+        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeScanStatus>>(GetResponseStr(response));
         return model?.Data;
     }
 
-    public async Task<bool> LoginAsync(string qrCodeKey, string authCode)
+    public async Task<(int flag, string msg, string url)> LoginAsync(string qrCodeKey, string authCode, string authSource)
     {
         if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
 
         // 开始进行预登录
         var url = _weComReq.GetQueryUrl("wework_admin/loginpage_wx", new Dictionary<string, string>
             {
-               { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
+               { "_r", new Random().Next(100, 999).ToString() }, { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", authSource }
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url, true);
-        if (!_weComReq.IsResponseRedi(response)) return false;
-        var rediUrlData = _weComReq.GetResponseStr(response);
-        if (string.IsNullOrWhiteSpace(rediUrlData)) return false;
-        url = _weComReq.GetRedirectUrl(rediUrlData);
+        if (!_weComReq.IsResponseRedi(response)) return (-1, "跳转登录失败", string.Empty);
+        var urlData = GetResponseStr(response);
+        if (string.IsNullOrWhiteSpace(urlData)) return (-1, "获取重定向链接失败", string.Empty);
+        url = _weComReq.GetRedirectUrl(urlData);
 
         // 手动重定向到url下，获取第一部分Cookie
         response = await _weComReq.HttpWebRequestGetAsync(url, true);
-        if (!_weComReq.IsResponseRedi(response)) return false;
-        rediUrlData = _weComReq.GetResponseStr(response);
-        url = _weComReq.GetRedirectUrl(rediUrlData);
+        if (!_weComReq.IsResponseRedi(response)) return (-1, "跳转企业登录失败", string.Empty);
+        urlData = GetResponseStr(response);
+        url = _weComReq.GetRedirectUrl(urlData);
+
+        // 可能需要扫码用户输入验证码
+        // 响应的重定向地址为： /wework_admin/mobile_confirm/captcha_page?tl_key=433d531f9bea9fbdc528ee19fba17e7b&redirect_url=https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%3D433d531f9bea9fbdc528ee19fba17e7b&from=spamcheck
+        // 验证重定向地址是否为验证码输入地址
+        if (url.Contains("captcha_page"))
+        { 
+            return (0, "需要输入验证码", url);
+        }
 
         // 手动重定向到url下，获取第二部分cookie，且为完整的Cookie
         response = await _weComReq.HttpWebRequestGetAsync(url, true);
-        if (!_weComReq.IsResponseSucc(response)) return false;
+        if (!_weComReq.IsResponseSucc(response)) return (-1, "跳转frame页面失败", string.Empty); ;
 
-        return true;
+        return (1, "登录成功", string.Empty); ;
     }
 
     public async Task<WeComWxLoginCorps> GetWxLoginCorpsAsync(string qrCodeKey, string authCode)
@@ -85,14 +93,14 @@ public class WeComAdminFunc : IWeComAdmin
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url, true);
         if (!_weComReq.IsResponseRedi(response)) return dto;
-        var rediUrlData = _weComReq.GetResponseStr(response);
+        var rediUrlData = GetResponseStr(response);
         if (string.IsNullOrWhiteSpace(rediUrlData)) return dto;
         url = _weComReq.GetRedirectUrl(rediUrlData);
 
         // 手动重定向到选择企业页面
         response = await _weComReq.HttpWebRequestGetAsync(url, true);
         if (!_weComReq.IsResponseSucc(response)) return dto;
-        var html = _weComReq.GetResponseStr(response);
+        var html = GetResponseStr(response);
 
         // 解析html页面企业数据
         var htmlDoc = new HtmlDocument();
@@ -122,9 +130,10 @@ public class WeComAdminFunc : IWeComAdmin
         var url = _weComReq.GetQueryUrl("wework_admin/login/choose_corp/login", new Dictionary<string, string> { });
         var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
         if (!_weComReq.IsResponseSucc(response)) return string.Empty;
-        return _weComReq.GetResponseStr(response);
+        return GetResponseStr(response);
     }
-    public async Task<string> WxLoginCaptchaAsync(string tlKey)
+
+    public async Task<string> LoginCaptchaAsync(string tlKey)
     {
         // https://work.weixin.qq.com/wework_admin/mobile_confirm/captcha_page?
         // tl_key=b5182f15d0f1dd44e4e2865dbfc384a0
@@ -139,10 +148,9 @@ public class WeComAdminFunc : IWeComAdmin
                 });
         var response = await _weComReq.HttpWebRequestGetAsync(url);
         return GetResponseStr(response);
-
     }
 
-    public async Task<string> WxLoginSendCaptchaAsync(string tlKey)
+    public async Task<string> LoginSendCaptchaAsync(string tlKey)
     {
         // https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha?
         // lang=zh_CN
@@ -160,10 +168,10 @@ public class WeComAdminFunc : IWeComAdmin
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
                 });
         var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
-        return _weComReq.GetResponseStr(response);
+        return GetResponseStr(response);
     }
 
-    public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha)
+    public async Task<string> LoginConfirmCaptchaAsync(string tlKey, string captcha)
     {
         // https://work.weixin.qq.com/wework_admin/mobile_confirm/confirm_captcha?lang=zh_CN&ajax=1&f=json&random=188841
         // post :{captcha: "222222", tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
@@ -177,10 +185,10 @@ public class WeComAdminFunc : IWeComAdmin
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
                 });
         var response = await _weComReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(content), true);
-        return _weComReq.GetResponseStr(response);
+        return GetResponseStr(response);
     }
 
-    public async Task<string> WxLoginCaptchaCompletedAsync(string tlKey)
+    public async Task<string> LoginCaptchaCompletedAsync(string tlKey)
     {
         if (string.IsNullOrWhiteSpace(tlKey)) throw new ArgumentNullException("企微登录必要参数为空");
 
@@ -191,10 +199,10 @@ public class WeComAdminFunc : IWeComAdmin
         var url = _weComReq.GetQueryUrl("wework_admin/login/choose_corp", new Dictionary<string, string> { { "tl_key", tlKey } });
         var response = await _weComReq.HttpWebRequestGetAsync(url, true);
         if (!_weComReq.IsResponseSucc(response)) return string.Empty;
-        return _weComReq.GetResponseStr(response);
+        return GetResponseStr(response);
     }
 
-    public async Task<bool> WxLoginAfterAsync()
+    public async Task<bool> LoginCaptchaAfterAsync()
     {
         var response = await _weComReq.HttpWebRequestGetAsync("wework_admin/frame", true);
         return _weComReq.IsResponseSucc(response);
@@ -400,9 +408,8 @@ public class WeComAdminFunc : IWeComAdmin
         var response = await _weComReq.HttpWebRequestGetAsync(url);
         return GetResponseStr(response);
         //if (!_weComReq.IsResponseSucc(response)) return null;
-        //var model = JsonConvert.DeserializeObject<WeComBase<WeComGetApiAccessibleApps>>(_weComReq.GetResponseStr(response));
+        //var model = JsonConvert.DeserializeObject<WeComBase<WeComGetApiAccessibleApps>>(GetResponseStr(response));
     }
-
 
     public async Task<string> SetApiAccessibleAppsAsync(string businessId, List<string> accessibleApps)
     {
@@ -434,7 +441,7 @@ public class WeComAdminFunc : IWeComAdmin
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url);
         if (!_weComReq.IsResponseSucc(response)) return (null, null);
-        var model = JsonConvert.DeserializeObject<WeComDomainVerifyFileName>(_weComReq.GetResponseStr(response));
+        var model = JsonConvert.DeserializeObject<WeComDomainVerifyFileName>(GetResponseStr(response));
 
         // 地址写死： https://work.weixin.qq.com/wework_admin/apps/getDomainOwnershipVerifyInfo?action=download
         var file = await _weComReq.HttpWebRequestDownloadsync("wework_admin/apps/getDomainOwnershipVerifyInfo?action=download");

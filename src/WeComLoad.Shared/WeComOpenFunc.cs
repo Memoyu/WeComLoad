@@ -15,7 +15,7 @@ public class WeComOpenFunc : IWeComOpen
 
     public WeComAdminWebReq GetWeComReq() => _weComReq;
 
-    public async Task<(string Url, string Key)> GetLoginQrCodeUrlAsync()
+    public async Task<string> GetLoginQrCodeUrlAsync()
     {
         var keyUrl = _weComReq.GetQueryUrl("https://work.weixin.qq.com/wework_admin/wwqrlogin/mng/get_key", new Dictionary<string, string>
             {
@@ -23,18 +23,10 @@ public class WeComOpenFunc : IWeComOpen
                 { "r", _weComReq.GetRandom() }
             });
         var response = await _weComReq.HttpWebRequestGetAsync(keyUrl, false, false);
-        var model = _weComReq.GetResponseT<WeComBase<WeComQrCodeKey>>(response);
-        if (model == null || string.IsNullOrWhiteSpace(model.Data.QrCodeKey)) throw new Exception("企微二维码Key为空");
-        var key = model.Data.QrCodeKey;
-        var qrCodeUrl = _weComReq.GetQueryUrl($"https://work.weixin.qq.com/wework_admin/wwqrlogin/mng/qrcode", new Dictionary<string, string>
-            {
-                { "qrcode_key", key },
-                { "login_type", "service_login" }
-            });
-        return (qrCodeUrl, key);
+        return GetResponseStr(response);
     }
 
-    public async Task<WeComQrCodeScanStatus> GetQrCodeScanStatusAsync(string qrCodeKey)
+    public async Task<string> GetQrCodeScanStatusAsync(string qrCodeKey)
     {
         if (string.IsNullOrWhiteSpace(qrCodeKey)) throw new ArgumentNullException("企微登录二维码Key为空");
         var url = _weComReq.GetQueryUrl("https://work.weixin.qq.com/wework_admin/wwqrlogin/check", new Dictionary<string, string>
@@ -42,36 +34,102 @@ public class WeComOpenFunc : IWeComOpen
                 { "qrcode_key", qrCodeKey }, { "status", "" }
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url, false, false);
-        if (!_weComReq.IsResponseSucc(response)) return null;
-        var model = JsonConvert.DeserializeObject<WeComBase<WeComQrCodeScanStatus>>(_weComReq.GetResponseStr(response));
-        return model?.Data;
+        return GetResponseStr(response);
     }
 
-    public async Task<bool> LoginAsync(string qrCodeKey, string authCode)
+    public async Task<(int flag, string msg, string url)> LoginAsync(string qrCodeKey, string authCode, string authSource)
     {
         Console.WriteLine(_weComReq.CookieString);
 
         if (string.IsNullOrWhiteSpace(qrCodeKey) || string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
 
         // 开始进行预登录
-        var url = _weComReq.GetQueryUrl("https://open.work.weixin.qq.com/wwopen/login", new Dictionary<string, string>
+        var url = _weComReq.GetQueryUrl("wwopen/login", new Dictionary<string, string>
             {
-               { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", "SOURCE_FROM_WEWORK" }
+               { "code", authCode }, { "qrcode_key", qrCodeKey }, { "wwqrlogin", "1" }, { "auth_source", authSource }
             });
-        var response = await _weComReq.HttpWebRequestGetAsync(url, true, false);
-        /**********************************服务商版本的已经改版，登录只需要调用login即可获取到所有所需的cookie，实现登录**************************************
-         * if (!_weCombReq.IsResponseRedi(response)) return false;
-        var rediUrlData = _weCombReq.GetResponseStr(response);
-        if (string.IsNullOrWhiteSpace(rediUrlData)) return false;
-        url = _weCombReq.GetRedirectUrl(rediUrlData);
+        var response = await _weComReq.HttpWebRequestGetAsync(url, true);
+        if (!_weComReq.IsResponseRedi(response)) return (-1, "跳转登录失败", string.Empty);
 
-        // 手动重定向到url下，获取第一部分Cookie
-        response = await _weCombReq.HttpWebRequestGetAsync(url, true, false);*/
-        Console.WriteLine($"cookie：{_weComReq.CookieString}，" +
-            $"status:{response.StatusCode}, " +
-            $"header keys:{JsonConvert.SerializeObject(response.Headers.AllKeys)}, " +
-            $"header values:{JsonConvert.SerializeObject(response.Headers.AllKeys.Select(k => response.Headers.GetValues(k)).ToList())}");
+        // 说明需要输入验证码
+        url = response.Headers.GetValues("Location")?.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            return (0, "需要验证码校验", url);
+        }
+        //Console.WriteLine($"cookie：{_weComReq.CookieString}，" + 
+        //    $"status:{response.StatusCode}, " +
+        //    $"header keys:{JsonConvert.SerializeObject(response.Headers.AllKeys)}, " +
+        //    $"header values:{JsonConvert.SerializeObject(response.Headers.AllKeys.Select(k => response.Headers.GetValues(k)).ToList())}");
+        return (1, string.Empty, string.Empty);
+    }
+
+    public async Task<bool> LoginAfterAsync(string authCode, string authSource)
+    {
+        if (string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
+
+        // 开始进行预登录 ?code=s9ON_xe61CJfOJDyexe5knz421Vrks8qF0Q-jSoXZQ8&auth_source=SOURCE_FROM_PC_APP
+        var url = _weComReq.GetQueryUrl("wwopen/login", new Dictionary<string, string>
+            {
+               { "code", authCode }, { "auth_source", authSource }
+            });
+        var response = await _weComReq.HttpWebRequestGetAsync(url, true);
         return _weComReq.IsResponseRedi(response);
+    }
+
+    public async Task<string> LoginCaptchaAsync(string url)
+    {
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/captcha_page?
+        // tl_key=b5182f15d0f1dd44e4e2865dbfc384a0
+        // &redirect_url=https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%3Db5182f15d0f1dd44e4e2865dbfc384a0
+        // &from=spamcheck
+        // get
+        /*var url = _weComReq.GetQueryUrl("wework_admin/mobile_confirm/captcha_page", new Dictionary<string, string>
+                {
+                    { "tl_key", tlKey },
+                    { "redirect_url", $"https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%{tlKey}" },
+                    { "from", "spamcheck" }
+                });*/
+        var response = await _weComReq.HttpWebRequestGetAsync(url);
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> LoginSendCaptchaAsync(string tlKey)
+    {
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha?
+        // lang=zh_CN
+        // &ajax=1
+        // &f=json&
+        // random=945334
+        // post :{tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
+
+        var dic = new List<(string, string)>()
+                {
+                    ("tl_key", tlKey)
+                };
+        var url = _weComReq.GetQueryUrl("https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
+                });
+        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true, false);
+        return GetResponseStr(response);
+    }
+
+    public async Task<string> LoginConfirmCaptchaAsync(string tlKey, string captcha)
+    {
+        // https://work.weixin.qq.com/wework_admin/mobile_confirm/confirm_captcha?lang=zh_CN&ajax=1&f=json&random=188841
+        // post :{captcha: "222222", tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
+        var content = new
+        {
+            tl_key = tlKey,
+            captcha = captcha
+        };
+        var url = _weComReq.GetQueryUrl("https://work.weixin.qq.com/wework_admin/mobile_confirm/confirm_captcha", new Dictionary<string, string>
+                {
+                    { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
+                });
+        var response = await _weComReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(content), false);
+        return GetResponseStr(response);
     }
 
     public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId)
@@ -83,7 +141,7 @@ public class WeComOpenFunc : IWeComOpen
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url);
         if (!_weComReq.IsResponseSucc(response)) return (null, null);
-        var model = JsonConvert.DeserializeObject<WeComDomainVerifyFileName>(_weComReq.GetResponseStr(response));
+        var model = JsonConvert.DeserializeObject<WeComDomainVerifyFileName>(GetResponseStr(response));
 
         // 地址写死： https://open.work.weixin.qq.com/wwopen/developer/app/getDomainOwnershipVerifyInfo?action=download&corpappid=5629500845550908&suiteid=1009718&domain_belong_to=0
         var file = await _weComReq.HttpWebRequestDownloadsync($"wwopen/developer/app/getDomainOwnershipVerifyInfo?action=download&corpappid={corpAppId}&suiteid={suiteId}&domain_belong_to=0");
@@ -150,21 +208,9 @@ public class WeComOpenFunc : IWeComOpen
         return GetResponseStr(response);
     }
 
-    private string GetResponseStr(HttpWebResponse response)
-    {
-        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
-        Stream responseStream = response.GetResponseStream();
-        StreamReader sr = new StreamReader(responseStream);
-        var responseStr = sr.ReadToEnd();
-        response.Close();
-        responseStream.Close();
-        return responseStr;
-    }
-
-
     #region 快速登录
 
-    public async Task<GetQuickLoginParam?> GetQuickLoginParameAsync()
+    public async Task<string> GetQuickLoginParameAsync()
     {
         // 参数： code_type=13&redirect_uri=https://open.work.weixin.qq.com&version=0.2.0
         var url = _weComReq.GetQueryUrl("wwopen/wwLogin/wwQuickLogin", new Dictionary<string, string>
@@ -177,11 +223,10 @@ public class WeComOpenFunc : IWeComOpen
         // 通过正则获取登录配置参数
         string pattern = "(?<=window.settings =).*?(?=;</script>)";
         var paramJson = Regex.Matches(html, pattern).FirstOrDefault()?.Value;
-        param = JsonConvert.DeserializeObject<GetQuickLoginParam>(paramJson);
-        return param;
+        return paramJson;
     }
 
-    public async Task<GetCorpBindDeveloperInfo?> GetCorpBindDeveloperInfoAsync(string webKey)
+    public async Task<string> GetCorpBindDeveloperInfoAsync(string webKey)
     {
         // 参数： lang=zh_CN&ajax=1&f=json&random=269405
         var url = _weComReq.GetQueryUrl("wwopen/monoApi/wwQuickLogin/login/getCorpBindDeveloperInfo", new Dictionary<string, string>
@@ -193,16 +238,10 @@ public class WeComOpenFunc : IWeComOpen
             qrcode_key = webKey
         };
         var response = await _weComReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(param));
-        return _weComReq.GetResponseT<WeComBase<GetCorpBindDeveloperInfo>>(response)?.Data;
+        return GetResponseStr(response); ;
     }
 
-    public async Task<bool> CheckLoginStateAsync()
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
-
-    public async Task<(ConfirmQuickLoginAuthInfo? data, string? msg)> ConfirmQuickLoginAsync(string webKey)
+    public async Task<string> ConfirmQuickLoginAsync(string webKey)
     {
         // 参数： lang=zh_CN&ajax=1&f=json&random=334758
         var url = _weComReq.GetQueryUrl("wwopen/monoApi/wwQuickLogin/login/confirmQuickLoginByKey", new Dictionary<string, string>
@@ -214,18 +253,10 @@ public class WeComOpenFunc : IWeComOpen
             qrcode_key = webKey
         };
         var response = await _weComReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(param));
-        var msg = string.Empty;
-        var dataStr = _weComReq.GetResponseStr(response);
-        var data = JsonConvert.DeserializeObject<WeComBase<ConfirmQuickLoginAuthInfo>>(dataStr)?.Data;
-        if (data == null)
-        {
-            var err = JsonConvert.DeserializeObject<WeComOpenErr>(dataStr);
-            msg = err?.result?.humanMessage;
-        }
-        return (data, msg);
+        return GetResponseStr(response);
     }
 
-    public async Task<QuickLoginCorpInfo?> GetQuickLoginCorpInfoAsync(string webKey)
+    public async Task<string> GetQuickLoginCorpInfoAsync(string webKey)
     {
         // 参数： lang=zh_CN&ajax=1&f=json&random=269405
         var url = _weComReq.GetQueryUrl("wwopen/monoApi/wwQuickLogin/login/getWebKeyStatus", new Dictionary<string, string>
@@ -237,23 +268,19 @@ public class WeComOpenFunc : IWeComOpen
             webKey = webKey
         };
         var response = await _weComReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(param));
-        return _weComReq.GetResponseT< WeComBase<QuickLoginCorpInfo>>(response)?.Data;
+        return GetResponseStr(response);
     }
-
-
-    public async Task<bool> QuickLoginAsync(string authCode)
-    {
-        if (string.IsNullOrWhiteSpace(authCode)) throw new ArgumentNullException("企微登录必要参数为空");
-
-        // 开始进行预登录 ?code=s9ON_xe61CJfOJDyexe5knz421Vrks8qF0Q-jSoXZQ8&auth_source=SOURCE_FROM_PC_APP
-        var url = _weComReq.GetQueryUrl("https://open.work.weixin.qq.com/wwopen/login", new Dictionary<string, string>
-            {
-               { "code", authCode }, { "auth_source", "SOURCE_FROM_PC_APP" }
-            });
-        var response = await _weComReq.HttpWebRequestGetAsync(url, true, false);
-        return _weComReq.IsResponseRedi(response);
-    }
-
 
     #endregion
+
+    private string GetResponseStr(HttpWebResponse response)
+    {
+        if (!_weComReq.IsResponseSucc(response)) return string.Empty;
+        Stream responseStream = response.GetResponseStream();
+        StreamReader sr = new StreamReader(responseStream);
+        var responseStr = sr.ReadToEnd();
+        response.Close();
+        responseStream.Close();
+        return responseStr;
+    }
 }

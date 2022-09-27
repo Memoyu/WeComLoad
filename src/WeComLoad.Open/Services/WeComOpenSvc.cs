@@ -24,9 +24,9 @@ public class WeComOpenSvc : IWeComOpenSvc
         return _weComOpen.GetQrCodeScanStatusAsync(qrCodeKey);
     }
 
-    public Task<bool> LoginAsync(string qrCodeKey, string authCode)
+    public Task<bool> LoginAsync(string qrCodeKey, string authCode, string authSource)
     {
-        return _weComOpen.LoginAsync(qrCodeKey, authCode);
+        return _weComOpen.LoginAsync(qrCodeKey, authCode, authSource);
     }
 
     public async Task<(string Name, byte[] File)> GetDomainVerifyFileAsync(string corpAppId, string suiteId)

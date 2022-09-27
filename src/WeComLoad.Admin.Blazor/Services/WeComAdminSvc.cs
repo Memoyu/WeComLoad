@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Web;
 using WeComLoad.Shared.Model.Admin;
 
 namespace WeComLoad.Admin.Blazor.Services;
@@ -37,9 +38,21 @@ public class WeComAdminSvc : IWeComAdminSvc
         return await _weComAdmin.GetWxLoginCorpsAsync(qrCodeKey, authCode);
     }
 
-    public Task<bool> LoginAsync(string qrCodeKey, string authCode)
+    public async Task<(int flag, string msg, string mobile)> LoginAsync(string qrCodeKey, string authCode, string authSource)
     {
-        return _weComAdmin.LoginAsync(qrCodeKey, authCode);
+        var res = await _weComAdmin.LoginAsync(qrCodeKey, authCode, authSource);
+        if (res.flag == -1) return (res.flag, res.msg, string.Empty);
+        if (res.flag == 0) // 需要输入验证码
+        {
+            var urlSplit = res.url.Split("?");
+            var tlKey = HttpUtility.ParseQueryString(urlSplit[1])["tl_key"];
+            var result = await _weComAdmin.LoginCaptchaAsync(tlKey);
+            if (string.IsNullOrWhiteSpace(result)) return (-1, "跳转验证码页面失败", string.Empty);
+            string pattern = "(?<=mobile\\\":\\\").*?(?=\\\",)";
+            var match = Regex.Matches(result, pattern);
+            return (0, string.Empty, match.FirstOrDefault()?.Value);
+        }
+        return (1, string.Empty, string.Empty);
     }
 
     public async Task<int> WxLoginAsync(string tlKey, string corpId)
@@ -49,34 +62,26 @@ public class WeComAdminSvc : IWeComAdminSvc
         // 进行 微信扫码登陆后参数校验，因为可能需要输入验证码
         if (IsNeedCaptcha(result)) return 2;
 
-        var after = await _weComAdmin.WxLoginAfterAsync();
+        var after = await _weComAdmin.LoginCaptchaAfterAsync();
         return after ? 1 : 0;
     }
 
-    public async Task<string> WxLoginCaptchaAsync(string tlKey)
+    public async Task<string> LoginSendCaptchaAsync(string tlKey)
     {
-        var result = await _weComAdmin.WxLoginCaptchaAsync(tlKey);
-        string pattern = "(?<=mobile\\\":\\\").*?(?=\\\",)";
-        var match = Regex.Matches(result, pattern);
-        return match.FirstOrDefault()?.Value;
-    }
-
-    public async Task<string> WxLoginSendCaptchaAsync(string tlKey)
-    {
-        var result = await _weComAdmin.WxLoginCaptchaAsync(tlKey);
+        var result = await _weComAdmin.LoginCaptchaAsync(tlKey);
         return result;
     }
 
-    public async Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha)
+    public async Task<string> LoginConfirmCaptchaAsync(string tlKey, string captcha)
     {
-        var confirmRes = await _weComAdmin.WxLoginConfirmCaptchaAsync(tlKey, captcha);
+        var confirmRes = await _weComAdmin.LoginConfirmCaptchaAsync(tlKey, captcha);
         var confirm = JsonConvert.DeserializeObject<WeComErr>(confirmRes);
         if (confirm is not null && confirm.result?.errCode != null)
         {
             return confirm.result?.message;
         }
-        await _weComAdmin.WxLoginCaptchaCompletedAsync(tlKey);
-        await _weComAdmin.WxLoginAfterAsync();
+        await _weComAdmin.LoginCaptchaCompletedAsync(tlKey);
+        await _weComAdmin.LoginCaptchaAfterAsync();
         return string.Empty;
     }
 

@@ -30,8 +30,9 @@ public interface IWeComAdminSvc
     /// </summary>
     /// <param name="qrCodeKey">二维码Key</param>
     /// <param name="authCode">授权登录码</param>
-    /// <returns>bool</returns>
-    Task<bool> LoginAsync(string qrCodeKey, string authCode);
+    /// <param name="authSource">授权途径</param>
+    /// <returns>-1 登录失败，0 需要输入验证码， 1 登录成功</returns>
+    Task<(int flag, string msg, string mobile)> LoginAsync(string qrCodeKey, string authCode, string authSource);
 
     /// <summary>
     /// 微信扫码登录
@@ -42,18 +43,11 @@ public interface IWeComAdminSvc
     Task<int> WxLoginAsync(string tlKey, string corpId);
 
     /// <summary>
-    /// 获取验证码发送页面信息
-    /// </summary>
-    /// <param name="tlKey">tlKey</param>
-    /// <returns></returns>
-    Task<string> WxLoginCaptchaAsync(string tlKey);
-
-    /// <summary>
     /// 发送验证码
     /// </summary>
     /// <param name="tlKey">tlKey</param>
     /// <returns></returns>
-    Task<string> WxLoginSendCaptchaAsync(string tlKey);
+    Task<string> LoginSendCaptchaAsync(string tlKey);
 
     /// <summary>
     /// 确认验证码
@@ -61,7 +55,7 @@ public interface IWeComAdminSvc
     /// <param name="tlKey">tlKey</param>
     /// <param name="captcha">验证码</param>
     /// <returns></returns>
-    Task<string> WxLoginConfirmCaptchaAsync(string tlKey, string captcha);
+    Task<string> LoginConfirmCaptchaAsync(string tlKey, string captcha);
 
     #endregion
 
