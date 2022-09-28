@@ -50,7 +50,10 @@ public class WeComOpenFunc : IWeComOpen
             });
         var response = await _weComReq.HttpWebRequestGetAsync(url, true);
         if (!_weComReq.IsResponseRedi(response)) return (-1, "跳转登录失败", string.Empty);
-
+        Console.WriteLine($"cookie：{_weComReq.CookieString}，" +
+            $"status:{response.StatusCode}, " +
+            $"header keys:{JsonConvert.SerializeObject(response.Headers.AllKeys)}, " +
+            $"header values:{JsonConvert.SerializeObject(response.Headers.AllKeys.Select(k => response.Headers.GetValues(k)).ToList())}");
         // 说明需要输入验证码
         url = response.Headers.GetValues("Location")?.FirstOrDefault();
         if (!string.IsNullOrWhiteSpace(url))
