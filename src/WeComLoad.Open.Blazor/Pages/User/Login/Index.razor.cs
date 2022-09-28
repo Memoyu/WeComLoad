@@ -321,7 +321,7 @@ public partial class Index : IAsyncDisposable
                     if (res.flag == -1)
                     {
                         statusCode = 5;
-                        statusMsg = "登录失败";
+                        statusMsg = $"登录失败：{res.msg}";
                         break;
                     }
                     else if (res.flag == 0)
