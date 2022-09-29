@@ -8,6 +8,7 @@ public class WeComErr
     {
         public long errCode { get; set; }
         public string message { get; set; }
+        public string humanMessage { get; set; }
         public string etype { get; set; }
     }
 

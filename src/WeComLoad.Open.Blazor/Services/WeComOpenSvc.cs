@@ -75,7 +75,7 @@ public class WeComOpenSvc : IWeComOpenSvc
         var send = JsonConvert.DeserializeObject<WeComErr>(res);
         if (send is not null && send.result?.errCode != null)
         {
-            return (false, send.result?.message);
+            return (false, send.result?.humanMessage);
         }
         return (true, string.Empty);
     }

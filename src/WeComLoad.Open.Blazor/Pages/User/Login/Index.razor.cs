@@ -32,7 +32,7 @@ public partial class Index : IAsyncDisposable
     private bool canReSendCaptcha { get; set; } = false;
 
 
-    private CaptchParam captchParam;
+    private CaptchParam captchaParam;
 
 
     private int second { get; set; } = 60;
@@ -265,7 +265,7 @@ public partial class Index : IAsyncDisposable
             return;
         }
 
-        var res = await WeComOpenSvc.LoginConfirmCaptchaAsync(captchParam, captcha);
+        var res = await WeComOpenSvc.LoginConfirmCaptchaAsync(captchaParam, captcha);
         if (!res.flag)
         {
             _ = MessageService.Error($"确认验证码失败 Err:{res.msg}");
@@ -285,7 +285,7 @@ public partial class Index : IAsyncDisposable
 
     private async Task RefreshCaptchaAsync()
     {
-        var res = await WeComOpenSvc.LoginSendCaptchaAsync(captchParam.TlKey);
+        var res = await WeComOpenSvc.LoginSendCaptchaAsync(captchaParam.TlKey);
         if (res.flag)
         {
             second = 60;
@@ -344,7 +344,8 @@ public partial class Index : IAsyncDisposable
                     {
                         statusCode = 7;
                         statusMsg = "需要验证码校验";
-                        captchParam = res.param;
+                        captchaParam = res.param;
+                        Console.WriteLine(JsonConvert.SerializeObject(captchaParam));
                         break;
                     }
 
