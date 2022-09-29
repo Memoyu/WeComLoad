@@ -272,6 +272,7 @@ public partial class Index : IAsyncDisposable
             return;
         }
 
+        captchaModalVisible = false;
         _ = MessageService.Success("登录成功");
         NavigationManager.NavigateTo("/");
     }
