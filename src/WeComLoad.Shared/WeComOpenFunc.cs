@@ -98,10 +98,10 @@ public class WeComOpenFunc : IWeComOpen
         Stream responseStream = response.GetResponseStream();
         StreamReader sr = new StreamReader(responseStream);
         var responseStr = sr.ReadToEnd();
-        response.Close();
-        responseStream.Close();
         Console.WriteLine($"cookie：{_weComReq.CookieString}，" +
           $"status:{response.StatusCode}， response:{responseStr}");
+        response.Close();
+        responseStream.Close();
         return responseStr;
     }
 
