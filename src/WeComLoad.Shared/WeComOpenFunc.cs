@@ -55,10 +55,14 @@ public class WeComOpenFunc : IWeComOpen
         //    $"header keys:{JsonConvert.SerializeObject(response.Headers.AllKeys)}, " +
         //    $"header values:{JsonConvert.SerializeObject(response.Headers.AllKeys.Select(k => response.Headers.GetValues(k)).ToList())}");
         // 说明需要输入验证码
-        url = response.Headers.GetValues("Location")?.FirstOrDefault();
-        if (!string.IsNullOrWhiteSpace(url))
+        var locations = response.Headers.GetValues("Location");
+        if (locations != null && locations.Any())
         {
-            return (0, "需要验证码校验", url);
+            url = locations.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                return (0, "需要验证码校验", url);
+            }
         }
         //Console.WriteLine($"cookie：{_weComReq.CookieString}，" + 
         //    $"status:{response.StatusCode}, " +
@@ -93,7 +97,7 @@ public class WeComOpenFunc : IWeComOpen
                     { "redirect_url", $"https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%{tlKey}" },
                     { "from", "spamcheck" }
                 });*/
-        var response = await _weComReq.HttpWebRequestGetAsync(url, false, false);   
+        var response = await _weComReq.HttpWebRequestGetAsync(url, false, false);
         Stream responseStream = response.GetResponseStream();
         StreamReader sr = new StreamReader(responseStream);
         var responseStr = sr.ReadToEnd();
