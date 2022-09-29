@@ -59,7 +59,7 @@ public class WeComOpenFunc : IWeComOpen
         if (locations != null && locations.Any())
         {
             url = locations.FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(url))
+            if (!string.IsNullOrWhiteSpace(url) && url.Contains("captcha_page"))
             {
                 return (0, "需要验证码校验", url);
             }

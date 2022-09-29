@@ -183,6 +183,7 @@ public partial class Index : IAsyncDisposable
                 else if (state.Code == 6)
                 {
                     isLogin = true;
+                    isConfirmLogin = true;
                     canRefresh = true;
                     delay = 0;
                     _ = MessageService.Success("登录成功");
