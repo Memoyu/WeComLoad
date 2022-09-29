@@ -265,7 +265,15 @@ public partial class Index : IAsyncDisposable
             return;
         }
 
-        await WeComOpenSvc.LoginConfirmCaptchaAsync(captchParam, captcha);
+        var res = await WeComOpenSvc.LoginConfirmCaptchaAsync(captchParam, captcha);
+        if (!res.flag)
+        {
+            _ = MessageService.Error($"确认验证码失败 Err:{res.msg}");
+            return;
+        }
+
+        _ = MessageService.Success("登录成功");
+        NavigationManager.NavigateTo("/");
     }
 
     private async Task HandleCaptchaModalCancel(MouseEventArgs e)
