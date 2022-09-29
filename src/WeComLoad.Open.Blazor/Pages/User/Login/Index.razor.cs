@@ -329,6 +329,7 @@ public partial class Index : IAsyncDisposable
                         statusCode = 7;
                         statusMsg = "需要验证码校验";
                         captchParam = res.param;
+                        break;
                     }
 
                     statusCode = 6;
