@@ -71,6 +71,7 @@ public class WeComOpenSvc : IWeComOpenSvc
     public async Task<(bool flag, string msg)> LoginSendCaptchaAsync(string tlKey)
     {
         var res = await _weComOpen.LoginSendCaptchaAsync(tlKey);
+        Console.WriteLine("验证码发送：" + res);
         var send = JsonConvert.DeserializeObject<WeComErr>(res);
         if (send is not null && send.result?.errCode != null)
         {

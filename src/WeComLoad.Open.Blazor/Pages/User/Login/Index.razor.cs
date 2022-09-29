@@ -277,11 +277,18 @@ public partial class Index : IAsyncDisposable
 
     private async Task RefreshCaptchaAsync()
     {
-        await WeComOpenSvc.LoginSendCaptchaAsync(captchParam.TlKey);
-        second = 60;
-        canReSendCaptcha = false;
-        CreateCaptchaTimer();
-        StateHasChanged();
+        var res = await WeComOpenSvc.LoginSendCaptchaAsync(captchParam.TlKey);
+        if (res.flag)
+        {
+            second = 60;
+            canReSendCaptcha = false;
+            CreateCaptchaTimer();
+            StateHasChanged();
+        }
+        else
+        {
+            _ = MessageService.Error($"刷新验证码失败 Err:{res.msg}");
+        }
     }
 
     private async ValueTask ReloadPage()
