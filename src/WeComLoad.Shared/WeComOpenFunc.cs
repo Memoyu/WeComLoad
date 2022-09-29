@@ -93,8 +93,7 @@ public class WeComOpenFunc : IWeComOpen
                     { "redirect_url", $"https%3A%2F%2Fwork.weixin.qq.com%2Fwework_admin%2Flogin%2Fchoose_corp%3Ftl_key%{tlKey}" },
                     { "from", "spamcheck" }
                 });*/
-        var response = await _weComReq.HttpWebRequestGetAsync(url);
-      
+        var response = await _weComReq.HttpWebRequestGetAsync(url, false, false);   
         Stream responseStream = response.GetResponseStream();
         StreamReader sr = new StreamReader(responseStream);
         var responseStr = sr.ReadToEnd();
