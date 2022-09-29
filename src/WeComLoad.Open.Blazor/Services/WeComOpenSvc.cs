@@ -43,7 +43,11 @@ public class WeComOpenSvc : IWeComOpenSvc
 
     public async Task<(int flag, string msg, CaptchParam param)> LoginAsync(string qrCodeKey, string authCode, string authSource)
     {
-        CaptchParam param = new CaptchParam();
+        CaptchParam param = new CaptchParam
+        {
+            AuthCode = authCode,
+            AuthSource = authSource,
+        };
         var res = await _weComOpen.LoginAsync(qrCodeKey, authCode, authSource);
         if (res.flag == -1) return (res.flag, res.msg, param);
         if (res.flag == 0) // 需要输入验证码
@@ -58,8 +62,6 @@ public class WeComOpenSvc : IWeComOpenSvc
             param.Mobile = match.FirstOrDefault()?.Value;
             return (0, string.Empty, param);
         }
-        param.AuthCode = authCode;
-        param.AuthSource = authSource;
         return (1, string.Empty, param);
     }
 

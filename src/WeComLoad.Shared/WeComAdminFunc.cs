@@ -159,15 +159,13 @@ public class WeComAdminFunc : IWeComAdmin
         // random=945334
         // post :{tl_key: "b5182f15d0f1dd44e4e2865dbfc384a0"}
 
-        var dic = new List<(string, string)>()
-                {
-                    ("tl_key", tlKey)
-                };
-        var url = _weComReq.GetQueryUrl("wework_admin/mobile_confirm/send_captcha", new Dictionary<string, string>
+
+        var content = new { tl_key = tlKey };
+        var url = _weComReq.GetQueryUrl("https://work.weixin.qq.com/wework_admin/mobile_confirm/send_captcha", new Dictionary<string, string>
                 {
                     { "lang", "zh_CN" }, { "f", "json" }, { "ajax", "1" }, { "random", _weComReq.GetRandom() }
                 });
-        var response = await _weComReq.HttpWebRequestPostAsync(url, dic, true);
+        var response = await _weComReq.HttpWebRequestPostJsonAsync(url, JsonConvert.SerializeObject(content), false);
         return GetResponseStr(response);
     }
 
