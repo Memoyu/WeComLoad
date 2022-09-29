@@ -345,6 +345,7 @@ public partial class Index : IAsyncDisposable
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"{ex.Message}, {ex.StackTrace}");
             return (5, "登录异常");
         }
     }
