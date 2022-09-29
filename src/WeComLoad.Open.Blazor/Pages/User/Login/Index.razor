@@ -46,7 +46,7 @@
             <Input style="margin-bottom: 20px;" Placeholder="请输入验证码" @bind-Value="@captcha" />
             @if (canReSendCaptcha)
             {
-                <div style="color:#1890ff;" @onclick="RefreshCaptchaAsync">重新获取验证码</div>
+                <div style="color:#1890ff;cursor:pointer;" @onclick="RefreshCaptchaAsync">重新获取验证码</div>
             }
             else
             {
