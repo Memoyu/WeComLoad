@@ -191,6 +191,7 @@ public partial class Index : IAsyncDisposable
                 {
                     isConfirmLogin = true;
                     captchaModalVisible = true;
+                    CreateCaptchaTimer();
                 }
 
                 loginHint = state.Msg;
@@ -270,7 +271,7 @@ public partial class Index : IAsyncDisposable
     private async Task HandleCaptchaModalCancel(MouseEventArgs e)
     {
         // 刷新二维码
-        await GetLoginAndShowQrCodeAsync();
+        await GotoLoginAsync();
         captchaModalVisible = false;
     }
 
