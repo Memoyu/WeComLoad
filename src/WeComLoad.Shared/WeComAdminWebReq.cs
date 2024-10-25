@@ -189,7 +189,7 @@ public class WeComAdminWebReq
         return model;
     }
 
-    public bool IsResponseSucc(HttpWebResponse response) => response?.StatusCode == HttpStatusCode.OK;
+    public bool IsResponseSucc(HttpWebResponse response) => response?.StatusCode == HttpStatusCode.OK || response?.StatusCode == HttpStatusCode.Found;
 
     public bool IsResponseRedi(HttpWebResponse response) => response?.StatusCode == HttpStatusCode.Redirect;
 
